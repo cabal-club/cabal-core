@@ -1,0 +1,41 @@
+{
+  "name": "cabal-node",
+  "version": "1.0.0",
+  "description": " p2p db functions for chat ",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js",
+    "docs": "documentation readme index.js --section=API"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cabal-club/cabal-node.git"
+  },
+  "keywords": [
+    "cabal",
+    "decentralized",
+    "swarm",
+    "chat",
+    "p2p",
+    "hyperdb"
+  ],
+  "author": "Karissa McKelvey",
+  "license": "AGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/cabal-club/cabal-node/issues"
+  },
+  "homepage": "https://github.com/cabal-club/cabal-node#readme",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "dat-swarm-defaults": "^1.0.1",
+    "discovery-swarm": "^5.1.1",
+    "hyperdb": "^3.0.0-3",
+    "strftime": "^0.10.0"
+  },
+  "devDependencies": {
+    "collect-stream": "^1.2.1",
+    "documentation": "^6.3.2",
+    "random-access-memory": "^3.0.0",
+    "tape": "^4.9.0"
+  }
+}
