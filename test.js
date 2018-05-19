@@ -7,7 +7,7 @@ test('create a cabal and read a channel', function (t) {
   var cabal = Cabal(ram, null, {username: 'bob'})
   cabal.db.ready(function () {
     t.same(cabal.username, 'bob', 'got username')
-    var date = new Date
+    var date = new Date()
     var message = 'hi'
     var channel = '#general'
     cabal.metadata(channel, function (err, metadata) {
