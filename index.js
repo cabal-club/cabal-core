@@ -1,8 +1,9 @@
 var hyperdb = require('hyperdb')
-var strftime = require('strftime')
 var events = require('events')
 var encoding = require('dat-encoding')
 var inherits = require('inherits')
+var concat = require('concat-stream')
+var through = require('through2')
 
 module.exports = Cabal
 
@@ -19,6 +20,7 @@ function Cabal (storage, href, opts) {
   if (!opts) opts = {}
   events.EventEmitter.call(this)
   var self = this
+  this.channelPattern = /([^/]+)\/.+/
 
   var json = {
     encode: function (obj) {
@@ -26,13 +28,12 @@ function Cabal (storage, href, opts) {
     },
     decode: function (buf) {
       var str = buf.toString('utf8')
-      try { var obj = JSON.parse(str) }
-      catch (err) { return {} }
+      try { var obj = JSON.parse(str) } catch (err) { return {} }
       return obj
     }
   }
 
-  self.username = opts.username || 'anonymous'
+  self.username = opts.username || 'conspirator'
 
   try {
     var key = encoding.decode(href)
@@ -60,16 +61,17 @@ inherits(Cabal, events.EventEmitter)
 Cabal.prototype.onconnection = function (peer) {
   var self = this
   if (!peer.remoteUserData) return
-  try { var data = JSON.parse(peer.remoteUserData) }
-  catch (err) { return }
+  try { var data = JSON.parse(peer.remoteUserData) } catch (err) { return }
   var key = Buffer.from(data.key)
   var username = data.username
 
   self.db.authorized(key, function (err, auth) {
     if (err) return console.log(err)
-    if (!auth) self.db.authorize(key, function (err) {
-      if (err) return console.log(err)
-    })
+    if (!auth) {
+      self.db.authorize(key, function (err) {
+        if (err) return console.log(err)
+      })
+    }
   })
 
   if (!self.users[username]) {
@@ -81,6 +83,58 @@ Cabal.prototype.onconnection = function (peer) {
       self.emit('leave', username)
     })
   }
+}
+
+Cabal.prototype.getMessages = function (channel, max, cb) {
+  var self = this
+  self.metadata(channel, (err, metadata) => {
+    if (err) return cb(err)
+    var latest = metadata.latest
+    var messagePromises = []
+    for (var i = 0; i < max; i++) {
+      if (latest - i < 1) break
+      var promise = getMessage(latest - i, channel)
+      messagePromises.push(promise)
+    }
+
+    function getMessage (time, channel) {
+      return new Promise((resolve, reject) => {
+        self.db.get(`${channel}/messages/${time}`, (err, node) => {
+          if (err) reject(err)
+          resolve(node)
+        })
+      })
+    }
+
+    messagePromises.reverse()
+    Promise.all(messagePromises).then((messages) => {
+      cb(null, messages)
+    })
+  })
+}
+
+Cabal.prototype.getChannels = function (cb) {
+  var self = this
+  var stream = self.db.createReadStream('/')
+  var concatStream = concat((data) => {
+    var channels = {}
+    data.forEach((d) => {
+      var match = self.channelPattern.exec(d)
+      if (match && match[1]) {
+        channels[match[1]] = true
+      }
+    })
+    cb(null, Object.keys(channels))
+  })
+
+  stream
+    .pipe(through.obj(function (chunk, enc, next) {
+        chunk.forEach((c) => {
+            this.push([c.key])
+        })
+      next()
+    }))
+    .pipe(concatStream)
 }
 
 /**
@@ -131,6 +185,7 @@ Cabal.prototype.metadata = function (channel, done) {
 Cabal.prototype.message = function (channel, message, opts, done) {
   if (typeof opts === 'function') return this.message(channel, message, null, opts)
   if (!opts) opts = {}
+  if (!done) done = noop
   var self = this
   if (!message) return done()
   var username = opts.username || self.username
@@ -140,10 +195,14 @@ Cabal.prototype.message = function (channel, message, opts, done) {
     var newLatest = latest + 1
     var key = `${channel}/messages/${newLatest}`
     var d = opts.date || new Date()
-    var date = new Date(d.valueOf() + d.getTimezoneOffset()*60*1000)
-    self.db.put(key, {username, date, message}, function () {
+    var date = new Date(d.valueOf() + d.getTimezoneOffset() * 60 * 1000)
+    var m = {author: username, time: date, content: message}
+    self.db.put(key, m, function () {
       metadata.latest = newLatest
-      self.db.put(`${channel}/metadata`, metadata, done)
+      self.db.put(`${channel}/metadata`, metadata, function () {
+        self.emit('message', m)
+          done(m)
+      })
     })
   })
 }
@@ -162,3 +221,5 @@ Cabal.prototype.replicate = function () {
     })
   })
 }
+
+function noop () {}
