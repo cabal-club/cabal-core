@@ -129,9 +129,9 @@ Cabal.prototype.getChannels = function (cb) {
 
   stream
     .pipe(through.obj(function (chunk, enc, next) {
-        chunk.forEach((c) => {
-            this.push([c.key])
-        })
+      chunk.forEach((c) => {
+        this.push([c.key])
+      })
       next()
     }))
     .pipe(concatStream)
@@ -197,12 +197,14 @@ Cabal.prototype.message = function (channel, message, opts, done) {
     var d = opts.date || new Date()
     var date = new Date(d.valueOf() + d.getTimezoneOffset() * 60 * 1000)
     var m = {author: username, time: date, content: message}
-    self.db.put(key, m, function () {
-      metadata.latest = newLatest
-      self.db.put(`${channel}/metadata`, metadata, function () {
-        self.emit('message', m)
-          done(m)
-      })
+    metadata.latest = newLatest
+    var batch = [
+      {type: 'put', key: `${channel}/metadata`, value: metadata},
+      {type: 'put', key: key, value: m}
+    ]
+    self.db.batch(batch, () => {
+      self.emit('message', m)
+      done(m)
     })
   })
 }
