@@ -85,6 +85,10 @@ Cabal.prototype.onconnection = function (peer) {
   }
 }
 
+Cabal.prototype.watch = function (channel, cb) {
+  this.db.watch(`${channel}/messages`, cb)
+}
+
 Cabal.prototype.getMessages = function (channel, max, cb) {
   var self = this
   self.metadata(channel, (err, metadata) => {
