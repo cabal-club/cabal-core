@@ -174,8 +174,18 @@ Cabal.prototype.createReadStream = function (channel, opts) {
 Cabal.prototype.metadata = function (channel, done) {
   this.db.get(`${channel}/metadata`, function (err, data) {
     if (err) return done(err)
-    var node = (data.length ? data[0].value : {latest: 0})
-    done(null, node)
+    if (!data.length) {
+      return done(null, {latest: 0})
+    }
+    var largestNode = data[0].value
+    // find the largest value in case of a collision
+    data.forEach((d) => {
+      if (d.value.latest > largestNode.latest) {
+        largestNode = d.value
+      }
+    })
+
+    done(null, largestNode)
   })
 }
 
