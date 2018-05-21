@@ -86,7 +86,7 @@ Cabal.prototype.onconnection = function (peer) {
 }
 
 Cabal.prototype.watch = function (channel, cb) {
-  this.db.watch(`${channel}/messages`, cb)
+  this.db.watch(`/messages/${channel}`, cb)
 }
 
 Cabal.prototype.getMessages = function (channel, max, cb) {
@@ -103,7 +103,7 @@ Cabal.prototype.getMessages = function (channel, max, cb) {
 
     function getMessage (time, channel) {
       return new Promise((resolve, reject) => {
-        self.db.get(`${channel}/messages/${time}`, (err, node) => {
+        self.db.get(`/messages/${channel}/${time}`, (err, node) => {
           if (err) reject(err)
           resolve(node)
         })
@@ -119,7 +119,7 @@ Cabal.prototype.getMessages = function (channel, max, cb) {
 
 Cabal.prototype.getChannels = function (cb) {
   var self = this
-  var stream = self.db.createReadStream('/')
+  var stream = self.db.createReadStream('/metadata')
   var concatStream = concat((data) => {
     var channels = {}
     data.forEach((d) => {
@@ -163,7 +163,7 @@ Cabal.prototype.leaveChannel = function (channel) {
  */
 Cabal.prototype.createReadStream = function (channel, opts) {
   if (!opts) opts = {}
-  return this.db.createReadStream(`${channel}/messages`, Object.assign({recursive: true}, opts))
+  return this.db.createReadStream(`/messages/${channel}`, Object.assign({recursive: true}, opts))
 }
 
 /**
@@ -172,7 +172,7 @@ Cabal.prototype.createReadStream = function (channel, opts) {
  * @param  {Function} done    Callback
  */
 Cabal.prototype.metadata = function (channel, done) {
-  this.db.get(`${channel}/metadata`, function (err, data) {
+  this.db.get(`/metadata/${channel}`, function (err, data) {
     if (err) return done(err)
     if (!data.length) {
       return done(null, {latest: 0})
@@ -207,13 +207,13 @@ Cabal.prototype.message = function (channel, message, opts, done) {
     if (err) return done(err)
     var latest = parseInt(metadata.latest)
     var newLatest = latest + 1
-    var key = `${channel}/messages/${newLatest}`
+    var key = `/messages/${channel}/${newLatest}`
     var d = opts.date || new Date()
     var date = new Date(d.getTime())
     var m = {author: username, time: date, content: message}
     metadata.latest = newLatest
     var batch = [
-      {type: 'put', key: `${channel}/metadata`, value: metadata},
+      {type: 'put', key: `/metadata/${channel}`, value: metadata},
       {type: 'put', key: key, value: m}
     ]
     self.db.batch(batch, () => {
