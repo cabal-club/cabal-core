@@ -192,7 +192,7 @@ Cabal.prototype.metadata = function (channel, done) {
  * Create a message.
  * @param {String} channel - The channel to create the message.
  * @param {String} message - The message to write.
- * @param {Object} opts - Options: date, username
+ * @param {Object} opts - Options: date, username, type (message type)
  * @param {function} done - When message has been successfully added.
  */
 Cabal.prototype.message = function (channel, message, opts, done) {
@@ -209,7 +209,8 @@ Cabal.prototype.message = function (channel, message, opts, done) {
     var key = `messages/${channel}/${newLatest}`
     var d = opts.date || new Date()
     var date = new Date(d.getTime())
-    var m = {author: username, time: date, content: message}
+    var type = opts.type || "chat/text"
+    var m = {author: username, time: date, content: message, type: type}
     metadata.latest = newLatest
     var batch = [
       {type: 'put', key: `metadata/${channel}`, value: metadata},

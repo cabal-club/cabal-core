@@ -73,7 +73,7 @@ Create a message.
 
 -   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The channel to create the message.
 -   `message` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The message to write.
--   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options: date, username
+-   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options: date, username, type (i.e. message type)
 -   `done` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** When message has been successfully added.
 
 #### replicate
