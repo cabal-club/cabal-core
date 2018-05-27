@@ -12,11 +12,11 @@ module.exports = Cabal
  * local nickname -> mesh interactions for a single user.
  * @constructor
  * @param {string|function} storage - A hyperdb compatible storage function, or a string representing the local data path.
- * @param {string} href - The dat link
- * @param {Object} opts - Options include: username
+ * @param {string} key - The dat link
+ * @param {Object} opts - 
  */
-function Cabal (storage, href, opts) {
-  if (!(this instanceof Cabal)) return new Cabal(storage, href, opts)
+function Cabal (storage, key, opts) {
+  if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
   if (!opts) opts = {}
   events.EventEmitter.call(this)
   var self = this
@@ -33,10 +33,8 @@ function Cabal (storage, href, opts) {
     }
   }
 
-  self.username = opts.username || 'conspirator'
-
   try {
-    var key = encoding.decode(href)
+    var key = encoding.decode(key)
     self.addr = encoding.encode(key)
   } catch (e) {
     self.addr = null
@@ -45,9 +43,10 @@ function Cabal (storage, href, opts) {
     ? hyperdb(storage, self.addr, {valueEncoding: json})
     : hyperdb(storage, {valueEncoding: json})
 
-  self.channels = []
-  self.users = {}
-  self.users[opts.username] = new Date()
+  // self.username = opts.username || 'conspirator'
+  // self.channels = {}
+  // self.users = {}
+  // self.users[opts.username] = new Date()
 }
 
 inherits(Cabal, events.EventEmitter)
@@ -63,7 +62,7 @@ Cabal.prototype.onconnection = function (peer) {
   if (!peer.remoteUserData) return
   try { var data = JSON.parse(peer.remoteUserData) } catch (err) { return }
   var key = Buffer.from(data.key)
-  var username = data.username
+  // var username = data.username
 
   self.db.authorized(key, function (err, auth) {
     if (err) return console.log(err)
@@ -74,19 +73,15 @@ Cabal.prototype.onconnection = function (peer) {
     }
   })
 
-  if (!self.users[username]) {
-    self.users[username] = new Date()
-    self.emit('join', username)
-    peer.on('close', function () {
-      if (!self.users[username]) return
-      delete self.users[username]
-      self.emit('leave', username)
-    })
-  }
-}
-
-Cabal.prototype.watch = function (channel, cb) {
-  return this.db.watch(`messages/${channel}`, cb)
+  // if (!self.users[username]) {
+  //   self.users[username] = new Date()
+  //   self.emit('join', username)
+  //   peer.on('close', function () {
+  //     if (!self.users[username]) return
+  //     delete self.users[username]
+  //     self.emit('leave', username)
+  //   })
+  // }
 }
 
 Cabal.prototype.getMessages = function (channel, max, cb) {
@@ -169,28 +164,6 @@ Cabal.prototype.createReadStream = function (channel, opts) {
 }
 
 /**
- * Get the metadata of channel.
- * @param  {String}   channel Channel name
- * @param  {Function} done    Callback
- */
-Cabal.prototype.metadata = function (channel, done) {
-  this.db.get(`metadata/${channel}`, function (err, data) {
-    if (err) return done(err)
-    if (!data.length) return done(null, {latest: 0})
-
-    var largestNode = data[0].value
-    // find the largest value in case of a collision
-    data.forEach((d) => {
-      if (d.value.latest > largestNode.latest) {
-        largestNode = d.value
-      }
-    })
-
-    done(null, largestNode)
-  })
-}
-
-/**
  * Create a message.
  * @param {String} channel - The channel to create the message.
  * @param {String} message - The message to write.
@@ -212,7 +185,7 @@ Cabal.prototype.message = function (channel, message, opts, done) {
     var d = opts.date || new Date()
     var date = new Date(d.getTime())
     var type = opts.type || "chat/text"
-    var m = {author: username, time: date, content: message, type: type}
+    var m = {author: username, timestamp: date, content: message, type: type}
     metadata.latest = newLatest
     var batch = [
       {type: 'put', key: `metadata/${channel}`, value: metadata},
