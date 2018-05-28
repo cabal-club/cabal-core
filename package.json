@@ -38,7 +38,8 @@
     "read-only-stream": "^2.0.0",
     "strftime": "^0.10.0",
     "through2": "^2.0.3",
-    "thunky": "^1.0.2"
+    "thunky": "^1.0.2",
+    "xtend": "^4.0.1"
   },
   "devDependencies": {
     "collect-stream": "^1.2.1",

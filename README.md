@@ -18,17 +18,15 @@ string (filepath to directory on disk) or an instance of
 
 If this is a new database, `key` can be omitted and will be generated.
 
-### cabal.getMessages(channel, max, cb)
-
-Retrieve a the most recent messages (up to `max`) from the channel `channel`.
-
 ### cabal.getChannels(cb)
 
 Retrieve a list of all channel names that exist in this cabal.
 
-### var rs = cabal.createReadStream(channel, opts)
+### var rs = cabal.readMessages(channel, opts)
 
 Returns a readable stream of messages (most recent first) from a channel.
+
+Pass `opts.limit` to set a maximum number of messages to read.
 
 ### cabal.publish(message, opts, cb)
 

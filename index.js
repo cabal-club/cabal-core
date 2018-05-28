@@ -55,7 +55,6 @@ function Cabal (storage, key, opts) {
   this.db.use('messages', createMessagesView(memdb({valueEncoding: json})))
 
   // self.username = opts.username || 'conspirator'
-  // self.channels = {}
   // self.users = {}
   // self.users[opts.username] = new Date()
 }
@@ -150,12 +149,12 @@ Cabal.prototype.leaveChannel = function (channel) {
 }
 
 /**
- * Create a readable stream for the mesh.
+ * Create a readable stream of messages from a particular channel.
  * @param {String} channel - The channel you want to read from.
  */
 Cabal.prototype.readMessages = function (channel, opts) {
   if (!opts) opts = {}
-  return this.db.api.messages.read(channel)
+  return this.db.api.messages.read(channel, opts)
 }
 
 /**
