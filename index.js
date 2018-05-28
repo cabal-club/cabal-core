@@ -7,6 +7,7 @@ var through = require('through2')
 var memdb = require('memdb')
 var thunky = require('thunky')
 var createChannelView = require('./views/channels')
+var createMessagesView = require('./views/messages')
 
 module.exports = Cabal
 
@@ -50,7 +51,8 @@ function Cabal (storage, key, opts) {
   })
 
   // views
-  this.db.use('channels', createChannelView(this.db, memdb()))
+  this.db.use('channels', createChannelView(memdb({valueEncoding: json})))
+  this.db.use('messages', createMessagesView(memdb({valueEncoding: json})))
 
   // self.username = opts.username || 'conspirator'
   // self.channels = {}
@@ -121,6 +123,10 @@ Cabal.prototype.getMessages = function (channel, max, cb) {
   })
 }
 
+/**
+ * Get a list of all channels in the cabal.
+ * @param {Function} cb - Callback that receives an array of channel names.
+ */
 Cabal.prototype.getChannels = function (cb) {
   this.db.api.channels.get(cb)
 }
@@ -147,9 +153,9 @@ Cabal.prototype.leaveChannel = function (channel) {
  * Create a readable stream for the mesh.
  * @param {String} channel - The channel you want to read from.
  */
-Cabal.prototype.createReadStream = function (channel, opts) {
+Cabal.prototype.readMessages = function (channel, opts) {
   if (!opts) opts = {}
-  return this.db.createReadStream(`messages/${channel}`, Object.assign({recursive: true}, opts))
+  return this.db.api.messages.read(channel)
 }
 
 /**
@@ -165,9 +171,8 @@ Cabal.prototype.publish = function (message, opts, cb) {
   if (!cb) cb = noop
 
   var self = this
-  var d = opts.date || new Date()
-  var date = new Date(d.getTime())
-  message.timestamp = date
+  var d = opts.date || new Date().getTime()
+  message.timestamp = d
 
   this.feed(function (feed) {
     feed.append(message, cb)
