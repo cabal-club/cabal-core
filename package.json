@@ -19,7 +19,7 @@
     "p2p",
     "kappa"
   ],
-  "author": "Karissa McKelvey",
+  "author": ["cblgh", "karissa", "noffle", "substack"],
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/cabal-club/cabal-core/issues"
