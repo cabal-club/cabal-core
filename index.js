@@ -124,12 +124,7 @@ Cabal.prototype.publish = function (message, opts, cb) {
  */
 Cabal.prototype.replicate = function () {
   var self = this
-  return this.db.replicate({
-    live: true,
-    userData: JSON.stringify({
-      key: self.db.local.key
-    })
-  })
+  return this.db.replicate({ live: true })
 }
 
 function noop () {}
