@@ -3,13 +3,15 @@ var through = require('through2')
 var readonly = require('read-only-stream')
 var charwise = require('charwise')
 var xtend = require('xtend')
+var timestamp = require('monotonic-timestamp')
 
 module.exports = function (lvl) {
   return View(lvl, {
     map: function (msg) {
       if (msg.value.type.startsWith('text/') && msg.value.content.channel) {
+        var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(timestamp())
         return [
-          ['msg!' + msg.value.content.channel + '!' + charwise.encode(msg.value.timestamp), msg.value]
+          [key, msg.value]
         ]
       } else {
         return []
@@ -24,8 +26,9 @@ module.exports = function (lvl) {
         this.ready(function () {
           var v = lvl.createValueStream(xtend(opts, {
             gt: 'msg!' + channel + '!',
-            lt: 'msg!' + channel + '~'
-          })
+            lt: 'msg!' + channel + '~',
+            reverse: true
+          }))
           v.pipe(t)
         })
         return readonly(t)

@@ -37,9 +37,9 @@ function Cabal (storage, key, opts) {
 
   try {
     var key = encoding.decode(key)
-    this.addr = encoding.encode(key)
+    this.key = encoding.encode(key)
   } catch (e) {
-    this.addr = null
+    this.key = null
   }
   this.db = kappa(storage, { valueEncoding: json })
 
@@ -60,67 +60,6 @@ function Cabal (storage, key, opts) {
 }
 
 inherits(Cabal, events.EventEmitter)
-
-/**
- * When a connection is made. Auto-authorizes new peers to
- * write to the local database. Maintains the local view
- * of visible users.
- * @param {Object} peer - The discovery-swarm peer emitted from the 'connection' or 'disconnection' event
- */
-Cabal.prototype.onconnection = function (peer) {
-  var self = this
-  if (!peer.remoteUserData) return
-  try { var data = JSON.parse(peer.remoteUserData) } catch (err) { return }
-  var key = Buffer.from(data.key)
-  // var username = data.username
-
-  self.db.authorized(key, function (err, auth) {
-    if (err) return console.log(err)
-    if (!auth) {
-      self.db.authorize(key, function (err) {
-        if (err) return console.log(err)
-      })
-    }
-  })
-
-  // if (!self.users[username]) {
-  //   self.users[username] = new Date()
-  //   self.emit('join', username)
-  //   peer.on('close', function () {
-  //     if (!self.users[username]) return
-  //     delete self.users[username]
-  //     self.emit('leave', username)
-  //   })
-  // }
-}
-
-Cabal.prototype.getMessages = function (channel, max, cb) {
-  var self = this
-  self.metadata(channel, (err, metadata) => {
-    if (err) return cb(err)
-    var latest = metadata.latest
-    var messagePromises = []
-    for (var i = 0; i < max; i++) {
-      if (latest - i < 1) break
-      var promise = getMessage(latest - i, channel)
-      messagePromises.push(promise)
-    }
-
-    function getMessage (time, channel) {
-      return new Promise((resolve, reject) => {
-        self.db.get(`messages/${channel}/${time}`, (err, node) => {
-          if (err) reject(err)
-          resolve(node)
-        })
-      })
-    }
-
-    messagePromises.reverse()
-    Promise.all(messagePromises).then((messages) => {
-      cb(null, messages)
-    })
-  })
-}
 
 /**
  * Get a list of all channels in the cabal.
@@ -174,7 +113,9 @@ Cabal.prototype.publish = function (message, opts, cb) {
   message.timestamp = d
 
   this.feed(function (feed) {
-    feed.append(message, cb)
+    feed.append(message, function (err) {
+      cb(err, err ? null : message)
+    })
   })
 }
 
