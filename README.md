@@ -30,9 +30,9 @@ Retrieve a list of all channel names that exist in this cabal.
 
 Returns a readable stream of messages (most recent first) from a channel.
 
-### cabal.message(channel, message, opts, cb)
+### cabal.publish(message, opts, cb)
 
-Publish `message` to a channel. `message` must have a `type` field set. If not,
+Publish `message` to your feed. `message` must have a `type` field set. If not,
 it defaults to `chat/text`. In general, a message is formatted as
 
 ```js
