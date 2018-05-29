@@ -34,8 +34,8 @@ module.exports = function (lvl) {
             gt: 'user!' + '!',
             lt: 'user!' + '~'
           })
-          v.on('data', function (key, info) {
-            res[key] = info
+          v.on('data', function (row) {
+            res[row.key] = row.value
           })
           v.once('end', cb.bind(null, null, res))
           v.once('error', cb)
