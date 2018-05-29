@@ -4,7 +4,7 @@
   "description": " p2p db functions for chat ",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js",
+    "test": "tape test/*.js",
     "docs": "documentation readme index.js --section=API"
   },
   "repository": {

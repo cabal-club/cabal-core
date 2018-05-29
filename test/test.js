@@ -7,7 +7,7 @@ test('create a cabal + channel', function (t) {
   var cabal = Cabal(ram)
   cabal.db.ready(function () {
     var msg = {
-      type: 'text/chat',
+      type: 'chat/text',
       content: {
         text: 'hello',
         channel: 'general'
@@ -39,21 +39,21 @@ test('reading back multiple messages', function (t) {
 
   cabal.db.ready(function () {
     cabal.publish({
-      type: 'text/chat',
+      type: 'chat/text',
       content: {
         text: 'one',
         channel: 'general'
       }
     }, done)
     cabal.publish({
-      type: 'text/chat',
+      type: 'chat/text',
       content: {
         text: 'two',
         channel: 'general'
       }
     }, done)
     cabal.publish({
-      type: 'text/chat',
+      type: 'chat/text',
       content: {
         text: 'three',
         channel: 'misc'
