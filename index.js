@@ -9,6 +9,7 @@ var thunky = require('thunky')
 var randomBytes = require('randombytes')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
+var createUsersView = require('./views/users')
 
 module.exports = Cabal
 
@@ -56,10 +57,7 @@ function Cabal (storage, key, opts) {
   // views
   this.db.use('channels', createChannelView(memdb({valueEncoding: json})))
   this.db.use('messages', createMessagesView(memdb({valueEncoding: json})))
-
-  // self.username = opts.username || 'conspirator'
-  // self.users = {}
-  // self.users[opts.username] = new Date()
+  this.db.use('users', createUsersView(memdb({valueEncoding: json})))
 }
 
 inherits(Cabal, events.EventEmitter)
@@ -97,6 +95,24 @@ Cabal.prototype.leaveChannel = function (channel) {
 Cabal.prototype.readMessages = function (channel, opts) {
   if (!opts) opts = {}
   return this.db.api.messages.read(channel, opts)
+}
+
+/**
+ * Get information about a user that they've volunteered about themselves.
+ * @param {String} key - The hex key of the user.
+ */
+Cabal.prototype.getUser = function (key, cb) {
+  if (typeof key === 'function') {
+    cb = key
+    key = null
+  }
+
+  var self = this
+
+  this.feed(function (feed) {
+    if (!key) key = feed.key.toString('hex')
+    self.db.api.users.get(key, cb)
+  })
 }
 
 /**
