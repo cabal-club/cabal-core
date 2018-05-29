@@ -154,8 +154,8 @@ Cabal.prototype.joinChannel = function (channel) {
  * @param {String} channel - The channel to leave.
  */
 Cabal.prototype.leaveChannel = function (channel) {
-  this.channels.filter(function (c) {
-    return c != channel
+  this.channels = this.channels.filter(function (c) {
+    return c !== channel
   })
 }
 
