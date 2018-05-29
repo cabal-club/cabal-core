@@ -6,6 +6,7 @@ var concat = require('concat-stream')
 var through = require('through2')
 var memdb = require('memdb')
 var thunky = require('thunky')
+var randomBytes = require('randombytes')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 
@@ -39,14 +40,16 @@ function Cabal (storage, key, opts) {
     var key = encoding.decode(key)
     this.key = encoding.encode(key)
   } catch (e) {
-    this.key = null
+    this.key = randomBytes(24).toString('hex')
   }
   this.db = kappa(storage, { valueEncoding: json })
 
   var self = this
   this.feed = thunky(function (cb) {
-    self.db.feed(function (err, feed) {
-      cb(feed)
+    self.db.ready(function () {
+      self.db.feed(function (err, feed) {
+        cb(feed)
+      })
     })
   })
 

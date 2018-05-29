@@ -8,7 +8,7 @@ var timestamp = require('monotonic-timestamp')
 module.exports = function (lvl) {
   return View(lvl, {
     map: function (msg) {
-      if (msg.value.type.startsWith('text/') && msg.value.content.channel) {
+      if (msg.value.type.startsWith('chat/') && msg.value.content.channel) {
         var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(timestamp())
         return [
           [key, msg.value]

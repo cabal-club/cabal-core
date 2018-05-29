@@ -3,7 +3,7 @@ var View = require('kappa-view-level')
 module.exports = function (lvl) {
   return View(lvl, {
     map: function (msg) {
-      if (msg.value.type.startsWith('text/') && msg.value.content.channel) {
+      if (msg.value.type.startsWith('chat/') && msg.value.content.channel) {
         return [
           [ 'channel!' + msg.value.content.channel, 1 ]
         ]
