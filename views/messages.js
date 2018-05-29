@@ -11,7 +11,7 @@ module.exports = function (lvl) {
       if (msg.value.type.startsWith('chat/') && msg.value.content.channel) {
         var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(timestamp())
         return [
-          [key, msg.value]
+          [key, msg]
         ]
       } else {
         return []
