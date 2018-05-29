@@ -45,7 +45,7 @@ function Cabal (storage, href, opts) {
     ? hyperdb(storage, self.addr, {valueEncoding: json})
     : hyperdb(storage, {valueEncoding: json})
 
-  self.channels = {}
+  self.channels = []
   self.users = {}
   self.users[opts.username] = new Date()
 }
@@ -146,7 +146,7 @@ Cabal.prototype.getChannels = function (cb) {
  * @param {String} channel - The channel to join.
  */
 Cabal.prototype.joinChannel = function (channel) {
-  this.channels[channel] = true
+  if (this.channels.indexOf(channel) === -1) this.channels.push(channel)
 }
 
 /**
@@ -154,7 +154,9 @@ Cabal.prototype.joinChannel = function (channel) {
  * @param {String} channel - The channel to leave.
  */
 Cabal.prototype.leaveChannel = function (channel) {
-  delete this.channels[channel]
+  this.channels.filter(function (c) {
+    return c != channel
+  })
 }
 
 /**
