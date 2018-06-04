@@ -27,12 +27,11 @@
   "homepage": "https://github.com/cabal-club/cabal-node#readme",
   "dependencies": {
     "concat-stream": "^1.6.2",
-    "crypto": "^1.0.1",
     "dat-encoding": "^5.0.1",
     "dat-swarm-defaults": "^1.0.1",
     "discovery-swarm": "^5.1.1",
-    "hyperdb": "^3.0.0-3",
-    "strftime": "^0.10.0",
+    "hyperdb": "^3.1.2",
+    "inherits": "^2.0.3",
     "through2": "^2.0.3"
   },
   "devDependencies": {
