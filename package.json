@@ -1,6 +1,6 @@
 {
   "name": "cabal-node",
-  "version": "3.0.0",
+  "version": "2.2.0",
   "description": " p2p db functions for chat ",
   "main": "index.js",
   "scripts": {
