@@ -23,7 +23,7 @@ test('create a cabal + channel', function (t) {
       collect(reader, function (err, data) {
         t.error(err)
         t.same(data.length, 1)
-        t.same(data[0], msg, 'same message')
+        t.same(data[0].value, msg, 'same message')
         t.end()
       })
     })
@@ -75,15 +75,15 @@ test('reading back multiple messages', function (t) {
       collect(r1, function (err, data) {
         t.error(err)
         t.same(data.length, 1, 'only 1 message')
-        t.same(data[0], msgs[1], 'msg is "two"')
+        t.same(data[0].value, msgs[1], 'msg is "two"')
       })
 
       var r2 = cabal.readMessages('general')
       collect(r2, function (err, data) {
         t.error(err)
         t.same(data.length, 2, 'two messages in general')
-        t.same(data[0], msgs[1])
-        t.same(data[1], msgs[0])
+        t.same(data[0].value, msgs[1])
+        t.same(data[1].value, msgs[0])
       })
     }
   })

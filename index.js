@@ -45,6 +45,7 @@ function Cabal (storage, key, opts) {
   }
   this.db = kappa(storage, { valueEncoding: json })
 
+  // Create (if needed) and open local write feed
   var self = this
   this.feed = thunky(function (cb) {
     self.db.ready(function () {
@@ -68,24 +69,6 @@ inherits(Cabal, events.EventEmitter)
  */
 Cabal.prototype.getChannels = function (cb) {
   this.db.api.channels.get(cb)
-}
-
-/**
- * Join a channel.
- * @param {String} channel - The channel to join.
- */
-Cabal.prototype.joinChannel = function (channel) {
-  if (this.channels.indexOf(channel) === -1) this.channels.push(channel)
-}
-
-/**
- * Leave a channel.
- * @param {String} channel - The channel to leave.
- */
-Cabal.prototype.leaveChannel = function (channel) {
-  this.channels = this.channels.filter(function (c) {
-    return c !== channel
-  })
 }
 
 /**
