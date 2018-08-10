@@ -57,33 +57,16 @@ function Cabal (storage, key, opts) {
   })
 
   // views
-  this.db.use('channels', createChannelView(memdb({valueEncoding: json})))
+  this.db.use('channels',  createChannelView(memdb({valueEncoding: json})))
   this.db.use('messages', createMessagesView(memdb({valueEncoding: json})))
-  this.db.use('users', createUsersView(memdb({valueEncoding: json})))
+  this.db.use('users',       createUsersView(memdb({valueEncoding: json})))
+
+  this.messages = this.db.api.messages
+  this.channels = this.db.api.channels
+  this.users = this.db.api.users
 }
 
 inherits(Cabal, events.EventEmitter)
-
-/**
- * Get a list of all channels in the cabal.
- * @param {Function} cb - Callback that receives an array of channel names.
- */
-Cabal.prototype.getChannels = function (cb) {
-  this.db.api.channels.get(cb)
-}
-
-/**
- * Create a readable stream of messages from a particular channel.
- * @param {String} channel - The channel you want to read from.
- */
-Cabal.prototype.readMessages = function (channel, opts) {
-  if (!opts) opts = {}
-  return this.db.api.messages.read(channel, opts)
-}
-
-Cabal.prototype.listenMessages = function (channel, fn) {
-  this.db.api.messages.listen(channel, fn)
-}
 
 /**
  * Get information about a user that they've volunteered about themselves.

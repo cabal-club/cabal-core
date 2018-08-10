@@ -3,10 +3,10 @@ var through = require('through2')
 var readonly = require('read-only-stream')
 var charwise = require('charwise')
 var xtend = require('xtend')
-var events = require('events')
+var EventEmitter = require('events').EventEmitter
 
 module.exports = function (lvl) {
-  var emitter = new events.EventEmitter()
+  var events = new EventEmitter()
 
   return View(lvl, {
     map: function (msg) {
@@ -22,7 +22,8 @@ module.exports = function (lvl) {
 
     indexed: function (msgs) {
       msgs.forEach(function (msg) {
-        emitter.emit('message', msg)
+        events.emit('message', msg)
+        events.emit(msg.value.content.channel, msg)
       })
     },
 
@@ -47,13 +48,7 @@ module.exports = function (lvl) {
         return readonly(t)
       },
 
-      listen: function (core, channel, fn) {
-        emitter.on('message', function (msg) {
-          if (msg.value.content.channel === channel) {
-            fn(msg)
-          }
-        })
-      }
+      events: events
     }
   })
 }

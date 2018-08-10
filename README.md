@@ -18,19 +18,23 @@ string (filepath to directory on disk) or an instance of
 
 If this is a new database, `key` can be omitted and will be generated.
 
-### cabal.getChannels(cb)
+### cabal.channals.read(cb)
 
 Retrieve a list of all channel names that exist in this cabal.
 
-### var rs = cabal.readMessages(channel, opts)
+### var rs = cabal.messages.read(channel, opts)
 
 Returns a readable stream of messages (most recent first) from a channel.
 
 Pass `opts.limit` to set a maximum number of messages to read.
 
-### cabal.listenMessages(channel, fn)
+### cabal.messages.events.on('message', fn)
 
-Calls `fn` with every new message that arrives from this point onwards.
+Calls `fn` with every new message that arrives, regardless of channel.
+
+### cabal.messages.events.on(channel, fn)
+
+Calls `fn` with every new message that arrives in `channel`.
 
 ### cabal.publish(message, opts, cb)
 
