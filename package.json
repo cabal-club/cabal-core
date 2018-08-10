@@ -36,8 +36,8 @@
     "crypto": "^1.0.1",
     "dat-encoding": "^5.0.1",
     "dat-swarm-defaults": "^1.0.1",
-    "discovery-swarm": "^5.1.1",
-    "kappa-core": "^2.1.1",
+    "discovery-swarm": "^5.1.2",
+    "kappa-core": "^2.1.2",
     "kappa-view-level": "^1.0.0",
     "memdb": "^1.3.1",
     "monotonic-timestamp": "0.0.9",
@@ -53,6 +53,6 @@
     "documentation": "^6.3.2",
     "random-access-memory": "^3.0.0",
     "standard": "^11.0.1",
-    "tape": "^4.9.0"
+    "tape": "^4.9.1"
   }
 }
