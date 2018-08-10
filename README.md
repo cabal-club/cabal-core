@@ -28,6 +28,10 @@ Returns a readable stream of messages (most recent first) from a channel.
 
 Pass `opts.limit` to set a maximum number of messages to read.
 
+### cabal.listenMessages(channel, fn)
+
+Calls `fn` with every new message that arrives from this point onwards.
+
 ### cabal.publish(message, opts, cb)
 
 Publish `message` to your feed. `message` must have a `type` field set. If not,

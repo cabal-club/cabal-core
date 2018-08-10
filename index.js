@@ -81,6 +81,10 @@ Cabal.prototype.readMessages = function (channel, opts) {
   return this.db.api.messages.read(channel, opts)
 }
 
+Cabal.prototype.listenMessages = function (channel, fn) {
+  this.db.api.messages.listen(channel, fn)
+}
+
 /**
  * Get information about a user that they've volunteered about themselves.
  * @param {String} key - The hex key of the user.

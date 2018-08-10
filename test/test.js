@@ -88,3 +88,45 @@ test('reading back multiple messages', function (t) {
     }
   })
 })
+
+test('listening for live messages', function (t) {
+  var cabal = Cabal(ram)
+
+  var count = 0
+  cabal.listenMessages('general', function (msg) {
+    if (count === 0) t.equals(msg.value.content.text, 'one')
+    if (count === 1) t.equals(msg.value.content.text, 'two')
+    if (count === 2) t.equals(msg.value.content.text, 'three')
+    if (++count === 3) t.end()
+  })
+  cabal.listenMessages('misc', function (msg) {
+    if (count === 0) t.equals(msg.value.content.text, 'one')
+    if (count === 1) t.equals(msg.value.content.text, 'two')
+    if (count === 2) t.equals(msg.value.content.text, 'three')
+    if (++count === 3) t.end()
+  })
+
+  cabal.db.ready(function () {
+    cabal.publish({
+      type: 'chat/text',
+      content: {
+        text: 'one',
+        channel: 'general'
+      }
+    })
+    cabal.publish({
+      type: 'chat/text',
+      content: {
+        text: 'two',
+        channel: 'general'
+      }
+    })
+    cabal.publish({
+      type: 'chat/text',
+      content: {
+        text: 'three',
+        channel: 'misc'
+      }
+    })
+  })
+})
