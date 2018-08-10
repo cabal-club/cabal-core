@@ -7,6 +7,7 @@ var through = require('through2')
 var memdb = require('memdb')
 var thunky = require('thunky')
 var randomBytes = require('randombytes')
+var timestamp = require('monotonic-timestamp')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createUsersView = require('./views/users')
@@ -110,9 +111,7 @@ Cabal.prototype.publish = function (message, opts, cb) {
   if (!opts) opts = {}
   if (!cb) cb = noop
 
-  var self = this
-  var d = opts.date || new Date().getTime()
-  message.timestamp = d
+  message.timestamp = timestamp()
 
   this.feed(function (feed) {
     feed.append(message, function (err) {
