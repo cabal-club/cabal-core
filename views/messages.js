@@ -9,7 +9,7 @@ module.exports = function (lvl) {
   return View(lvl, {
     map: function (msg) {
       if (msg.value.type.startsWith('chat/') && msg.value.content.channel) {
-        var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(timestamp())
+        var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(msg.value.timestamp)
         return [
           [key, msg]
         ]
@@ -21,12 +21,14 @@ module.exports = function (lvl) {
     api: {
       read: function (core, channel, opts) {
         opts = opts || {}
+        if (opts.gt) opts.gt = 'msg!' + channel + '!' + charwise.encode(opts.gt)  + '!'
+        else opts.gt = 'msg!' + channel + '!'
+        if (opts.lt) opts.lt = 'msg!' + channel + '!' + charwise.encode(opts.lt)  + '~'
+        else opts.lt = 'msg!' + channel + '~'
 
         var t = through.obj()
         this.ready(function () {
           var v = lvl.createValueStream(xtend(opts, {
-            gt: 'msg!' + channel + '!',
-            lt: 'msg!' + channel + '~',
             reverse: true
           }))
           v.pipe(t)
