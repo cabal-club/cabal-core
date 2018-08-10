@@ -50,7 +50,7 @@ function Cabal (storage, key, opts) {
   var self = this
   this.feed = thunky(function (cb) {
     self.db.ready(function () {
-      self.db.feed(function (err, feed) {
+      self.db.feed('local', function (err, feed) {
         cb(feed)
       })
     })
