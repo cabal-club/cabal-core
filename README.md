@@ -36,6 +36,10 @@ Calls `fn` with every new message that arrives, regardless of channel.
 
 Calls `fn` with every new message that arrives in `channel`.
 
+### cabal.getLocalKey(cb)
+
+Returns the local user's key (as a string).
+
 ### cabal.publish(message, opts, cb)
 
 Publish `message` to your feed. `message` must have a `type` field set. If not,

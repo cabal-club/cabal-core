@@ -12,9 +12,11 @@ module.exports = function (lvl) {
 
       // user info (full replacement; not a patch)
       if (msg.value.type === 'about') {
-        var key = 'user!' + msg.key
+        var key = 'user!about!' + msg.key
         var value = msg.value.content
         mappings.push([key, value])
+      } else {
+        mappings.push(['user!key!' + msg.key, 1])
       }
 
       return mappings
@@ -35,7 +37,16 @@ module.exports = function (lvl) {
             lt: 'user!' + '~'
           })
           v.on('data', function (row) {
-            res[row.key] = row.value
+            var parts = row.key.split('!')
+            var key = parts[2]
+            if (parts.length === 3 && parts[1] === 'about') {
+              if (!res[key]) res[key] = {}
+              res[key].name = row.value.name
+            } else if (!res[key]) {
+              res[key] = {
+                name: key.substring(0, 12)
+              }
+            }
           })
           v.once('end', cb.bind(null, null, res))
           v.once('error', cb)

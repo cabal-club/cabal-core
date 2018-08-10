@@ -98,12 +98,36 @@ Cabal.prototype.publish = function (message, opts, cb) {
   if (!opts) opts = {}
   if (!cb) cb = noop
 
-  message.timestamp = timestamp()
-
   this.feed(function (feed) {
+    message.timestamp = timestamp()
     feed.append(message, function (err) {
       cb(err, err ? null : message)
     })
+  })
+}
+
+Cabal.prototype.publishNick = function (nick, cb) {
+  // TODO: sanity checks on reasonable names
+  if (!nick) return cb()
+  if (!cb) cb = noop
+
+  this.feed(function (feed) {
+    var msg = {
+      type: 'about',
+      content: {
+        name: nick
+      },
+      timestamp: timestamp()
+    }
+    feed.append(msg, cb)
+  })
+}
+
+Cabal.prototype.getLocalKey = function (cb) {
+  if (!cb) return
+
+  this.feed(function (feed) {
+    cb(null, feed.key.toString('hex'))
   })
 }
 
