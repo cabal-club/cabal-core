@@ -128,9 +128,7 @@ Cabal.prototype.getChannels = function (cb) {
         channels[match[1]] = true
       }
     })
-    var sortedChannels = Object.keys(channels)
-    sortedChannels.sort()
-    cb(null, sortedChannels)
+    cb(null, Object.keys(channels).sort())
   })
 
   stream
