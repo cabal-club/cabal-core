@@ -4,8 +4,13 @@ var readonly = require('read-only-stream')
 var charwise = require('charwise')
 var xtend = require('xtend')
 var timestamp = require('monotonic-timestamp')
+var EventEmitter = require('events').EventEmitter
+
+// TODO: some way to make this index be cumulative, not just piecewise updates
 
 module.exports = function (lvl) {
+  var events = new EventEmitter()
+
   return View(lvl, {
     map: function (msg) {
       var mappings = []
@@ -22,10 +27,19 @@ module.exports = function (lvl) {
       return mappings
     },
 
+    indexed: function (msgs) {
+      msgs.forEach(function (msg) {
+        if (msg.value.type === 'about') {
+          events.emit(msg.key, msg)
+          events.emit('update', msg.key, msg)
+        }
+      })
+    },
+
     api: {
       get: function (core, key, cb) {
         this.ready(function () {
-          lvl.get('user!' + key, cb)
+          lvl.get('user!about!' + key, cb)
         })
       },
 
@@ -51,7 +65,9 @@ module.exports = function (lvl) {
           v.once('end', cb.bind(null, null, res))
           v.once('error', cb)
         })
-      }
+      },
+
+      events: events
     }
   })
 }
