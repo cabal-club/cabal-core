@@ -1,5 +1,5 @@
 {
-  "name": "cabal-node",
+  "name": "cabal-core",
   "version": "2.3.0",
   "description": " p2p db functions for chat ",
   "main": "index.js",
@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cabal-club/cabal-node.git"
+    "url": "git+https://github.com/cabal-club/cabal-core.git"
   },
   "keywords": [
     "cabal",
@@ -22,9 +22,9 @@
   "author": "Karissa McKelvey",
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/cabal-club/cabal-node/issues"
+    "url": "https://github.com/cabal-club/cabal-core/issues"
   },
-  "homepage": "https://github.com/cabal-club/cabal-node#readme",
+  "homepage": "https://github.com/cabal-club/cabal-core#readme",
   "dependencies": {
     "concat-stream": "^1.6.2",
     "crypto": "^1.0.1",
