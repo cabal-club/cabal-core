@@ -38,12 +38,7 @@ function Cabal (storage, key, opts) {
     }
   }
 
-  try {
-    var key = encoding.decode(key)
-    this.key = encoding.encode(key)
-  } catch (e) {
-    this.key = randomBytes(24).toString('hex')
-  }
+  this.key = key || null
   this.db = kappa(storage, { valueEncoding: json })
 
   // Create (if needed) and open local write feed
@@ -51,6 +46,7 @@ function Cabal (storage, key, opts) {
   this.feed = thunky(function (cb) {
     self.db.ready(function () {
       self.db.feed('local', function (err, feed) {
+        if (!self.key) self.key = feed.key.toString('hex')
         cb(feed)
       })
     })
@@ -135,7 +131,6 @@ Cabal.prototype.getLocalKey = function (cb) {
  * Replication stream for the mesh.
  */
 Cabal.prototype.replicate = function () {
-  var self = this
   return this.db.replicate({ live: true })
 }
 
