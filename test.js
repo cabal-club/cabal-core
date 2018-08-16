@@ -20,7 +20,7 @@ test('create a cabal and read a channel', function (t) {
           t.error(err)
           t.same(data.length, 1)
           var msg = data[0].value
-          t.same(message, msg.message, 'same message')
+          t.same(message, msg.content, 'same message')
           t.end()
         })
       })
