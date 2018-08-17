@@ -134,4 +134,12 @@ Cabal.prototype.replicate = function () {
   return this.db.replicate({ live: true })
 }
 
+Cabal.prototype._addConnection = function (key) {
+  this.emit('peer-added', key)
+}
+
+Cabal.prototype._removeConnection = function (key) {
+  this.emit('peer-dropped', key)
+}
+
 function noop () {}

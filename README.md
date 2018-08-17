@@ -53,6 +53,17 @@ Calls `fn` with every new message that arrives, regardless of channel.
 
 Calls `fn` with every new message that arrives in `channel`.
 
+### Network
+
+#### cabal.on('peer-added', function (key) {})
+
+Emitted when you connect to a peer. `key` is a hex string of their public key.
+
+#### cabal.on('peer-dropped', function (key) {})
+
+Emitted when you lose a connection to a peer. `key` is a hex string of their
+public key.
+
 ### Publishing
 
 #### cabal.publish(message, opts, cb)
