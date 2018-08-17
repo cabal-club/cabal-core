@@ -220,7 +220,7 @@ Cabal.prototype.message = function (channel, message, opts, done) {
     ]
     self.db.batch(batch, () => {
       self.emit('message', m)
-      done(m)
+      done(null, m)
     })
   })
 }
