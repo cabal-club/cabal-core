@@ -8,6 +8,7 @@ module.exports = function (lvl) {
 
     map: function (msgs, next) {
       var ops = []
+      var seen = {}
       var pending = 0
       msgs.forEach(function (msg) {
         if (msg.value && msg.value.content && msg.value.content.channel) {
@@ -15,7 +16,9 @@ module.exports = function (lvl) {
           pending++
           lvl.get('channel!' + channel, function (err) {
             if (err && err.notFound) {
-              events.emit('add', channel)
+              if (!seen[channel]) events.emit('add', channel)
+              seen[channel] = true
+
               ops.push({
                 type: 'put',
                 key: 'channel!' + channel,
