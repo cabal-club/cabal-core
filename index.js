@@ -4,6 +4,7 @@ var encoding = require('dat-encoding')
 var inherits = require('inherits')
 var concat = require('concat-stream')
 var through = require('through2')
+var resolve = require('./resolve')
 
 module.exports = Cabal
 
@@ -35,19 +36,33 @@ function Cabal (storage, href, opts) {
 
   self.username = opts.username || 'conspirator'
 
-  try {
-    var key = encoding.decode(href)
-    self.addr = encoding.encode(key)
-  } catch (e) {
-    self.addr = null
-  }
-  self.db = self.addr
-    ? hyperdb(storage, self.addr, {valueEncoding: json})
-    : hyperdb(storage, {valueEncoding: json})
-
   self.channels = []
   self.users = {}
   self.users[opts.username] = new Date()
+
+  var initDb = function() {
+    self.db = self.addr
+      ? hyperdb(storage, self.addr, {valueEncoding: json})
+      : hyperdb(storage, {valueEncoding: json})
+  }
+
+  var generateAddr = function(href, cb) {
+    if (!!href && href.length && href.length > 0) {
+      resolve(href, (err, key) => {
+        assert.ifError(err, `cabal resolve: unable to resolve key from '${href}'`)
+
+        cb(null, encoding.encode(key))
+      })
+    } else {
+      cb(null, null)
+    }
+  }
+
+  generateAddr(href, function(err, addr) {
+    self.addr = addr
+
+    initDb()
+  })
 }
 
 inherits(Cabal, events.EventEmitter)
