@@ -22,6 +22,7 @@ module.exports = function (lvl) {
 
     indexed: function (msgs) {
       msgs
+        .filter(msg => msg.value.type.startsWith('chat/') && msg.value.content.channel)
         .sort(cmpMsg)
         .forEach(function (msg) {
           events.emit('message', msg)
