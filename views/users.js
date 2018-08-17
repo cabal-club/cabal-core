@@ -7,6 +7,7 @@ var timestamp = require('monotonic-timestamp')
 var EventEmitter = require('events').EventEmitter
 
 // TODO: some way to make this index be cumulative, not just piecewise updates
+//       (this could be done by making each field a level key entry
 
 module.exports = function (lvl) {
   var events = new EventEmitter()

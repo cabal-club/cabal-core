@@ -1,14 +1,35 @@
-var View = require('kappa-view-level')
+var EventEmitter = require('events').EventEmitter
 
 module.exports = function (lvl) {
-  return View(lvl, {
-    map: function (msg) {
-      if (msg.value.type.startsWith('chat/') && msg.value.content.channel) {
-        return [
-          [ 'channel!' + msg.value.content.channel, 1 ]
-        ]
-      } else {
-        return []
+  var events = new EventEmitter()
+
+  return {
+    maxBatch: 100,
+
+    map: function (msgs, next) {
+      var ops = []
+      var pending = 0
+      msgs.forEach(function (msg) {
+        if (msg.value && msg.value.content && msg.value.content.channel) {
+          var channel = msg.value.content.channel
+          pending++
+          lvl.get('channel!' + channel, function (err) {
+            if (err && err.notFound) {
+              events.emit('add', channel)
+              ops.push({
+                type: 'put',
+                key: 'channel!' + channel,
+                value: 1
+              })
+            }
+            if (!--pending) done()
+          })
+        }
+      })
+      if (!pending) done()
+
+      function done () {
+        lvl.batch(ops, next)
       }
     },
 
@@ -28,7 +49,21 @@ module.exports = function (lvl) {
             })
             .once('error', cb)
         })
-      }
-    }
-  })
+      },
+
+      events: events
+    },
+
+    storeState: function (state, cb) {
+      lvl.put('state', state, cb)
+    },
+
+    fetchState: function (cb) {
+      lvl.get('state', function (err, state) {
+        if (err && err.notFound) cb()
+        else if (err) cb(err)
+        else cb(null, state)
+      })
+    },
+  }
 }
