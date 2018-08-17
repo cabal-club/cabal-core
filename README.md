@@ -1,10 +1,10 @@
-# cabal-node
+# cabal-core
 
-Node.js library for p2p functions for chat.
+Core database, replication, and chat APIs for cabal.
 
 ## Usage
 
-    npm install cabal-node
+    npm install cabal-core
 
 ## API
 
