@@ -21,10 +21,12 @@ module.exports = function (lvl) {
     },
 
     indexed: function (msgs) {
-      msgs.forEach(function (msg) {
-        events.emit('message', msg)
-        events.emit(msg.value.content.channel, msg)
-      })
+      msgs
+        .sort(cmpMsg)
+        .forEach(function (msg) {
+          events.emit('message', msg)
+          events.emit(msg.value.content.channel, msg)
+        })
     },
 
     api: {
@@ -51,4 +53,8 @@ module.exports = function (lvl) {
       events: events
     }
   })
+}
+
+function cmpMsg (a, b) {
+  return a.value.timestamp - b.value.timestamp
 }
