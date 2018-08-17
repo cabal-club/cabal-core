@@ -55,11 +55,12 @@ module.exports = function (lvl) {
             var parts = row.key.split('!')
             var key = parts[2]
             if (parts.length === 3 && parts[1] === 'about') {
-              if (!res[key]) res[key] = {}
+              if (!res[key]) res[key] = { key: key }
               res[key].name = row.value.name
             } else if (!res[key]) {
               res[key] = {
-                name: key.substring(0, 12)
+                name: key.substring(0, 12),
+                key: key
               }
             }
           })
