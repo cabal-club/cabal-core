@@ -59,7 +59,6 @@ module.exports = function (lvl) {
               res[key].name = row.value.name
             } else if (!res[key]) {
               res[key] = {
-                name: key.substring(0, 12),
                 key: key
               }
             }
