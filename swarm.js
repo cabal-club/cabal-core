@@ -27,10 +27,8 @@ module.exports = function (cabal) {
       r.on('error', noop)
     }
 
-    conn.on('error', noop)
-    conn.on('end', function () {
-      if (remoteKey) cabal._removeConnection(remoteKey)
-    })
+    conn.once('error', function () { if (remoteKey) cabal._removeConnection(remoteKey) })
+    conn.once('end',   function () { if (remoteKey) cabal._removeConnection(remoteKey) })
   })
   return swarm
 }
