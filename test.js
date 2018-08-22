@@ -36,3 +36,11 @@ test('resolve a key from cabal url', function(t) {
     t.end()
   })
 })
+
+test('resolve raises an error on an empty url', function(t) {
+  resolve('', (err, key) => {
+    t.equal(err, 'Invalid key')
+
+    t.end()
+  })
+})
