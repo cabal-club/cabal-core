@@ -6,6 +6,17 @@ var concat = require('concat-stream')
 var through = require('through2')
 var resolve = require('./resolve')
 
+var JSON_VALUE_ENCODING = {
+  encode: function (obj) {
+    return Buffer.from(JSON.stringify(obj))
+  },
+  decode: function (buf) {
+    var str = buf.toString('utf8')
+    try { var obj = JSON.parse(str) } catch (err) { return {} }
+    return obj
+  }
+}
+
 module.exports = Cabal
 
 /**
@@ -21,29 +32,17 @@ function Cabal (storage, href, opts) {
   if (!opts) opts = {}
   events.EventEmitter.call(this)
   var self = this
-  this.channelPattern = /^metadata\/([^/]+).*/
 
-  var json = {
-    encode: function (obj) {
-      return Buffer.from(JSON.stringify(obj))
-    },
-    decode: function (buf) {
-      var str = buf.toString('utf8')
-      try { var obj = JSON.parse(str) } catch (err) { return {} }
-      return obj
-    }
-  }
-
+  self.channelPattern = /^metadata\/([^/]+).*/
   self.username = opts.username || 'conspirator'
-
   self.channels = []
   self.users = {}
   self.users[opts.username] = new Date()
 
   var initDb = function() {
     self.db = self.addr
-      ? hyperdb(storage, self.addr, {valueEncoding: json})
-      : hyperdb(storage, {valueEncoding: json})
+      ? hyperdb(storage, self.addr, {valueEncoding: JSON_VALUE_ENCODING})
+      : hyperdb(storage, {valueEncoding: JSON_VALUE_ENCODING})
   }
 
   var generateAddr = function(href, cb) {
