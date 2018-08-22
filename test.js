@@ -2,6 +2,7 @@ var collect = require('collect-stream')
 var Cabal = require('.')
 var test = require('tape')
 var ram = require('random-access-memory')
+var resolve = require('./resolve')
 
 test('create a cabal and read a channel', function (t) {
   var cabal = Cabal(ram, null, {username: 'bob'})
@@ -25,5 +26,13 @@ test('create a cabal and read a channel', function (t) {
         })
       })
     })
+  })
+})
+
+test('resolve a key from cabal url', function(t) {
+  resolve('cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f', (err, key) => {
+    t.equal(key, '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f')
+
+    t.end()
   })
 })
