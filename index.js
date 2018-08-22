@@ -1,6 +1,5 @@
 var hyperdb = require('hyperdb')
 var events = require('events')
-var encoding = require('dat-encoding')
 var inherits = require('inherits')
 var concat = require('concat-stream')
 var through = require('through2')
@@ -50,7 +49,7 @@ function Cabal (storage, href, opts) {
       resolve(href, (err, key) => {
         assert.ifError(err, `cabal resolve: unable to resolve key from '${href}'`)
 
-        cb(null, encoding.encode(key))
+        cb(null, key)
       })
     } else {
       cb(null, null)
