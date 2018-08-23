@@ -50,8 +50,19 @@ test('resolve a key from a hostname', function(t) {
   const opts = {
     dnsResolver: (hostname, cb) => cb(null, PUBLIC_CABAL_KEY)
   }
-  resolve('test.com', opts, (err, key) => {
+  resolve('test.com', opts, (_, key) => {
     t.equal(key, PUBLIC_CABAL_KEY)
+
+    t.end()
+  })
+})
+
+test('resolving a key from a hostname without a key raises an error', function(t) {
+  const opts = {
+    dnsResolver: (hostname, cb) => cb('No Key Found')
+  }
+  resolve('test.com', opts, (err, _) => {
+    t.equal(err, 'No Key Found')
 
     t.end()
   })

@@ -18,7 +18,11 @@ function resolve(href, opts, cb) {
     const hostname = url.parse(href).hostname
 
     resolveWithDns(hostname, opts, (err, key) => {
-      cb(null, key)
+      if (err) {
+        cb(err)
+      } else {
+        cb(null, key)
+      }
     })
   }
 }
@@ -30,7 +34,12 @@ function dnsResolver(hostname, cb) {
 function resolveWithDns(hostname, opts, cb) {
   const resolver = opts.dnsResolver || dnsResolver
 
-  resolver(hostname, cb)
+  try {
+    resolver(hostname, cb)
+  }
+  catch (err) {
+    cb(err)
+  }
 }
 
 module.exports = resolve
