@@ -57,7 +57,7 @@ test('resolve a key from a hostname', function(t) {
   })
 })
 
-test('resolving a key from a hostname without a key raises an error', function(t) {
+test('resolving a key from a hostname without a key returns an error', function(t) {
   const opts = {
     dnsResolver: (hostname, cb) => cb('No Key Found')
   }
@@ -66,4 +66,16 @@ test('resolving a key from a hostname without a key raises an error', function(t
 
     t.end()
   })
+})
+
+test('when resolving a key from DNS raises an error', function(t) {
+  const opts = {
+    dnsResolver: (hostname, cb) => { throw 'No Network' }
+  }
+  resolve('test.com', opts, (err, _) => {
+    t.isNotEqual(err, null)
+
+    t.end()
+  })
+
 })
