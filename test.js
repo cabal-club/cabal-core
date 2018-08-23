@@ -45,8 +45,9 @@ test('resolve a key from cabal url', function(t) {
 //   })
 // })
 
+const PUBLIC_CABAL_KEY = '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f'
+
 test('resolve a key from a hostname', function(t) {
-  const PUBLIC_CABAL_KEY = '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f'
   const opts = {
     dnsResolver: (hostname, cb) => cb(null, PUBLIC_CABAL_KEY)
   }
@@ -78,4 +79,12 @@ test('when resolving a key from DNS raises an error', function(t) {
     t.end()
   })
 
+})
+
+test('when resolving a real key from actual DNS', function(t) {
+  resolve('markbennett.ca', (_, key) => {
+    t.equal(key, PUBLIC_CABAL_KEY)
+
+    t.end()
+  })
 })
