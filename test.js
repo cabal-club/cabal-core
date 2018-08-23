@@ -37,9 +37,21 @@ test('resolve a key from cabal url', function(t) {
   })
 })
 
-test('resolve raises an error on an empty url', function(t) {
-  resolve('', (err, key) => {
-    t.equal(err, 'Invalid key')
+// test('resolve raises an error on an empty url', function(t) {
+//   resolve('', (err, key) => {
+//     t.equal(err, 'Invalid key')
+
+//     t.end()
+//   })
+// })
+
+test('resolve a key from a hostname', function(t) {
+  const PUBLIC_CABAL_KEY = '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f'
+  const opts = {
+    dnsResolver: (hostname, cb) => cb(null, PUBLIC_CABAL_KEY)
+  }
+  resolve('test.com', opts, (err, key) => {
+    t.equal(key, PUBLIC_CABAL_KEY)
 
     t.end()
   })
