@@ -30,9 +30,10 @@ function resolve(href, opts, cb) {
   }
 }
 
+const CABAL_KEY_REGEX = /^"?cabalkey=([0-9a-f]{64})"?$/i
+
 function parseKeyFromDns(data) {
-  const CABAL_KEY_REGEX = /^"?cabalkey=([0-9a-f]{64})"?$/i
-  const answers = data.Answer
+  const answers = data.Answer || []
   const cabal_answers = answers.filter((answer) => {
     const matches = CABAL_KEY_REGEX.exec(answer.data)
 
