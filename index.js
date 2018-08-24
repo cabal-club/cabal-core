@@ -3,7 +3,7 @@ var events = require('events')
 var inherits = require('inherits')
 var concat = require('concat-stream')
 var through = require('through2')
-var resolve = require('./resolve')
+var Resolver = require('./resolve')
 
 var JSON_VALUE_ENCODING = {
   encode: function (obj) {
@@ -37,6 +37,7 @@ function Cabal (storage, href, opts) {
   self.channels = []
   self.users = {}
   self.users[opts.username] = new Date()
+  self.resolver = new Resolver()
 
   var initDb = function() {
     self.db = self.addr
@@ -251,6 +252,13 @@ Cabal.prototype.replicate = function () {
       username: self.username
     })
   })
+}
+
+/**
+ * Close this Cabal and clean-up resources in use
+ */
+Cabal.prototype.close = function() {
+  this.resolver.close()
 }
 
 function noop () {}

@@ -1,10 +1,19 @@
 const assert = require('assert')
 const encoding = require('dat-encoding')
 const https = require('https')
+const NodeCache = require( "node-cache" )
 const querystring = require('querystring')
 const url = require('url')
 
-function resolve(href, opts, cb) {
+function Resolver() {
+  this._myCache = new NodeCache()
+}
+
+Resolver.prototype.close = function() {
+  this._myCache.close()
+}
+
+Resolver.prototype.resolve = function(href, opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
     opts = {}
@@ -13,21 +22,41 @@ function resolve(href, opts, cb) {
   // Resolve key in href
   try {
     const key = encoding.encode(encoding.decode(href))
-
     cb(null, key)
   }
   catch (err) {
     const parsed_url = url.parse(href)
     const hostname = parsed_url.hostname || parsed_url.pathname
 
-    resolveWithDns(hostname, opts, (err, key) => {
+    this._resolveFromCache(hostname, opts, (err, key) => {
       if (err) {
         cb(err)
       } else {
-        cb(null, key)
+        if (key) {
+          cb(null, key)
+        } else {
+          resolveWithDns(hostname, opts, (err, key) => {
+            if (err) {
+              cb(err)
+            } else {
+              cb(null, key)
+            }
+          })
+        }
       }
     })
   }
+}
+
+Resolver.prototype._resolveFromCache = function(hostname, opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts
+    opts = {}
+  }
+
+  const cache = opts.cache || this._myCache
+
+  cb(null, cache.get(hostname))
 }
 
 const CABAL_KEY_REGEX = /^"?cabalkey=([0-9a-f]{64})"?$/i
@@ -86,4 +115,4 @@ function resolveWithDns(hostname, opts, cb) {
   }
 }
 
-module.exports = resolve
+module.exports = Resolver
