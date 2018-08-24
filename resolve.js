@@ -19,6 +19,11 @@ Resolver.prototype.resolve = function(href, opts, cb) {
     opts = {}
   }
 
+  if (!href || typeof href !== 'string' || href.length === 0) {
+    cb('Invalid href')
+    return
+  }
+
   // Resolve key in href
   try {
     const key = encoding.encode(encoding.decode(href))

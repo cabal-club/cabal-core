@@ -53,13 +53,13 @@ resolverTest('resolve a key from cabal url', function(t, resolver) {
   })
 })
 
-// test('resolve raises an error on an empty url', function(t) {
-//   resolve('', (err, key) => {
-//     t.equal(err, 'Invalid key')
+resolverTest('resolve raises an error on an empty url', function(t, resolver) {
+  resolver.resolve('', (err, key) => {
+    t.equal(err, 'Invalid href')
 
-//     t.end()
-//   })
-// })
+    t.end()
+  })
+})
 
 const PUBLIC_CABAL_KEY = '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f'
 
