@@ -14,12 +14,12 @@ test('create a cabal + channel', function (t) {
       }
     }
     cabal.publish(msg, function (err) {
-      cabal.getChannels(function (err, channels) {
+      cabal.channels.get(function (err, channels) {
         t.same(channels.length, 1)
         t.same(channels[0], 'general', 'channel is general')
       })
 
-      var reader = cabal.readMessages('general')
+      var reader = cabal.messages.read('general')
       collect(reader, function (err, data) {
         t.error(err)
         t.same(data.length, 1)
@@ -66,19 +66,19 @@ test('reading back multiple messages', function (t) {
       msgs.push(msg)
       if (--pending) return
 
-      cabal.getChannels(function (err, channels) {
+      cabal.channels.get(function (err, channels) {
         t.same(channels.length, 2)
         t.same(channels.sort(), ['general', 'misc'])
       })
 
-      var r1 = cabal.readMessages('general', { limit: 1 })
+      var r1 = cabal.messages.read('general', { limit: 1 })
       collect(r1, function (err, data) {
         t.error(err)
         t.same(data.length, 1, 'only 1 message')
         t.same(data[0].value, msgs[1], 'msg is "two"')
       })
 
-      var r2 = cabal.readMessages('general')
+      var r2 = cabal.messages.read('general')
       collect(r2, function (err, data) {
         t.error(err)
         t.same(data.length, 2, 'two messages in general')
@@ -93,13 +93,13 @@ test('listening for live messages', function (t) {
   var cabal = Cabal(ram)
 
   var count = 0
-  cabal.listenMessages('general', function (msg) {
+  cabal.messages.events.on('general', function (msg) {
     if (count === 0) t.equals(msg.value.content.text, 'one')
     if (count === 1) t.equals(msg.value.content.text, 'two')
     if (count === 2) t.equals(msg.value.content.text, 'three')
     if (++count === 3) t.end()
   })
-  cabal.listenMessages('misc', function (msg) {
+  cabal.messages.events.on('misc', function (msg) {
     if (count === 0) t.equals(msg.value.content.text, 'one')
     if (count === 1) t.equals(msg.value.content.text, 'two')
     if (count === 2) t.equals(msg.value.content.text, 'three')
