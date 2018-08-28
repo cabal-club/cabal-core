@@ -70,17 +70,22 @@ function flattenArray(arr) {
   }, [])
 }
 
-function parseKeyFromDns(answers) {
-  const cabal_answers = flattenArray(answers).
-    filter((answer) => {
-      const matches = CABAL_KEY_REGEX.exec(answer)
+function matchingRegex(regex) {
+  return function(candidate) {
+    const matches = regex.exec(candidate)
 
-      if (matches && matches.length > 0) {
-        return true
-      } else {
-        return false
-      }
-    })
+    if (matches && matches.length > 0) {
+      return true
+    } else {
+      return false
+    }
+  }
+}
+
+function parseKeyFromDns(answers) {
+  const cabal_answers =
+    flattenArray(answers).
+    filter(matchingRegex(CABAL_KEY_REGEX))
 
   const answer = cabal_answers[0]
   const key = CABAL_KEY_REGEX.exec(answer)[1]
