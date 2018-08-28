@@ -1,7 +1,6 @@
+const dns = require('dns')
 const encoding = require('dat-encoding')
-const https = require('https')
 const NodeCache = require( "node-cache" )
-const querystring = require('querystring')
 const url = require('url')
 
 function Resolver() {
@@ -65,46 +64,36 @@ Resolver.prototype._resolveFromCache = function(hostname, opts, cb) {
 
 const CABAL_KEY_REGEX = /^"?cabalkey=([0-9a-f]{64})"?$/i
 
-function parseKeyFromDns(data) {
-  const answers = data.Answer || []
-  const cabal_answers = answers.filter((answer) => {
-    const matches = CABAL_KEY_REGEX.exec(answer.data)
+function flattenArray(arr) {
+  return arr.reduce(function(prev, current) {
+    return prev.concat(current)
+  }, [])
+}
 
-    if (matches && matches.length > 0) {
-      return true
-    } else {
-      return false
-    }
-  })
+function parseKeyFromDns(answers) {
+  const cabal_answers = flattenArray(answers).
+    filter((answer) => {
+      const matches = CABAL_KEY_REGEX.exec(answer)
+
+      if (matches && matches.length > 0) {
+        return true
+      } else {
+        return false
+      }
+    })
 
   const answer = cabal_answers[0]
-  const key = CABAL_KEY_REGEX.exec(answer.data)[1]
+  const key = CABAL_KEY_REGEX.exec(answer)[1]
   return key
 }
 
 function dnsResolver(hostname, cb) {
-  const host = 'dns.google.com'
-  const path = '/resolve'
-
-  const query = {
-    name: hostname,
-    type: 'TXT'
-  }
-
-  let raw_data = []
-
-  https.get({
-    host,
-    path: `${path}?${querystring.stringify(query)}`
-  }, (res) => {
-    res.on('data', (chunk) => {
-      raw_data = raw_data + chunk
-    })
-    res.on('end', () => {
-      const data = JSON.parse(raw_data)
-      const key = parseKeyFromDns(data)
-      cb(null, key)
-    })
+  dns.resolveTxt(hostname, function(err, answers) {
+    if (err) {
+      cb(err)
+    } else {
+      cb(null, parseKeyFromDns(answers))
+    }
   })
 }
 
