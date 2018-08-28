@@ -1,4 +1,3 @@
-const assert = require('assert')
 const encoding = require('dat-encoding')
 const https = require('https')
 const NodeCache = require( "node-cache" )
