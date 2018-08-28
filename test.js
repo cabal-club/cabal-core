@@ -96,20 +96,6 @@ resolverTest('when resolving a key from DNS raises an error', function(t, resolv
   })
 })
 
-resolverTest('when resolving a key from DNS that has been cached', function(t, resolver) {
-  const opts = {
-    cache: {
-      get: () => 'CACHED_KEY'
-    }
-  }
-
-  resolver.resolve('markbennett.ca', opts, (_, key) => {
-    t.equal(key, 'CACHED_KEY')
-
-    t.end()
-  })
-})
-
 resolverTest('when resolving a real key from actual DNS', function(t, resolver) {
   resolver.resolve('markbennett.ca', (_, key) => {
     t.equal(key, PUBLIC_CABAL_KEY)

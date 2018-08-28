@@ -31,35 +31,14 @@ Resolver.prototype.resolve = function(href, opts, cb) {
     const parsed_url = url.parse(href)
     const hostname = parsed_url.hostname || parsed_url.pathname
 
-    this._resolveFromCache(hostname, opts, (err, key) => {
+    resolveWithDns(hostname, opts, (err, key) => {
       if (err) {
         cb(err)
       } else {
-        if (key) {
-          cb(null, key)
-        } else {
-          resolveWithDns(hostname, opts, (err, key) => {
-            if (err) {
-              cb(err)
-            } else {
-              cb(null, key)
-            }
-          })
-        }
+        cb(null, key)
       }
     })
   }
-}
-
-Resolver.prototype._resolveFromCache = function(hostname, opts, cb) {
-  if (typeof opts === 'function') {
-    cb = opts
-    opts = {}
-  }
-
-  const cache = opts.cache || this._myCache
-
-  cb(null, cache.get(hostname))
 }
 
 const CABAL_KEY_REGEX = /^"?cabalkey=([0-9a-f]{64})"?$/i
