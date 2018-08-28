@@ -117,3 +117,11 @@ resolverTest('when resolving a real key from actual DNS', function(t, resolver) 
     t.end()
   })
 })
+
+resolverTest('when resolving a missing key from actual DNS', function(t, resolver) {
+  resolver.resolve('google.com', (err, _) => {
+    t.isEqual(err, 'Unable to parse key from DNS answers')
+
+    t.end()
+  })
+})
