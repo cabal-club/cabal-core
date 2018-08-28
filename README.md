@@ -17,18 +17,19 @@ Core database, replication, and chat APIs for cabal.
     -   [joinChannel](#joinchannel)
     -   [leaveChannel](#leavechannel)
     -   [createReadStream](#createreadstream)
+    -   [metadata](#metadata)
     -   [message](#message)
     -   [replicate](#replicate)
 
 ### Cabal
 
-Create a new Cabal. This is the object handling all
-local nickname -> cabal interactions for a single user.
+Create a new cabal. This is the object handling all
+local nickname -> mesh interactions for a single user.
 
 **Parameters**
 
 -   `storage` **([string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String) \| [function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function))** A hyperdb compatible storage function, or a string representing the local data path.
--   `href` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The dat link
+-   `href` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The dat link, or a hostname with a DNS TXT entry of the form "CABALKEY=&lt;DAT_KEY_VALUE>". For example, "cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f" is equivalent to "cabal.chat"
 -   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options include: username
 
 #### onconnection
@@ -59,11 +60,21 @@ Leave a channel.
 
 #### createReadStream
 
-Create a readable stream for the cabal channel.
+Create a readable stream for the mesh.
 
 **Parameters**
 
 -   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The channel you want to read from.
+-   `opts`  
+
+#### metadata
+
+Get the metadata of channel.
+
+**Parameters**
+
+-   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Channel name
+-   `done` **[Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Callback
 
 #### message
 
@@ -73,10 +84,10 @@ Create a message.
 
 -   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The channel to create the message.
 -   `message` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The message to write.
--   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options: date, username, type (i.e. message type)
+-   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options: date, username, type (message type)
 -   `done` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** When message has been successfully added.
 
 #### replicate
 
-Replication stream for the cabal. Shares the username with the
+Replication stream for the mesh. Shares the username with the
 other peers it is connecting with.

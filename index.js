@@ -23,7 +23,7 @@ module.exports = Cabal
  * local nickname -> mesh interactions for a single user.
  * @constructor
  * @param {string|function} storage - A hyperdb compatible storage function, or a string representing the local data path.
- * @param {string} href - The dat link
+ * @param {string} href - The dat link, or a hostname with a DNS TXT entry of the form "CABALKEY=<DAT_KEY_VALUE>". For example, "cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f" is equivalent to "cabal.chat"
  * @param {Object} opts - Options include: username
  */
 function Cabal (storage, href, opts) {
