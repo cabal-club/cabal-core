@@ -63,8 +63,8 @@ function parseKeyFromDns(answers, cb) {
     const key = CABAL_KEY_REGEX.exec(answer)[1]
 
     cb(null, key)
-  } catch {
-    cb('Unable to parse key from DNS answers')
+  } catch (err) {
+    cb('Unable to parse key from DNS answers: ' + err)
   }
 }
 
