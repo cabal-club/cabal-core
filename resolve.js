@@ -82,14 +82,19 @@ function matchingRegex(regex) {
   }
 }
 
-function parseKeyFromDns(answers) {
-  const cabal_answers =
-    flattenArray(answers).
-    filter(matchingRegex(CABAL_KEY_REGEX))
+function parseKeyFromDns(answers, cb) {
+  try {
+    const cabal_answers =
+      flattenArray(answers).
+      filter(matchingRegex(CABAL_KEY_REGEX))
 
-  const answer = cabal_answers[0]
-  const key = CABAL_KEY_REGEX.exec(answer)[1]
-  return key
+    const answer = cabal_answers[0]
+    const key = CABAL_KEY_REGEX.exec(answer)[1]
+
+    cb(null, key)
+  } catch {
+    cb('Unable to parse key from DNS answers')
+  }
 }
 
 function dnsResolver(hostname, cb) {
@@ -97,7 +102,13 @@ function dnsResolver(hostname, cb) {
     if (err) {
       cb(err)
     } else {
-      cb(null, parseKeyFromDns(answers))
+      parseKeyFromDns(answers, function(err, key) {
+        if (err) {
+          cb(err)
+        } else {
+          cb(null, key)
+        }
+      })
     }
   })
 }
