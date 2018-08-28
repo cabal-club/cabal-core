@@ -3,15 +3,7 @@ const encoding = require('dat-encoding')
 const NodeCache = require( "node-cache" )
 const url = require('url')
 
-function Resolver() {
-  this._myCache = new NodeCache()
-}
-
-Resolver.prototype.close = function() {
-  this._myCache.close()
-}
-
-Resolver.prototype.resolve = function(href, opts, cb) {
+resolve = function(href, opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
     opts = {}
@@ -103,4 +95,4 @@ function resolveWithDns(hostname, opts, cb) {
   }
 }
 
-module.exports = Resolver
+module.exports = resolve

@@ -23,38 +23,22 @@ test('create a cabal and read a channel', function (t) {
           var msg = data[0].value
           t.same(message, msg.content, 'same message')
           t.end()
-          cabal.close()
         })
       })
     })
   })
 })
 
-function resolverTest(message, cb) {
-  const test_func = function(t) {
-    const resolver = new Resolver()
-
-    try {
-      cb(t, resolver)
-    } finally {
-      resolver.close()
-    }
-
-  }
-
-  test(message, test_func)
-}
-
-resolverTest('resolve a key from cabal url', function(t, resolver) {
-  resolver.resolve('cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f', (err, key) => {
+test('resolve a key from cabal url', function(t) {
+  resolve('cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f', (err, key) => {
     t.equal(key, '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f')
 
     t.end()
   })
 })
 
-resolverTest('resolve raises an error on an empty url', function(t, resolver) {
-  resolver.resolve('', (err, key) => {
+test('resolve raises an error on an empty url', function(t) {
+  resolve('', (err, key) => {
     t.equal(err, 'Invalid href')
 
     t.end()
@@ -63,49 +47,49 @@ resolverTest('resolve raises an error on an empty url', function(t, resolver) {
 
 const PUBLIC_CABAL_KEY = '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f'
 
-resolverTest('resolve a key from a hostname', function(t, resolver) {
+test('resolve a key from a hostname', function(t) {
   const opts = {
     dnsResolver: (hostname, cb) => cb(null, PUBLIC_CABAL_KEY)
   }
-  resolver.resolve('test.com', opts, (_, key) => {
+  resolve('test.com', opts, (_, key) => {
     t.equal(key, PUBLIC_CABAL_KEY)
 
     t.end()
   })
 })
 
-resolverTest('resolving a key from a hostname without a key returns an error', function(t, resolver) {
+test('resolving a key from a hostname without a key returns an error', function(t) {
   const opts = {
     dnsResolver: (hostname, cb) => cb('No Key Found')
   }
-  resolver.resolve('test.com', opts, (err, _) => {
+  resolve('test.com', opts, (err, _) => {
     t.equal(err, 'No Key Found')
 
     t.end()
   })
 })
 
-resolverTest('when resolving a key from DNS raises an error', function(t, resolver) {
+test('when resolving a key from DNS raises an error', function(t) {
   const opts = {
     dnsResolver: (hostname, cb) => { throw 'No Network' }
   }
-  resolver.resolve('test.com', opts, (err, _) => {
+  resolve('test.com', opts, (err, _) => {
     t.isNotEqual(err, null)
 
     t.end()
   })
 })
 
-resolverTest('when resolving a real key from actual DNS', function(t, resolver) {
-  resolver.resolve('markbennett.ca', (_, key) => {
+test('when resolving a real key from actual DNS', function(t) {
+  resolve('markbennett.ca', (_, key) => {
     t.equal(key, PUBLIC_CABAL_KEY)
 
     t.end()
   })
 })
 
-resolverTest('when resolving a missing key from actual DNS', function(t, resolver) {
-  resolver.resolve('google.com', (err, _) => {
+test('when resolving a missing key from actual DNS', function(t) {
+  resolve('google.com', (err, _) => {
     t.isEqual(err, 'Unable to parse key from DNS answers')
 
     t.end()
