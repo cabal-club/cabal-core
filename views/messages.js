@@ -10,8 +10,15 @@ module.exports = function (lvl) {
 
   return View(lvl, {
     map: function (msg) {
+      if (!msg.value.timestamp) return []
+
+      // If the message is from <<THE FUTURE>>, index it at _now_.
+      var timestamp = msg.value.timestamp
+      var now = new Date().getTime()
+      if (timestamp > now) timestamp = now
+
       if (msg.value.type.startsWith('chat/') && msg.value.content.channel) {
-        var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(msg.value.timestamp)
+        var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(timestamp)
         return [
           [key, msg]
         ]
