@@ -10,6 +10,8 @@ module.exports = function (lvl) {
 
   return View(lvl, {
     map: function (msg) {
+      if (!sanitize(msg)) return []
+
       if (!msg.value.timestamp) return []
 
       // If the message is from <<THE FUTURE>>, index it at _now_.
@@ -29,6 +31,7 @@ module.exports = function (lvl) {
 
     indexed: function (msgs) {
       msgs
+        .filter(msg => Boolean(sanitize(msg)))
         .filter(msg => msg.value.type.startsWith('chat/') && msg.value.content.channel)
         .sort(cmpMsg)
         .forEach(function (msg) {
@@ -65,4 +68,16 @@ module.exports = function (lvl) {
 
 function cmpMsg (a, b) {
   return a.value.timestamp - b.value.timestamp
+}
+
+// Either returns a well-formed chat message, or null.
+function sanitize (msg) {
+  if (typeof msg !== 'object') return null
+  if (typeof msg.value !== 'object') return null
+  if (typeof msg.value.content !== 'object') return null
+  if (typeof msg.value.timestamp !== 'number') return null
+  if (typeof msg.value.type !== 'string') return null
+  if (typeof msg.value.content.channel !== 'string') return null
+  if (typeof msg.value.content.text !== 'string') return null
+  return msg
 }
