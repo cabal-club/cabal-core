@@ -5,6 +5,7 @@ var charwise = require('charwise')
 var xtend = require('xtend')
 var timestamp = require('monotonic-timestamp')
 var EventEmitter = require('events').EventEmitter
+var isValidMessage = require("../util").isValidMessage
 
 // TODO: some way to make this index be cumulative, not just piecewise updates
 //       (this could be done by making each field a level key entry
@@ -17,7 +18,7 @@ module.exports = function (lvl) {
       var mappings = []
 
       // user info (full replacement; not a patch)
-      if (msg.value.type === 'about') {
+      if (isValidMessage(msg) && msg.value.type === 'about') {
         var key = 'user!about!' + msg.key
         var value = msg.value.content
         mappings.push([key, value])
@@ -29,7 +30,7 @@ module.exports = function (lvl) {
     },
 
     indexed: function (msgs) {
-      msgs.forEach(function (msg) {
+      msgs.filter(isValidMessage).forEach(function (msg) {
         if (msg.value.type === 'about') {
           events.emit(msg.key, msg)
           events.emit('update', msg.key, msg)

@@ -1,4 +1,5 @@
 var EventEmitter = require('events').EventEmitter
+var isValidMessage = require("../util").isValidMessage
 
 module.exports = function (lvl) {
   var events = new EventEmitter()
@@ -11,7 +12,7 @@ module.exports = function (lvl) {
       var seen = {}
       var pending = 0
       msgs.forEach(function (msg) {
-        if (msg.value && msg.value.content && msg.value.content.channel) {
+        if (isValidMessage(msg) && msg.value.content.channel) {
           var channel = msg.value.content.channel
           pending++
           lvl.get('channel!' + channel, function (err) {

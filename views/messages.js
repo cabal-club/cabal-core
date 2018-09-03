@@ -4,13 +4,14 @@ var readonly = require('read-only-stream')
 var charwise = require('charwise')
 var xtend = require('xtend')
 var EventEmitter = require('events').EventEmitter
+var isValidMessage = require("../util").isValidMessage
 
 module.exports = function (lvl) {
   var events = new EventEmitter()
 
   return View(lvl, {
     map: function (msg) {
-      if (!msg.value.timestamp) return []
+      if (!isValidMessage || !msg.value.timestamp) return []
 
       // If the message is from <<THE FUTURE>>, index it at _now_.
       var timestamp = msg.value.timestamp
@@ -29,6 +30,7 @@ module.exports = function (lvl) {
 
     indexed: function (msgs) {
       msgs
+        .filter(isValidMessage)
         .filter(msg => msg.value.type.startsWith('chat/') && msg.value.content.channel)
         .sort(cmpMsg)
         .forEach(function (msg) {
