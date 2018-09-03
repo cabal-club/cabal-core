@@ -14,6 +14,8 @@ module.exports = function (lvl) {
 
   return View(lvl, {
     map: function (msg) {
+      if (!sanitize(msg)) return []
+
       var mappings = []
 
       // user info (full replacement; not a patch)
@@ -30,6 +32,7 @@ module.exports = function (lvl) {
 
     indexed: function (msgs) {
       msgs.forEach(function (msg) {
+        if (!sanitize(msg)) return
         if (msg.value.type === 'about') {
           events.emit(msg.key, msg)
           events.emit('update', msg.key, msg)
@@ -71,4 +74,14 @@ module.exports = function (lvl) {
       events: events
     }
   })
+}
+
+// Either returns a well-formed user message, or null.
+function sanitize (msg) {
+  if (typeof msg !== 'object') return null
+  if (typeof msg.value !== 'object') return null
+  if (typeof msg.value.content !== 'object') return null
+  if (typeof msg.value.timestamp !== 'number') return null
+  if (typeof msg.value.type !== 'string') return null
+  return msg
 }

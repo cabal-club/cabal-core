@@ -11,6 +11,7 @@ module.exports = function (lvl) {
       var seen = {}
       var pending = 0
       msgs.forEach(function (msg) {
+        if (!sanitize(msg)) return
         if (msg.value && msg.value.content && msg.value.content.channel) {
           var channel = msg.value.content.channel
           pending++
@@ -69,4 +70,16 @@ module.exports = function (lvl) {
       })
     },
   }
+}
+
+// Either returns a well-formed chat message, or null.
+function sanitize (msg) {
+  if (typeof msg !== 'object') return null
+  if (typeof msg.value !== 'object') return null
+  if (typeof msg.value.content !== 'object') return null
+  if (typeof msg.value.timestamp !== 'number') return null
+  if (typeof msg.value.type !== 'string') return null
+  if (typeof msg.value.content.channel !== 'string') return null
+  if (typeof msg.value.content.text !== 'string') return null
+  return msg
 }
