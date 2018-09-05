@@ -1,5 +1,5 @@
 {
-  "name": "@noffle/cabal-core",
+  "name": "cabal-core",
   "version": "3.0.1",
   "description": " p2p db functions for chat ",
   "main": "index.js",
