@@ -1,9 +1,16 @@
-var hyperdb = require('hyperdb')
+var kappa = require('kappa-core')
 var events = require('events')
+var encoding = require('dat-encoding')
 var inherits = require('inherits')
 var concat = require('concat-stream')
 var through = require('through2')
-var resolve = require('./resolve')
+var memdb = require('memdb')
+var thunky = require('thunky')
+var randomBytes = require('randombytes')
+var timestamp = require('monotonic-timestamp')
+var createChannelView = require('./views/channels')
+var createMessagesView = require('./views/messages')
+var createUsersView = require('./views/users')
 
 var JSON_VALUE_ENCODING = {
   encode: function (obj) {
@@ -26,231 +33,113 @@ module.exports = Cabal
  * @param {string} href - The dat link, or a hostname with a DNS TXT entry of the form "CABALKEY=<DAT_KEY_VALUE>". For example, "cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f" is equivalent to "cabal.chat"
  * @param {Object} opts - Options include: username
  */
-function Cabal (storage, href, opts) {
-  if (!(this instanceof Cabal)) return new Cabal(storage, href, opts)
+function Cabal (storage, key, opts) {
+  if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
   if (!opts) opts = {}
   events.EventEmitter.call(this)
+
+  this.key = key || null
+  this.db = kappa(storage, { valueEncoding: JSON_VALUE_ENCODING })
+
+  // Create (if needed) and open local write feed
   var self = this
-
-  self.channelPattern = /^metadata\/([^/]+).*/
-  self.username = opts.username || 'conspirator'
-  self.channels = []
-  self.users = {}
-  self.users[opts.username] = new Date()
-
-  var initDb = function() {
-    self.db = self.addr
-      ? hyperdb(storage, self.addr, {valueEncoding: JSON_VALUE_ENCODING})
-      : hyperdb(storage, {valueEncoding: JSON_VALUE_ENCODING})
-  }
-
-  var generateAddr = function(href, cb) {
-    if (!!href && href.length && href.length > 0) {
-      resolve(href, (err, key) => {
-        assert.ifError(err, `cabal resolve: unable to resolve key from '${href}'`)
-
-        cb(null, key)
+  this.feed = thunky(function (cb) {
+    self.db.ready(function () {
+      self.db.feed('local', function (err, feed) {
+        if (!self.key) self.key = feed.key.toString('hex')
+        cb(feed)
       })
-    } else {
-      cb(null, null)
-    }
-  }
-
-  generateAddr(href, function(err, addr) {
-    self.addr = addr
-
-    initDb()
+    })
   })
+
+  // views
+  this.db.use('channels',  createChannelView(memdb({valueEncoding: JSON_VALUE_ENCODING})))
+  this.db.use('messages', createMessagesView(memdb({valueEncoding: JSON_VALUE_ENCODING})))
+  this.db.use('users',       createUsersView(memdb({valueEncoding: JSON_VALUE_ENCODING})))
+
+  this.messages = this.db.api.messages
+  this.channels = this.db.api.channels
+  this.users = this.db.api.users
 }
 
 inherits(Cabal, events.EventEmitter)
 
 /**
- * When a connection is made. Auto-authorizes new peers to
- * write to the local database. Maintains the local view
- * of visible users.
- * @param {Object} peer - The discovery-swarm peer emitted from the 'connection' or 'disconnection' event
+ * Get information about a user that they've volunteered about themselves.
+ * @param {String} key - The hex key of the user.
  */
-Cabal.prototype.onconnection = function (peer) {
-  var self = this
-  if (!peer.remoteUserData) return
-  try { var data = JSON.parse(peer.remoteUserData) } catch (err) { return }
-  var key = Buffer.from(data.key)
-  var username = data.username
-
-  self.db.authorized(key, function (err, auth) {
-    if (err) return console.log(err)
-    if (!auth) {
-      self.db.authorize(key, function (err) {
-        if (err) return console.log(err)
-      })
-    }
-  })
-
-  if (!self.users[username]) {
-    self.users[username] = new Date()
-    self.emit('join', username)
-    peer.on('close', function () {
-      if (!self.users[username]) return
-      delete self.users[username]
-      self.emit('leave', username)
-    })
+Cabal.prototype.getUser = function (key, cb) {
+  if (typeof key === 'function') {
+    cb = key
+    key = null
   }
-}
 
-Cabal.prototype.watch = function (channel, cb) {
-  return this.db.watch(`messages/${channel}`, cb)
-}
-
-Cabal.prototype.getMessages = function (channel, max, cb) {
   var self = this
-  self.metadata(channel, (err, metadata) => {
-    if (err) return cb(err)
-    var latest = metadata.latest
-    var messagePromises = []
-    for (var i = 0; i < max; i++) {
-      if (latest - i < 1) break
-      var promise = getMessage(latest - i, channel)
-      messagePromises.push(promise)
-    }
 
-    function getMessage (time, channel) {
-      return new Promise((resolve, reject) => {
-        self.db.get(`messages/${channel}/${time}`, (err, node) => {
-          if (err) reject(err)
-          resolve(node)
-        })
-      })
-    }
-
-    messagePromises.reverse()
-    Promise.all(messagePromises).then((messages) => {
-      cb(null, messages)
-    })
-  })
-}
-
-Cabal.prototype.getChannels = function (cb) {
-  var self = this
-  var stream = self.db.createReadStream('metadata')
-  var concatStream = concat((data) => {
-    var channels = {}
-    data.forEach((d) => {
-      var match = self.channelPattern.exec(d)
-      if (match && match[1]) {
-        channels[match[1]] = true
-      }
-    })
-    cb(null, Object.keys(channels).sort())
-  })
-
-  stream
-    .pipe(through.obj(function (chunk, enc, next) {
-      chunk.forEach((c) => {
-        this.push([c.key])
-      })
-      next()
-    }))
-    .pipe(concatStream)
-}
-
-/**
- * Join a channel.
- * @param {String} channel - The channel to join.
- */
-Cabal.prototype.joinChannel = function (channel) {
-  if (this.channels.indexOf(channel) === -1) this.channels.push(channel)
-}
-
-/**
- * Leave a channel.
- * @param {String} channel - The channel to leave.
- */
-Cabal.prototype.leaveChannel = function (channel) {
-  this.channels = this.channels.filter(function (c) {
-    return c !== channel
+  this.feed(function (feed) {
+    if (!key) key = feed.key.toString('hex')
+    self.db.api.users.get(key, cb)
   })
 }
 
 /**
- * Create a readable stream for the mesh.
- * @param {String} channel - The channel you want to read from.
+ * Publish a message to your feed.
+ * @param {String} message - The message to publish.
+ * @param {Object} opts - Options: date
+ * @param {function} cb - When message has been successfully added.
  */
-Cabal.prototype.createReadStream = function (channel, opts) {
+Cabal.prototype.publish = function (message, opts, cb) {
+  if (!message) return cb()
+  if (typeof opts === 'function') return this.publish(message, null, opts)
   if (!opts) opts = {}
-  return this.db.createReadStream(`messages/${channel}`, Object.assign({recursive: true}, opts))
-}
+  if (!cb) cb = noop
 
-/**
- * Get the metadata of channel.
- * @param  {String}   channel Channel name
- * @param  {Function} done    Callback
- */
-Cabal.prototype.metadata = function (channel, done) {
-  this.db.get(`metadata/${channel}`, function (err, data) {
-    if (err) return done(err)
-    if (!data.length) return done(null, {latest: 0})
-
-    var largestNode = data[0].value
-    // find the largest value in case of a collision
-    data.forEach((d) => {
-      if (d.value.latest > largestNode.latest) {
-        largestNode = d.value
-      }
-    })
-
-    done(null, largestNode)
-  })
-}
-
-/**
- * Create a message.
- * @param {String} channel - The channel to create the message.
- * @param {String} message - The message to write.
- * @param {Object} opts - Options: date, username, type (message type)
- * @param {function} done - When message has been successfully added.
- */
-Cabal.prototype.message = function (channel, message, opts, done) {
-  if (typeof opts === 'function') return this.message(channel, message, null, opts)
-  if (!opts) opts = {}
-  if (!done) done = noop
-  var self = this
-  if (!message) return done()
-  var username = opts.username || self.username
-  self.metadata(channel, function (err, metadata) {
-    if (err) return done(err)
-    var latest = parseInt(metadata.latest)
-    var newLatest = latest + 1
-    var key = `messages/${channel}/${newLatest}`
-    var d = opts.date || new Date()
-    var date = new Date(d.getTime())
-    var type = opts.type || "chat/text"
-    var m = {author: username, time: date, content: message, type: type}
-    metadata.latest = newLatest
-    var batch = [
-      {type: 'put', key: `metadata/${channel}`, value: metadata},
-      {type: 'put', key: key, value: m}
-    ]
-    self.db.batch(batch, () => {
-      self.emit('message', m)
-      done(null, m)
+  this.feed(function (feed) {
+    message.timestamp = timestamp()
+    feed.append(message, function (err) {
+      cb(err, err ? null : message)
     })
   })
 }
 
+Cabal.prototype.publishNick = function (nick, cb) {
+  // TODO: sanity checks on reasonable names
+  if (!nick) return cb()
+  if (!cb) cb = noop
+
+  this.feed(function (feed) {
+    var msg = {
+      type: 'about',
+      content: {
+        name: nick
+      },
+      timestamp: timestamp()
+    }
+    feed.append(msg, cb)
+  })
+}
+
+Cabal.prototype.getLocalKey = function (cb) {
+  if (!cb) return
+
+  this.feed(function (feed) {
+    cb(null, feed.key.toString('hex'))
+  })
+}
+
 /**
- * Replication stream for the mesh. Shares the username with the
- * other peers it is connecting with.
+ * Replication stream for the mesh.
  */
 Cabal.prototype.replicate = function () {
-  var self = this
-  return this.db.replicate({
-    live: true,
-    userData: JSON.stringify({
-      key: self.db.local.key,
-      username: self.username
-    })
-  })
+  return this.db.replicate({ live: true })
+}
+
+Cabal.prototype._addConnection = function (key) {
+  this.emit('peer-added', key)
+}
+
+Cabal.prototype._removeConnection = function (key) {
+  this.emit('peer-dropped', key)
 }
 
 function noop () {}

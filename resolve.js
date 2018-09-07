@@ -1,6 +1,5 @@
 const dns = require('dns')
 const encoding = require('dat-encoding')
-const NodeCache = require( "node-cache" )
 const url = require('url')
 
 resolve = function(href, opts, cb) {

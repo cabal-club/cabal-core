@@ -13,12 +13,8 @@ Core database, replication, and chat APIs for cabal.
 #### Table of Contents
 
 -   [Cabal](#cabal)
-    -   [onconnection](#onconnection)
-    -   [joinChannel](#joinchannel)
-    -   [leaveChannel](#leavechannel)
-    -   [createReadStream](#createreadstream)
-    -   [metadata](#metadata)
-    -   [message](#message)
+    -   [getUser](#getuser)
+    -   [publish](#publish)
     -   [replicate](#replicate)
 
 ### Cabal
@@ -29,65 +25,29 @@ local nickname -> mesh interactions for a single user.
 **Parameters**
 
 -   `storage` **([string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String) \| [function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function))** A hyperdb compatible storage function, or a string representing the local data path.
--   `href` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The dat link, or a hostname with a DNS TXT entry of the form "CABALKEY=&lt;DAT_KEY_VALUE>". For example, "cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f" is equivalent to "cabal.chat"
+-   `key`
 -   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options include: username
+-   `href` **[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The dat link, or a hostname with a DNS TXT entry of the form "CABALKEY=&lt;DAT_KEY_VALUE>". For example, "cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f" is equivalent to "cabal.chat"
 
-#### onconnection
+#### getUser
 
-When a connection is made. Auto-authorizes new peers to
-write to the local database. Maintains the local view
-of visible users.
-
-**Parameters**
-
--   `peer` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** The discovery-swarm peer emitted from the 'connection' or 'disconnection' event
-
-#### joinChannel
-
-Join a channel.
+Get information about a user that they've volunteered about themselves.
 
 **Parameters**
 
--   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The channel to join.
+-   `key` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The hex key of the user.
+-   `cb`
 
-#### leaveChannel
+#### publish
 
-Leave a channel.
-
-**Parameters**
-
--   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The channel to leave.
-
-#### createReadStream
-
-Create a readable stream for the mesh.
+Publish a message to your feed.
 
 **Parameters**
 
--   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The channel you want to read from.
--   `opts`  
-
-#### metadata
-
-Get the metadata of channel.
-
-**Parameters**
-
--   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** Channel name
--   `done` **[Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** Callback
-
-#### message
-
-Create a message.
-
-**Parameters**
-
--   `channel` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The channel to create the message.
--   `message` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The message to write.
--   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options: date, username, type (message type)
--   `done` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** When message has been successfully added.
+-   `message` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The message to publish.
+-   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options: date
+-   `cb` **[function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)** When message has been successfully added.
 
 #### replicate
 
-Replication stream for the mesh. Shares the username with the
-other peers it is connecting with.
+Replication stream for the mesh.
