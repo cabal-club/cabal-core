@@ -138,7 +138,7 @@ test('listening for live messages', function (t) {
 
 test('setting an href option', function(t) {
   var href = 'test.com'
-  var cabal = Cabal(ram, href, { resolve: function() { 'fakekey' } })
+  var cabal = Cabal(ram, href)
 
   t.equals(cabal.href, href)
   t.end()

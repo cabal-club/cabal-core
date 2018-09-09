@@ -42,7 +42,6 @@ function Cabal (storage, href, opts) {
   if (!opts) opts = {}
   events.EventEmitter.call(this)
 
-  this._resolve  = opts.resolve || resolve
   this._storage = storage
   this.href = href
 }
@@ -117,7 +116,7 @@ Cabal.prototype.init = function(storage) {
   }
 
   if (this.href) {
-    this._resolve(this.href, onKeyResolved)
+    resolve(this.href, onKeyResolved)
   } else {
     onKeyResolved(null, null)
   }
