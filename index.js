@@ -45,13 +45,11 @@ function Cabal (storage, href, opts) {
   this._resolve  = opts.resolve || resolve
   this._storage = storage
   this.href = href
-
-  this._init()
 }
 
 inherits(Cabal, events.EventEmitter)
 
-Cabal.prototype._init = function(storage) {
+Cabal.prototype.init = function(storage) {
   var self = this
 
   var onKeyResolved = function(err, key) {

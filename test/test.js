@@ -29,6 +29,7 @@ test('create a cabal + channel', function (t) {
       })
     })
   })
+  cabal.init()
 })
 
 test('reading back multiple messages', function (t) {
@@ -88,26 +89,28 @@ test('reading back multiple messages', function (t) {
       })
     }
   })
+  cabal.init()
 })
 
 test('listening for live messages', function (t) {
   var cabal = Cabal(ram)
 
   var count = 0
-  cabal.messages.events.on('general', function (msg) {
-    if (count === 0) t.equals(msg.value.content.text, 'one')
-    if (count === 1) t.equals(msg.value.content.text, 'two')
-    if (count === 2) t.equals(msg.value.content.text, 'three')
-    if (++count === 3) t.end()
-  })
-  cabal.messages.events.on('misc', function (msg) {
-    if (count === 0) t.equals(msg.value.content.text, 'one')
-    if (count === 1) t.equals(msg.value.content.text, 'two')
-    if (count === 2) t.equals(msg.value.content.text, 'three')
-    if (++count === 3) t.end()
-  })
 
   cabal.on('ready', function() {
+    cabal.messages.events.on('general', function (msg) {
+      if (count === 0) t.equals(msg.value.content.text, 'one')
+      if (count === 1) t.equals(msg.value.content.text, 'two')
+      if (count === 2) t.equals(msg.value.content.text, 'three')
+      if (++count === 3) t.end()
+    })
+    cabal.messages.events.on('misc', function (msg) {
+      if (count === 0) t.equals(msg.value.content.text, 'one')
+      if (count === 1) t.equals(msg.value.content.text, 'two')
+      if (count === 2) t.equals(msg.value.content.text, 'three')
+      if (++count === 3) t.end()
+    })
+
     cabal.publish({
       type: 'chat/text',
       content: {
@@ -130,6 +133,7 @@ test('listening for live messages', function (t) {
       }
     })
   })
+  cabal.init()
 })
 
 test('setting an href option', function(t) {
