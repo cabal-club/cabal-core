@@ -43,14 +43,15 @@ function Cabal (storage, href, opts) {
   events.EventEmitter.call(this)
 
   this._resolve  = opts.resolve || resolve
+  this._storage = storage
   this.href = href
 
-  this._init(storage, opts)
+  this._init()
 }
 
 inherits(Cabal, events.EventEmitter)
 
-Cabal.prototype._init = function(storage, opts) {
+Cabal.prototype._init = function(storage) {
   var self = this
 
   var onKeyResolved = function(err, key) {
@@ -82,7 +83,7 @@ Cabal.prototype._init = function(storage, opts) {
   }
 
   var configureDb = function() {
-    self.db = kappa(storage, { valueEncoding: JSON_VALUE_ENCODING })
+    self.db = kappa(self._storage, { valueEncoding: JSON_VALUE_ENCODING })
 
     // views
     self.db.use('channels',  createChannelView(memdb({valueEncoding: JSON_VALUE_ENCODING})))
