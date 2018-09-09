@@ -6,7 +6,7 @@ var resolve = require('../resolve')
 
 test('create a cabal + channel', function (t) {
   var cabal = Cabal(ram)
-  cabal.db.ready(function () {
+  cabal.on('ready', function() {
     var msg = {
       type: 'chat/text',
       content: {
@@ -38,7 +38,7 @@ test('reading back multiple messages', function (t) {
 
   var pending = 3
 
-  cabal.db.ready(function () {
+  cabal.on('ready', function() {
     cabal.publish({
       type: 'chat/text',
       content: {
@@ -107,7 +107,7 @@ test('listening for live messages', function (t) {
     if (++count === 3) t.end()
   })
 
-  cabal.db.ready(function () {
+  cabal.on('ready', function() {
     cabal.publish({
       type: 'chat/text',
       content: {
@@ -134,7 +134,7 @@ test('listening for live messages', function (t) {
 
 test('setting an href option', function(t) {
   var href = 'test.com'
-  var cabal = Cabal(ram, href)
+  var cabal = Cabal(ram, href, { resolve: function() { 'fakekey' } })
 
   t.equals(cabal.href, href)
   t.end()
