@@ -29,12 +29,13 @@ module.exports = Cabal
  * @param {string} href - The dat link, or a hostname with a DNS TXT entry of the form "CABALKEY=<DAT_KEY_VALUE>". For example, "cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f" is equivalent to "cabal.chat"
  * @param {Object} opts - Options include: username
  */
-function Cabal (storage, key, opts) {
-  if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
+function Cabal (storage, href, opts) {
+  if (!(this instanceof Cabal)) return new Cabal(storage, href, opts)
   if (!opts) opts = {}
   events.EventEmitter.call(this)
 
-  this.key = key || null
+  this.href = href
+  this.key = href || null
   this.db = kappa(storage, { valueEncoding: JSON_VALUE_ENCODING })
 
   // Create (if needed) and open local write feed

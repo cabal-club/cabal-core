@@ -132,6 +132,14 @@ test('listening for live messages', function (t) {
   })
 })
 
+test('setting an href option', function(t) {
+  var href = 'test.com'
+  var cabal = Cabal(ram, href)
+
+  t.equals(cabal.href, href)
+  t.end()
+})
+
 test('resolve a key from cabal url', function(t) {
   resolve('cabal://4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f', (err, key) => {
     t.equal(key, '4ae5ec168a9f6b45b9d35e3cc1d0f4e3a436000d37fae8f53b3f8dadfe8f192f')
