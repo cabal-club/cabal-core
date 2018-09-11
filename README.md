@@ -34,8 +34,9 @@ a [#cabalerror](#cabalerror) event indicates that something has gone wrong.
 -   `opts` **[Object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)** Options include: username
 
 #### getUser
-
 Get information about a user that they've volunteered about themselves.
+
+#### cabal.channels.read(cb)
 
 **Parameters**
 
