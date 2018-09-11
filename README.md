@@ -29,7 +29,7 @@ transport expressed as a node stream (tcp, websockets, udp, utp, etc).
 
 ### Channels
 
-#### cabal.channals.read(cb)
+#### cabal.channels.read(cb)
 
 Retrieve a list of all channel names that exist in this cabal.
 
