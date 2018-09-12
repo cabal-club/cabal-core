@@ -29,11 +29,11 @@ transport expressed as a node stream (tcp, websockets, udp, utp, etc).
 
 ### Channels
 
-#### cabal.channels.read(cb)
+#### cabal.channels.get(function (error, channels) {})
 
 Retrieve a list of all channel names that exist in this cabal.
 
-#### cabal.channels.events.on('add', function (channel) {}
+#### cabal.channels.events.on('add', function (channel) {})
 
 Emitted when a new channel is added to the cabal.
 
