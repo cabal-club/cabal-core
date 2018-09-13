@@ -40,7 +40,7 @@ Get information about a user that they've volunteered about themselves.
 **Parameters**
 
 -   `key` **[String](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String)** The hex key of the user.
--   `cb`  
+-   `cb`
 
 #### publish
 
