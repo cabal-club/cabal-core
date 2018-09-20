@@ -33,7 +33,6 @@
   "dependencies": {
     "charwise": "^3.0.1",
     "concat-stream": "^1.6.2",
-    "crypto": "^1.0.1",
     "dat-encoding": "^5.0.1",
     "dat-swarm-defaults": "^1.0.1",
     "discovery-swarm": "^5.1.2",
