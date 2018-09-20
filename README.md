@@ -73,7 +73,7 @@ it defaults to `chat/text`. In general, a message is formatted as
 
 ```js
 {
-  type: 'text/chat',
+  type: 'chat/text',
   content: {
     text: 'hello world',
     channel: 'cabal-dev'
@@ -98,6 +98,16 @@ documented types include
   }
 }
 ```
+
+### swarm
+
+> var swarm = require('cabal-core/swarm')
+
+#### swarm(cabal)
+
+Join the P2P swarm for a cabal, start connecting to peers and replicating messages.
+
+Returns a [discovery-swarm](https://github.com/mafintosh/discovery-swarm).
 
 ## License
 
