@@ -73,7 +73,7 @@ it defaults to `chat/text`. In general, a message is formatted as
 
 ```js
 {
-  type: 'text/chat',
+  type: 'chat/text',
   content: {
     text: 'hello world',
     channel: 'cabal-dev'
