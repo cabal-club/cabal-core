@@ -11,6 +11,7 @@ var timestamp = require('monotonic-timestamp')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createUsersView = require('./views/users')
+var version = require("./package.json").version
 
 module.exports = Cabal
 
@@ -39,6 +40,8 @@ function Cabal (storage, key, opts) {
   }
 
   this.key = key || null
+  var majorVersion = version.split(".")[0]
+  this.swarmKey = `v${majorVersion}-${this.key}`
   this.db = kappa(storage, { valueEncoding: json })
 
   // Create (if needed) and open local write feed
