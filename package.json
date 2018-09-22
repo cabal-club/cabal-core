@@ -3,6 +3,7 @@
   "version": "3.0.2",
   "description": " p2p db functions for chat ",
   "main": "index.js",
+  "protocolVersion": "1",
   "scripts": {
     "test": "tape test/*.js",
     "docs": "documentation readme index.js --section=API"
