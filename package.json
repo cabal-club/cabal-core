@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/cabal-club/cabal-core#readme",
   "dependencies": {
+    "blake2": "^2.0.1",
     "charwise": "^3.0.1",
     "concat-stream": "^1.6.2",
     "crypto": "^1.0.1",

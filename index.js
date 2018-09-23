@@ -11,7 +11,8 @@ var timestamp = require('monotonic-timestamp')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createUsersView = require('./views/users')
-var version = require("./package.json").version
+var protocolVersion = require("./package.json").protocolVersion
+var blake = require("blake2")
 
 module.exports = Cabal
 
@@ -40,8 +41,6 @@ function Cabal (storage, key, opts) {
   }
 
   this.key = key || null
-  var majorVersion = version.split(".")[0]
-  this.swarmKey = `v${majorVersion}-${this.key}`
   this.db = kappa(storage, { valueEncoding: json })
 
   // Create (if needed) and open local write feed
@@ -50,6 +49,8 @@ function Cabal (storage, key, opts) {
     self.db.ready(function () {
       self.db.feed('local', function (err, feed) {
         if (!self.key) self.key = feed.key.toString('hex')
+          var h = blake.createKeyedHash("blake2b", new Buffer(self.key), {digestLength: 32 })
+          self.swarmKey = h.update(new Buffer(`v${protocolVersion}-${self.key}`)).digest("hex")
         cb(feed)
       })
     })
