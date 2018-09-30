@@ -99,6 +99,16 @@ documented types include
 }
 ```
 
+### swarm
+
+> var swarm = require('cabal-core/swarm')
+
+#### swarm(cabal)
+
+Join the P2P swarm for a cabal, start connecting to peers and replicating messages.
+
+Returns a [discovery-swarm](https://github.com/mafintosh/discovery-swarm).
+
 ## License
 
 AGPLv3
