@@ -123,6 +123,8 @@ Cabal.prototype.publishNick = function (nick, cb) {
 }
 
 Cabal.prototype.publishChannelTopic = function (channel, topic, cb) {
+  if (!channel || typeof channel !== 'string') return cb()
+  if (!topic || typeof topic !== 'string') return cb()
   if (!cb) cb = noop
   this.feed(function (feed) {
     var msg = {
