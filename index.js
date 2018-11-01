@@ -12,7 +12,10 @@ var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createUsersView = require('./views/users')
 
+var PROTOCOL_VERSION = "1.0.0"
+
 module.exports = Cabal
+module.exports.protocolVersion = PROTOCOL_VERSION
 
 /**
  * Create a new cabal. This is the object handling all
@@ -63,6 +66,10 @@ function Cabal (storage, key, opts) {
 }
 
 inherits(Cabal, events.EventEmitter)
+Cabal.prototype.getProtocolVersion = function (cb) {
+  if (!cb) cb = noop
+  cb(PROTOCOL_VERSION)
+}
 
 /**
  * Get information about a user that they've volunteered about themselves.
