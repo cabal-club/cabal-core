@@ -68,7 +68,7 @@ function Cabal (storage, key, opts) {
 inherits(Cabal, events.EventEmitter)
 Cabal.prototype.getProtocolVersion = function (cb) {
   if (!cb) cb = noop
-  cb(PROTOCOL_VERSION)
+    process.nextTick(cb, PROTOCOL_VERSION)
 }
 
 /**
