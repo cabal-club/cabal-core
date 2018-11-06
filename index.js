@@ -6,6 +6,7 @@ var thunky = require('thunky')
 var timestamp = require('monotonic-timestamp')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
+var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
 
 var PROTOCOL_VERSION = '1.0.0'
@@ -52,12 +53,15 @@ function Cabal (storage, key, opts) {
   })
 
   // views
-  this.db.use('channels', createChannelView(memdb({valueEncoding: json})))
-  this.db.use('messages', createMessagesView(memdb({valueEncoding: json})))
-  this.db.use('users', createUsersView(memdb({valueEncoding: json})))
+
+  this.db.use('channels', createChannelView(memdb({ valueEncoding: json })))
+  this.db.use('messages', createMessagesView(memdb({ valueEncoding: json })))
+  this.db.use('topics', createTopicsView(memdb({ valueEncoding: json })))
+  this.db.use('users', createUsersView(memdb({ valueEncoding: json })))
 
   this.messages = this.db.api.messages
   this.channels = this.db.api.channels
+  this.topics = this.db.api.topics
   this.users = this.db.api.users
 }
 
@@ -115,6 +119,23 @@ Cabal.prototype.publishNick = function (nick, cb) {
       type: 'about',
       content: {
         name: nick
+      },
+      timestamp: timestamp()
+    }
+    feed.append(msg, cb)
+  })
+}
+
+Cabal.prototype.publishChannelTopic = function (channel, topic, cb) {
+  if (!cb) cb = noop
+  if (!channel || typeof channel !== 'string') return cb()
+  if (!topic || typeof topic !== 'string') return cb()
+  this.feed(function (feed) {
+    var msg = {
+      type: 'chat/topic',
+      content: {
+        channel: channel,
+        text: topic
       },
       timestamp: timestamp()
     }
