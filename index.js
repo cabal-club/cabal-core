@@ -1,19 +1,18 @@
 var kappa = require('kappa-core')
 var events = require('events')
-var encoding = require('dat-encoding')
 var inherits = require('inherits')
-var concat = require('concat-stream')
-var through = require('through2')
 var memdb = require('memdb')
 var thunky = require('thunky')
-var randomBytes = require('randombytes')
 var timestamp = require('monotonic-timestamp')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
 
+var PROTOCOL_VERSION = '1.0.0'
+
 module.exports = Cabal
+module.exports.protocolVersion = PROTOCOL_VERSION
 
 /**
  * Create a new cabal. This is the object handling all
@@ -54,6 +53,7 @@ function Cabal (storage, key, opts) {
   })
 
   // views
+
   this.db.use('channels', createChannelView(memdb({ valueEncoding: json })))
   this.db.use('messages', createMessagesView(memdb({ valueEncoding: json })))
   this.db.use('topics', createTopicsView(memdb({ valueEncoding: json })))
@@ -66,6 +66,10 @@ function Cabal (storage, key, opts) {
 }
 
 inherits(Cabal, events.EventEmitter)
+Cabal.prototype.getProtocolVersion = function (cb) {
+  if (!cb) cb = noop
+  process.nextTick(cb, PROTOCOL_VERSION)
+}
 
 /**
  * Get information about a user that they've volunteered about themselves.
@@ -92,10 +96,10 @@ Cabal.prototype.getUser = function (key, cb) {
  * @param {function} cb - When message has been successfully added.
  */
 Cabal.prototype.publish = function (message, opts, cb) {
+  if (!cb) cb = noop
   if (!message) return cb()
   if (typeof opts === 'function') return this.publish(message, null, opts)
   if (!opts) opts = {}
-  if (!cb) cb = noop
 
   this.feed(function (feed) {
     message.timestamp = timestamp()
@@ -107,8 +111,8 @@ Cabal.prototype.publish = function (message, opts, cb) {
 
 Cabal.prototype.publishNick = function (nick, cb) {
   // TODO: sanity checks on reasonable names
-  if (!nick) return cb()
   if (!cb) cb = noop
+  if (!nick) return cb()
 
   this.feed(function (feed) {
     var msg = {
