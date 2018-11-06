@@ -111,8 +111,8 @@ Cabal.prototype.publish = function (message, opts, cb) {
 
 Cabal.prototype.publishNick = function (nick, cb) {
   // TODO: sanity checks on reasonable names
-  if (!nick) return cb()
   if (!cb) cb = noop
+  if (!nick) return cb()
 
   this.feed(function (feed) {
     var msg = {
