@@ -12,7 +12,7 @@ var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createUsersView = require('./views/users')
 
-var PROTOCOL_VERSION = "1.0.0"
+var PROTOCOL_VERSION = '1.0.0'
 
 module.exports = Cabal
 module.exports.protocolVersion = PROTOCOL_VERSION
@@ -23,7 +23,7 @@ module.exports.protocolVersion = PROTOCOL_VERSION
  * @constructor
  * @param {string|function} storage - A hyperdb compatible storage function, or a string representing the local data path.
  * @param {string} key - The dat link
- * @param {Object} opts - 
+ * @param {Object} opts -
  */
 function Cabal (storage, key, opts) {
   if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
@@ -56,9 +56,9 @@ function Cabal (storage, key, opts) {
   })
 
   // views
-  this.db.use('channels',  createChannelView(memdb({valueEncoding: json})))
+  this.db.use('channels', createChannelView(memdb({valueEncoding: json})))
   this.db.use('messages', createMessagesView(memdb({valueEncoding: json})))
-  this.db.use('users',       createUsersView(memdb({valueEncoding: json})))
+  this.db.use('users', createUsersView(memdb({valueEncoding: json})))
 
   this.messages = this.db.api.messages
   this.channels = this.db.api.channels
@@ -68,7 +68,7 @@ function Cabal (storage, key, opts) {
 inherits(Cabal, events.EventEmitter)
 Cabal.prototype.getProtocolVersion = function (cb) {
   if (!cb) cb = noop
-    process.nextTick(cb, PROTOCOL_VERSION)
+  process.nextTick(cb, PROTOCOL_VERSION)
 }
 
 /**
@@ -96,10 +96,10 @@ Cabal.prototype.getUser = function (key, cb) {
  * @param {function} cb - When message has been successfully added.
  */
 Cabal.prototype.publish = function (message, opts, cb) {
+  if (!cb) cb = noop
   if (!message) return cb()
   if (typeof opts === 'function') return this.publish(message, null, opts)
   if (!opts) opts = {}
-  if (!cb) cb = noop
 
   this.feed(function (feed) {
     message.timestamp = timestamp()
