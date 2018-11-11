@@ -6,18 +6,34 @@ module.exports = function (cabal) {
   swarm.join(cabal.key.toString('hex'))
   swarm.on('connection', function (conn, info) {
     var remoteKey
+    var ended = false
 
     cabal.getLocalKey(function (err, key) {
       if (key) {
+        // send local key to remote
         conn.write(new Buffer(key, 'hex'))
-        conn.once('data', function (rkey) {
+
+        // read remote key from remote
+        conn.once('readable', onReadable)
+
+        conn.once('end', function () {
+          ended = true
+        })
+
+        function onReadable () {
+          if (ended) return
+          var rkey = conn.read(32)
+          if (!rkey) {
+            conn.once('readable', onReadable)
+            return
+          }
+
           remoteKey = rkey.toString('hex')
-          conn.pause()
           cabal._addConnection(remoteKey)
           replicate()
-        })
+        }
       } else {
-        replicate()
+        throw new Error('UNEXPECTED STATE: no local key!')
       }
     })
 
