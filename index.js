@@ -9,10 +9,10 @@ var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
 
-var PROTOCOL_VERSION = '1.0.0'
+var DATABASE_VERSION = 1
 
 module.exports = Cabal
-module.exports.protocolVersion = PROTOCOL_VERSION
+module.exports.databaseVersion = DATABASE_VERSION
 
 /**
  * Create a new cabal. This is the object handling all
@@ -66,9 +66,9 @@ function Cabal (storage, key, opts) {
 }
 
 inherits(Cabal, events.EventEmitter)
-Cabal.prototype.getProtocolVersion = function (cb) {
+Cabal.prototype.getDatabaseVersion = function (cb) {
   if (!cb) cb = noop
-  process.nextTick(cb, PROTOCOL_VERSION)
+  process.nextTick(cb, DATABASE_VERSION)
 }
 
 /**
