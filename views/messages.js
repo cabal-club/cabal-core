@@ -41,6 +41,16 @@ module.exports = function (lvl) {
     },
 
     api: {
+      /**
+       * Creates a read stream of messages
+       * @param {Object} core - HyperCore to stream messages from.
+       * @param {String} channel - Name of channel
+       * @param {Object} opts :
+       *      `gt` {Number} - Filter by timestamp where message.timestamp is greater than `gt`
+       *      `lt` {Number} - Filter by timestamp where message.timestamp is lesser than `lt`
+       *       Supports all levelup.createValueStream() options as well:
+       *      `reverse` {Boolean} - Streams messages in Ascending time order, default: `true` (Descending)
+       */
       read: function (core, channel, opts) {
         opts = opts || {}
 
@@ -52,9 +62,7 @@ module.exports = function (lvl) {
         else opts.lt = 'msg!' + channel + '~'
 
         this.ready(function () {
-          var v = lvl.createValueStream(xtend(opts, {
-            reverse: true
-          }))
+          var v = lvl.createValueStream(xtend({reverse: true}, opts))
           v.pipe(t)
         })
 
