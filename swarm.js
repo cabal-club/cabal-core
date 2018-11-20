@@ -1,8 +1,9 @@
 var discovery = require('discovery-swarm')
 var swarmDefaults = require('dat-swarm-defaults')
 
-module.exports = function (cabal) {
-  var swarm = discovery(swarmDefaults())
+module.exports = function (cabal, opts) {
+  if (!opts) opts = {}
+  var swarm = discovery(swarmDefaults(opts))
   swarm.join(cabal.key.toString('hex'))
   swarm.on('connection', function (conn, info) {
     var remoteKey
