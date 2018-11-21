@@ -32,9 +32,7 @@ module.exports = function (lvl) {
         if (!channel) return
         this.ready(function () {
           lvl.get('channel!topic!' + channel, (err, topic) => {
-            if (!err && topic) {
-              cb(null, topic)
-            }
+            cb(err, topic)
           })
         })
       },
