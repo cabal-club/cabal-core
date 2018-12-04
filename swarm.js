@@ -13,8 +13,6 @@ module.exports = function (cabal) {
     announce: true
   })
   net.on('connection', function (socket, details) {
-    console.log('new connection!', details)
-
     var remoteKey
     var ended = false
 
