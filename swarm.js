@@ -1,30 +1,40 @@
-var discovery = require('discovery-swarm')
-var swarmDefaults = require('dat-swarm-defaults')
+var network = require('@hyperswarm/network')
+var crypto = require('crypto')
 
 module.exports = function (cabal) {
-  var swarm = discovery(swarmDefaults())
-  swarm.join(cabal.key.toString('hex'))
-  swarm.on('connection', function (conn, info) {
+  var net = network()
+
+  const topic = crypto.createHash('sha256')
+    .update(cabal.key.toString('hex'))
+    .digest()
+
+  net.join(topic, {
+    lookup: true,
+    announce: true
+  })
+  net.on('connection', function (socket, details) {
+    console.log('new connection!', details)
+
     var remoteKey
     var ended = false
 
     cabal.getLocalKey(function (err, key) {
       if (key) {
         // send local key to remote
-        conn.write(new Buffer(key, 'hex'))
+        socket.write(new Buffer(key, 'hex'))
 
         // read remote key from remote
-        conn.once('readable', onReadable)
+        socket.once('readable', onReadable)
 
-        conn.once('end', function () {
+        socket.once('end', function () {
           ended = true
         })
 
         function onReadable () {
           if (ended) return
-          var rkey = conn.read(32)
+          var rkey = socket.read(32)
           if (!rkey) {
-            conn.once('readable', onReadable)
+            socket.once('readable', onReadable)
             return
           }
 
@@ -39,14 +49,14 @@ module.exports = function (cabal) {
 
     function replicate () {
       var r = cabal.replicate()
-      conn.pipe(r).pipe(conn)
+      socket.pipe(r).pipe(socket)
       r.on('error', noop)
     }
 
-    conn.once('error', function () { if (remoteKey) cabal._removeConnection(remoteKey) })
-    conn.once('end',   function () { if (remoteKey) cabal._removeConnection(remoteKey) })
+    socket.once('error', function () { if (remoteKey) cabal._removeConnection(remoteKey) })
+    socket.once('end', function () { if (remoteKey) cabal._removeConnection(remoteKey) })
   })
-  return swarm
+  return net
 }
 
 function noop () {}
