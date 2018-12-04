@@ -31,7 +31,6 @@
   },
   "homepage": "https://github.com/cabal-club/cabal-core#readme",
   "dependencies": {
-    "@hyperswarm/discovery": "^1.2.0",
     "@hyperswarm/network": "0.0.4",
     "charwise": "^3.0.1",
     "concat-stream": "^1.6.2",
