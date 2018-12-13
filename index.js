@@ -39,7 +39,10 @@ function Cabal (storage, key, opts) {
   }
 
   this.key = key || null
-  this.db = kappa(storage, { valueEncoding: json })
+  this.db = kappa(storage, {
+    maxFeeds: opts.maxFeeds,
+    valueEncoding: json
+  })
 
   // Create (if needed) and open local write feed
   var self = this
