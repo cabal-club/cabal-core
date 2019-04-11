@@ -38,9 +38,9 @@ function Cabal (storage, key, opts) {
     }
   }
 
+  this.maxFeeds = opts.maxFeeds
   this.key = key || null
   this.db = kappa(storage, {
-    maxFeeds: opts.maxFeeds,
     valueEncoding: json
   })
 
@@ -158,7 +158,10 @@ Cabal.prototype.getLocalKey = function (cb) {
  * Replication stream for the mesh.
  */
 Cabal.prototype.replicate = function () {
-  return this.db.replicate({ live: true })
+  return this.db.replicate({
+    live: true,
+    maxFeeds: this.maxFeeds
+  })
 }
 
 Cabal.prototype._addConnection = function (key) {
