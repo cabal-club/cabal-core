@@ -41,6 +41,7 @@ function Cabal (storage, key, opts) {
   this.maxFeeds = opts.maxFeeds
   this.key = key || null
   this.db = kappa(storage, {
+    key: this.key,
     valueEncoding: json
   })
 
