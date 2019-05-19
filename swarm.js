@@ -1,52 +1,28 @@
+var pump = require('pump')
 var discovery = require('discovery-swarm')
 var swarmDefaults = require('dat-swarm-defaults')
 
-module.exports = function (cabal) {
-  var swarm = discovery(swarmDefaults())
-  swarm.join(cabal.key.toString('hex'))
-  swarm.on('connection', function (conn, info) {
-    var remoteKey
-    var ended = false
+module.exports = function (cabal, cb) {
+  cb = cb || function () {}
 
-    cabal.getLocalKey(function (err, key) {
-      if (key) {
-        // send local key to remote
-        conn.write(new Buffer(key, 'hex'))
+  cabal.getLocalKey(function (err, key) {
+    if (err) return cb(err)
 
-        // read remote key from remote
-        conn.once('readable', onReadable)
+    var swarm = discovery(Object.assign({}, swarmDefaults(), { id: key }))
+    swarm.join(cabal.key.toString('hex'))
+    swarm.on('connection', function (conn, info) {
+      conn.once('error', function () { if (info.id) cabal._removeConnection(info.id) })
+      conn.once('end',   function () { if (info.id) cabal._removeConnection(info.id) })
 
-        conn.once('end', function () {
-          ended = true
-        })
+      var r = cabal.replicate()
+      pump(conn, r, conn, function (err) {
+        // TODO: report somehow
+      })
 
-        function onReadable () {
-          if (ended) return
-          var rkey = conn.read(32)
-          if (!rkey) {
-            conn.once('readable', onReadable)
-            return
-          }
-
-          remoteKey = rkey.toString('hex')
-          cabal._addConnection(remoteKey)
-          replicate()
-        }
-      } else {
-        throw new Error('UNEXPECTED STATE: no local key!')
-      }
+      cabal._addConnection(info.id)
     })
 
-    function replicate () {
-      var r = cabal.replicate()
-      conn.pipe(r).pipe(conn)
-      r.on('error', noop)
-    }
-
-    conn.once('error', function () { if (remoteKey) cabal._removeConnection(remoteKey) })
-    conn.once('end',   function () { if (remoteKey) cabal._removeConnection(remoteKey) })
+    cb(null, swarm)
   })
-  return swarm
 }
 
-function noop () {}
