@@ -183,11 +183,11 @@ test('local replication', function (t) {
   })
 })
 
-test.only('local replication', function (t) {
+test('swarm network replication', function (t) {
   t.plan(15)
 
   function create (id, cb) {
-    var cabal = Cabal(ram)
+    var cabal = Cabal(ram, 'fake')
     cabal.db.ready(function () {
       var msg = {
         type: 'chat/text',
@@ -199,7 +199,7 @@ test.only('local replication', function (t) {
       }
       cabal.getLocalKey(function (err, key) {
         if (err) return cb(err)
-        cabal.key = key
+        cabal._localkey = key
         cabal.publish(msg, function (err) {
           if (err) cb(err)
           else cb(null, cabal)
@@ -220,9 +220,9 @@ test.only('local replication', function (t) {
           collect(r, function (err, data) {
             t.error(err)
             t.same(data.length, 2, '2 messages')
-            t.same(data[0].key, c2.key)
+            t.same(data[0].key, c2._localkey)
             t.same(data[0].seq, 0)
-            t.same(data[1].key, c1.key)
+            t.same(data[1].key, c1._localkey)
             t.same(data[1].seq, 0)
           })
         }
@@ -246,17 +246,23 @@ function syncNetwork (a, b, cb) {
     if (err) return cb(err)
     b.swarm(function (err, swarm2) {
       if (err) return cb(err)
+
+      function end () {
+        if (!--pending) {
+          swarm1.destroy(function () {
+            swarm2.destroy(cb)
+          })
+        }
+      }
+
       a.on('peer-added', function (key) {
         console.log('a-add', key)
-        setTimeout(function () {
-          if (!--pending) cb()
-        }, 1000)
+        setTimeout(end, 2000)
       })
+
       b.on('peer-added', function (key) {
         console.log('b-add', key)
-        setTimeout(function () {
-          if (!--pending) cb()
-        }, 1000)
+        setTimeout(end, 2000)
       })
     })
   })
