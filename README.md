@@ -1,6 +1,6 @@
 # cabal-core
 
-Core database, replication, and chat APIs for cabal.
+Core database, replication, swarming, and chat APIs for cabal.
 
 ## Usage
 
@@ -20,7 +20,7 @@ If this is a new database, `key` can be omitted and will be generated.
 
 ### cabal.getLocalKey(cb)
 
-Returns the local user's key (as a string).
+Returns the local user's key (as a hex string).
 
 ### var ds = cabal.replicate()
 
@@ -54,6 +54,14 @@ Calls `fn` with every new message that arrives, regardless of channel.
 Calls `fn` with every new message that arrives in `channel`.
 
 ### Network
+
+> var swarm = require('cabal-core/swarm')
+
+#### cabal.swarm(cb)
+
+Joins the P2P swarm for a cabal. This seeks out peers who are also part of this cabal by various means (internet, local network), connects to them, and replicates cabal messages between them.
+
+The returned object is an instance of [discovery-swarm](https://github.com/mafintosh/discovery-swarm).
 
 #### cabal.on('peer-added', function (key) {})
 
@@ -98,17 +106,6 @@ documented types include
   }
 }
 ```
-
-### swarm
-
-> var swarm = require('cabal-core/swarm')
-
-#### swarm(cabal, cb)
-
-Join the P2P swarm for a cabal, start connecting to peers and replicating
-messages.
-
-Returns a [discovery-swarm](https://github.com/mafintosh/discovery-swarm).
 
 ## License
 
