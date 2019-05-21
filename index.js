@@ -8,6 +8,7 @@ var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
+var swarm = require('./swarm')
 
 var DATABASE_VERSION = 1
 
@@ -105,7 +106,7 @@ Cabal.prototype.publish = function (message, opts, cb) {
   if (!opts) opts = {}
 
   this.feed(function (feed) {
-    message.timestamp = timestamp()
+    message.timestamp = message.timestamp || timestamp()
     feed.append(message, function (err) {
       cb(err, err ? null : message)
     })
@@ -154,14 +155,14 @@ Cabal.prototype.getLocalKey = function (cb) {
   })
 }
 
-/**
- * Replication stream for the mesh.
- */
-Cabal.prototype.replicate = function () {
-  return this.db.replicate({
-    live: true,
-    maxFeeds: this.maxFeeds
-  })
+Cabal.prototype.swarm = function (cb) {
+  swarm(this, cb)
+}
+
+Cabal.prototype.replicate = function (opts) {
+  opts = opts || {}
+  opts = Object.assign({}, {live:true}, opts)
+  return this.db.replicate(opts)
 }
 
 Cabal.prototype._addConnection = function (key) {
