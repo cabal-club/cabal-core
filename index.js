@@ -49,7 +49,7 @@ function Cabal (storage, key, opts) {
   var self = this
   this.feed = thunky(function (cb) {
     self.db.ready(function () {
-      self.db.feed('local', function (err, feed) {
+      self.db.writer('local', function (err, feed) {
         if (!self.key) self.key = feed.key.toString('hex')
         cb(feed)
       })
