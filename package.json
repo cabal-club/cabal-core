@@ -44,6 +44,7 @@
     "randombytes": "^2.0.6",
     "read-only-stream": "^2.0.0",
     "strftime": "^0.10.0",
+    "subleveldown": "^4.0.0",
     "through2": "^3.0.1",
     "thunky": "^1.0.3",
     "xtend": "^4.0.1"
