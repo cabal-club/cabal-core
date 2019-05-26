@@ -16,6 +16,8 @@ Create a cabal p2p database using storage `storage`, which must be either a
 string (filepath to directory on disk) or an instance of
 [random-access-storage](https://github.com/random-access-storage/).
 
+`key` is a hex string of the key, without any prefixes (like `cabal://`).
+
 If this is a new database, `key` can be omitted and will be generated.
 
 You can pass `opts.db` as a levelup or leveldown instance to use persistent
