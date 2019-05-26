@@ -6,7 +6,7 @@ var pump = require('pump')
 
 test('create a cabal + channel', function (t) {
   var cabal = Cabal(ram)
-  cabal.db.ready(function () {
+  cabal.ready(function () {
     var msg = {
       type: 'chat/text',
       content: {
@@ -38,7 +38,7 @@ test('reading back multiple messages', function (t) {
 
   var pending = 3
 
-  cabal.db.ready(function () {
+  cabal.ready(function () {
     cabal.publish({
       type: 'chat/text',
       content: {
@@ -107,7 +107,7 @@ test('listening for live messages', function (t) {
     if (++count === 3) t.end()
   })
 
-  cabal.db.ready(function () {
+  cabal.ready(function () {
     cabal.publish({
       type: 'chat/text',
       content: {
@@ -137,7 +137,7 @@ test('local replication', function (t) {
 
   function create (id, cb) {
     var cabal = Cabal(ram)
-    cabal.db.ready(function () {
+    cabal.ready(function () {
       var msg = {
         type: 'chat/text',
         content: {
@@ -188,7 +188,7 @@ test('swarm network replication', function (t) {
 
   function create (id, cb) {
     var cabal = Cabal(ram, 'fake')
-    cabal.db.ready(function () {
+    cabal.ready(function () {
       var msg = {
         type: 'chat/text',
         content: {

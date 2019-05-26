@@ -18,6 +18,14 @@ string (filepath to directory on disk) or an instance of
 
 If this is a new database, `key` can be omitted and will be generated.
 
+You can pass `opts.db` as a levelup or leveldown instance to use persistent
+storage for indexing instead of using memory. For example:
+
+``` js
+var level = require('level')
+var cabal = Cabal(storage, key, { db: level('/tmp/bot.db') })
+```
+
 ### cabal.getLocalKey(cb)
 
 Returns the local user's key (as a hex string).
@@ -26,6 +34,10 @@ Returns the local user's key (as a hex string).
 
 Creates a new, live replication stream. This duplex stream can be piped into any
 transport expressed as a node stream (tcp, websockets, udp, utp, etc).
+
+### cabal.ready(cb)
+
+Call `cb()` when the underlying indexes are caught up.
 
 ### Channels
 

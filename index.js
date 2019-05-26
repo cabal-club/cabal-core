@@ -4,6 +4,7 @@ var inherits = require('inherits')
 var memdb = require('memdb')
 var thunky = require('thunky')
 var timestamp = require('monotonic-timestamp')
+var sublevel = require('subleveldown')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
@@ -11,6 +12,10 @@ var createUsersView = require('./views/users')
 var swarm = require('./swarm')
 
 var DATABASE_VERSION = 1
+var CHANNELS = 'c'
+var MESSAGES = 'm'
+var TOPICS = 't'
+var USERS = 'u'
 
 module.exports = Cabal
 module.exports.databaseVersion = DATABASE_VERSION
@@ -41,15 +46,16 @@ function Cabal (storage, key, opts) {
 
   this.maxFeeds = opts.maxFeeds
   this.key = key || null
-  this.db = kappa(storage, {
+  this.db = opts.db || memdb()
+  this.kcore = kappa(storage, {
     valueEncoding: json
   })
 
   // Create (if needed) and open local write feed
   var self = this
   this.feed = thunky(function (cb) {
-    self.db.ready(function () {
-      self.db.writer('local', function (err, feed) {
+    self.kcore.ready(function () {
+      self.kcore.writer('local', function (err, feed) {
         if (!self.key) self.key = feed.key.toString('hex')
         cb(feed)
       })
@@ -58,15 +64,19 @@ function Cabal (storage, key, opts) {
 
   // views
 
-  this.db.use('channels', createChannelView(memdb({ valueEncoding: json })))
-  this.db.use('messages', createMessagesView(memdb({ valueEncoding: json })))
-  this.db.use('topics', createTopicsView(memdb({ valueEncoding: json })))
-  this.db.use('users', createUsersView(memdb({ valueEncoding: json })))
+  this.kcore.use('channels', createChannelView(
+    sublevel(this.db, CHANNELS, { valueEncoding: json })))
+  this.kcore.use('messages', createMessagesView(
+    sublevel(this.db, MESSAGES, { valueEncoding: json })))
+  this.kcore.use('topics', createTopicsView(
+    sublevel(this.db, TOPICS, { valueEncoding: json })))
+  this.kcore.use('users', createUsersView(
+    sublevel(this.db, USERS, { valueEncoding: json })))
 
-  this.messages = this.db.api.messages
-  this.channels = this.db.api.channels
-  this.topics = this.db.api.topics
-  this.users = this.db.api.users
+  this.messages = this.kcore.api.messages
+  this.channels = this.kcore.api.channels
+  this.topics = this.kcore.api.topics
+  this.users = this.kcore.api.users
 }
 
 inherits(Cabal, events.EventEmitter)
@@ -89,7 +99,7 @@ Cabal.prototype.getUser = function (key, cb) {
 
   this.feed(function (feed) {
     if (!key) key = feed.key.toString('hex')
-    self.db.api.users.get(key, cb)
+    self.kcore.api.users.get(key, cb)
   })
 }
 
@@ -162,7 +172,11 @@ Cabal.prototype.swarm = function (cb) {
 Cabal.prototype.replicate = function (opts) {
   opts = opts || {}
   opts = Object.assign({}, {live:true}, opts)
-  return this.db.replicate(opts)
+  return this.kcore.replicate(opts)
+}
+
+Cabal.prototype.ready = function (cb) {
+  this.kcore.ready(cb)
 }
 
 Cabal.prototype._addConnection = function (key) {
