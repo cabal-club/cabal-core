@@ -59,6 +59,7 @@ module.exports = function (lvl) {
     },
 
     storeState: function (state, cb) {
+      state = state.toString('base64')
       lvl.put('state', state, cb)
     },
 
@@ -66,7 +67,7 @@ module.exports = function (lvl) {
       lvl.get('state', function (err, state) {
         if (err && err.notFound) cb()
         else if (err) cb(err)
-        else cb(null, state)
+        else cb(null, Buffer.from(state, 'base64'))
       })
     },
   }
