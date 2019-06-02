@@ -382,9 +382,12 @@ test('join two channels then leave one', function (t) {
 
 
 test('multiple channel participants', function (t) {
+  var sharedKey
+
   function create (id, cb) {
-    var cabal = Cabal(ram)
+    var cabal = Cabal(ram, sharedKey ? sharedKey : null)
     cabal.ready(function () {
+      if (!sharedKey) sharedKey = cabal.key
       var msg = {
         type: 'channel/join',
         content: {
@@ -393,7 +396,6 @@ test('multiple channel participants', function (t) {
       }
       cabal.getLocalKey(function (err, key) {
         if (err) return cb(err)
-        cabal.key = key
         cabal.publish(msg, function (err) {
           if (err) cb(err)
           else cb(null, cabal)
@@ -405,7 +407,6 @@ test('multiple channel participants', function (t) {
   var count = 0
   function checkIfDone () {
     count++
-    console.log(count)
     if (count === 2) {
       t.end()
     } 

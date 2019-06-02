@@ -10,15 +10,15 @@ Core database, replication, swarming, and chat APIs for cabal.
 
 > var Cabal = require('cabal-node')
 
-### var cabal = Cabal([storage][, key][, opts])
+### var cabal = Cabal([storage][, uriString][, opts])
 
 Create a cabal p2p database using storage `storage`, which must be either a
 string (filepath to directory on disk) or an instance of
 [random-access-storage](https://github.com/random-access-storage/).
 
-`key` is a hex string of the key, without any prefixes (like `cabal://`).
+`uriString` is a cabal URI string, of the form `cabal://<hexkey>[?param1=value1&param2=value2`. A hexidecimal key on its own will also be understood.
 
-If this is a new database, `key` can be omitted and will be generated.
+If this is a new cabal, `key` can be omitted and will be generated.
 
 You can pass `opts.db` as a levelup or leveldown instance to use persistent
 storage for indexing instead of using memory. For example:
