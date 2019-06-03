@@ -55,7 +55,6 @@ function Cabal (storage, uriString, opts) {
   this.maxFeeds = opts.maxFeeds
 
   // Parse the cabal URI string
-  console.log('uriString', uriString)
   if (!uriString) {
     // Create a new cabal
     uriString = 'cabal://' + generateKeyHex()
@@ -65,9 +64,7 @@ function Cabal (storage, uriString, opts) {
   var proto = uri.protocol.replace(':', '')
   var key = uri.host
   var params = querystring.parse(uri.query)
-  console.log('parse', uriString, proto, key, params)
   this.key = key
-  // ;[this.key,this.modKey] = key ? key.split('@') : [generateKeyHex(),null]
 
   this.db = opts.db || memdb()
   this.kcore = kappa(storage, {
