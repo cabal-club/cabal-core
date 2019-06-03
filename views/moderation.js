@@ -85,7 +85,6 @@ module.exports = function (cabal, modKey, db) {
         return queue.push(function () { map(rows, next) })
       } else map(rows, next)
     },
-    indexed: function (rows) {},
     events: events,
     api: {
       listBans: function (core, channel) {
