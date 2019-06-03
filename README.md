@@ -86,6 +86,22 @@ Emitted when you connect to a peer. `key` is a hex string of their public key.
 Emitted when you lose a connection to a peer. `key` is a hex string of their
 public key.
 
+## Moderation
+
+#### var rs = cabal.moderation.listBans(channel)
+
+Return a readable objectMode stream of bans for `channel`.
+
+Each ban is an object with either a `key` or `ip` property.
+
+To list cabal-wide bans use the special channel `@`.
+
+#### cabal.moderation.isBanned({ ip, key, channel }, cb)
+
+Determine whether a user identified by `ip` and/or `key` is banned on `channel`
+or cabal-wide as `cb(err, banned)` for a boolean `banned`. If `channel` is
+omitted, only check cabal-wide.
+
 ### Publishing
 
 #### cabal.publish(message, opts, cb)
@@ -117,6 +133,32 @@ documented types include
   content: {
     text: 'whatever the user wants to say',
     channel: 'some channel name. if it didnt exist before, it does now!'
+  }
+}
+```
+
+#### mod/{add,remove}
+
+```js
+{
+  type: '"mod/add" or "mod/remove"',
+  content: {
+    key: 'hex string key of the user to add/remove as mod',
+    channel: 'channel name as a string or "@" for cabal-wide'
+    role: '"admin", "mod", or a custom role string'
+  }
+}
+```
+
+#### ban/{add,remove}
+
+```js
+{
+  type: '"ban/add" or "ban/remove"',
+  content: {
+    key: 'hex string key of the user to ban/unban (optional)',
+    ip: 'string ip address of the user to ban/unban (optional)',
+    channel: 'channel name as a string or "@" for cabal-wide'
   }
 }
 ```
