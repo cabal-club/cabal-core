@@ -171,7 +171,10 @@ Cabal.prototype.swarm = function (cb) {
 
 Cabal.prototype.replicate = function (opts) {
   opts = opts || {}
-  opts = Object.assign({}, {live:true}, opts)
+  opts = Object.assign({}, {
+    live: true,
+    maxFeeds: 1024
+  }, opts)
   return this.kcore.replicate(opts)
 }
 
