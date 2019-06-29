@@ -32,6 +32,7 @@ function Cabal (storage, key, opts) {
   if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
   if (!opts) opts = {}
   events.EventEmitter.call(this)
+  this.setMaxListeners(Infinity)
 
   var json = {
     encode: function (obj) {
