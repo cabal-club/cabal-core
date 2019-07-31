@@ -1,6 +1,7 @@
 var pump = require('pump')
 var discovery = require('discovery-swarm')
 var swarmDefaults = require('dat-swarm-defaults')
+var debug = require('debug')('cabal')
 
 module.exports = function (cabal, cb) {
   cb = cb || function () {}
@@ -17,7 +18,7 @@ module.exports = function (cabal, cb) {
 
       var r = cabal.replicate()
       pump(conn, r, conn, function (err) {
-        // TODO: report somehow
+        if (err) debug('ERROR', err)
       })
 
       cabal._addConnection(remoteKey)

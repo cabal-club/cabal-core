@@ -35,6 +35,7 @@
     "concat-stream": "^2.0.0",
     "dat-encoding": "^5.0.1",
     "dat-swarm-defaults": "^1.0.1",
+    "debug": "^4.1.1",
     "discovery-swarm": "^6.0.0",
     "inherits": "^2.0.4",
     "kappa-core": "^4.0.0",
