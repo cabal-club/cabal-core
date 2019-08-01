@@ -24,10 +24,10 @@ module.exports = function (lvl) {
       var seen = {}
       msgs.forEach(function (msg) {
         if (!sanitize(msg)) return
+        var channel = msg.value.content.channel
+        var key = msg.key
+        var pair = channel+key // a composite key, to know if we have seen this pari
         if (msg.value.type === 'channel/join') {
-          var channel = msg.value.content.channel
-          var key = msg.key
-          var pair = channel+key // a composite key, to know if we have seen this pari
           ops.push({
             type: 'put',
             key: 'member!' + channel + '!' + key,
@@ -41,10 +41,8 @@ module.exports = function (lvl) {
             type: "del", 
             key: 'member!' + channel + '!' + key,
           })
-          if (seen[pair]) { 
-            delete seen[pair]
-            events.emit('remove', channel, key)
-          }
+          if (seen[pair]) { delete seen[pair] }
+          events.emit('remove', channel, key)
         }
         lvl.batch(ops, next)
       })
