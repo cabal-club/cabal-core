@@ -7,7 +7,7 @@ var timestamp = require('monotonic-timestamp')
 var sublevel = require('subleveldown')
 var crypto = require('hypercore-crypto')
 var createChannelView = require('./views/channels')
-var createJoinedChannelView = require('./views/channel-membership')
+var createMembershipsView = require('./views/channel-membership')
 var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
@@ -15,7 +15,7 @@ var swarm = require('./swarm')
 
 var DATABASE_VERSION = 1
 var CHANNELS = 'c'
-var JOINED_CHANNELS = 'j'
+var MEMBERSHIPS = 'j'  // j for joined memberships..? :3 
 var MESSAGES = 'm'
 var TOPICS = 't'
 var USERS = 'u'
@@ -67,9 +67,9 @@ function Cabal (storage, key, opts) {
 
   // views
 
-  /* TODO: refactor `joinedchannels` to `membership`, and in cabal-details.js */
-  this.kcore.use('joinedchannels', createJoinedChannelView(
-    sublevel(this.db, JOINED_CHANNELS, { valueEncoding: json })))
+  /* TODO: refactor `memberships` to `membership`, and in cabal-details.js */
+  this.kcore.use('memberships', createMembershipsView(
+    sublevel(this.db, MEMBERSHIPS, { valueEncoding: json })))
   this.kcore.use('channels', createChannelView(
     sublevel(this.db, CHANNELS, { valueEncoding: json })))
   this.kcore.use('messages', createMessagesView(
@@ -81,7 +81,7 @@ function Cabal (storage, key, opts) {
 
   this.messages = this.kcore.api.messages
   this.channels = this.kcore.api.channels
-  this.joinedchannels = this.kcore.api.joinedchannels
+  this.memberships = this.kcore.api.memberships
   this.topics = this.kcore.api.topics
   this.users = this.kcore.api.users
 }
