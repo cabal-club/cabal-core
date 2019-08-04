@@ -3,6 +3,7 @@ var Cabal = require('..')
 var test = require('tape')
 var ram = require('random-access-memory')
 var pump = require('pump')
+var hypercore = require('hypercore')
 
 test('create a cabal + channel', function (t) {
   var cabal = Cabal(ram)
@@ -186,8 +187,10 @@ test('local replication', function (t) {
 test('swarm network replication', function (t) {
   t.plan(15)
 
+  var key
+
   function create (id, cb) {
-    var cabal = Cabal(ram, 'fake')
+    var cabal = Cabal(ram, key)
     cabal.ready(function () {
       var msg = {
         type: 'chat/text',
@@ -208,30 +211,38 @@ test('swarm network replication', function (t) {
     })
   }
 
-  create(1, function (err, c1) {
-    t.error(err)
-    create(2, function (err, c2) {
+  var core = hypercore(ram)
+  core.ready(function () {
+    key = core.key
+    setup()
+  })
+
+  function setup () {
+    create(1, function (err, c1) {
       t.error(err)
-      syncNetwork(c1, c2, function (err) {
-        t.error(err, 'sync ok')
+      create(2, function (err, c2) {
+        t.error(err)
+        syncNetwork(c1, c2, function (err) {
+          t.error(err, 'sync ok')
 
-        function check (cabal) {
-          var r = cabal.messages.read('general')
-          collect(r, function (err, data) {
-            t.error(err)
-            t.same(data.length, 2, '2 messages')
-            t.same(data[0].key, c2._localkey)
-            t.same(data[0].seq, 0)
-            t.same(data[1].key, c1._localkey)
-            t.same(data[1].seq, 0)
-          })
-        }
+          function check (cabal) {
+            var r = cabal.messages.read('general')
+            collect(r, function (err, data) {
+              t.error(err)
+              t.same(data.length, 2, '2 messages')
+              t.same(data[0].key, c2._localkey)
+              t.same(data[0].seq, 0)
+              t.same(data[1].key, c1._localkey)
+              t.same(data[1].seq, 0)
+            })
+          }
 
-        check(c1)
-        check(c2)
+          check(c1)
+          check(c2)
+        })
       })
     })
-  })
+  }
 })
 
 function sync (a, b, cb) {

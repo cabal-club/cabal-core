@@ -53,6 +53,7 @@
   "devDependencies": {
     "collect-stream": "^1.2.1",
     "documentation": "^6.3.2",
+    "hypercore": "^7.5.1",
     "pump": "^3.0.0",
     "random-access-memory": "^3.0.0",
     "standard": "^11.0.1",
