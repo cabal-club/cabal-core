@@ -48,7 +48,8 @@ function Cabal (storage, key, opts) {
   this.key = key || null
   this.db = opts.db || memdb()
   this.kcore = kappa(storage, {
-    valueEncoding: json
+    valueEncoding: json,
+    encryptionKey: key
   })
 
   // Create (if needed) and open local write feed
