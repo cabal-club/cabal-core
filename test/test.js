@@ -134,10 +134,13 @@ test('listening for live messages', function (t) {
 })
 
 test('local replication', function (t) {
-  t.plan(15)
+  t.plan(17)
 
-  function create (id, cb) {
-    var cabal = Cabal(ram)
+  var sharedKey
+
+  function create (id, key, cb) {
+    console.log('create', key)
+    var cabal = Cabal(ram, key)
     cabal.ready(function () {
       var msg = {
         type: 'chat/text',
@@ -147,9 +150,10 @@ test('local replication', function (t) {
           timestamp: Number(id) * 1000
         }
       }
-      cabal.getLocalKey(function (err, key) {
-        if (err) return cb(err)
-        cabal.key = key
+      cabal.getLocalKey(function (err, localKey) {
+        t.error(err)
+        cabal._key = localKey
+        if (!sharedKey) sharedKey = cabal.key.toString('hex')
         cabal.publish(msg, function (err) {
           if (err) cb(err)
           else cb(null, cabal)
@@ -158,9 +162,9 @@ test('local replication', function (t) {
     })
   }
 
-  create(1, function (err, c1) {
+  create(1, null, function (err, c1) {
     t.error(err)
-    create(2, function (err, c2) {
+    create(2, sharedKey, function (err, c2) {
       t.error(err)
       sync(c1, c2, function (err) {
         t.error(err, 'sync ok')
@@ -170,9 +174,9 @@ test('local replication', function (t) {
           collect(r, function (err, data) {
             t.error(err)
             t.same(data.length, 2, '2 messages')
-            t.same(data[0].key, c2.key)
+            t.same(data[0].key, c2._key)
             t.same(data[0].seq, 0)
-            t.same(data[1].key, c1.key)
+            t.same(data[1].key, c1._key)
             t.same(data[1].seq, 0)
           })
         }

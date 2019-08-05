@@ -5,6 +5,7 @@ var memdb = require('memdb')
 var thunky = require('thunky')
 var timestamp = require('monotonic-timestamp')
 var sublevel = require('subleveldown')
+var crypto = require('hypercore-crypto')
 var createChannelView = require('./views/channels')
 var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
@@ -45,11 +46,11 @@ function Cabal (storage, key, opts) {
   }
 
   this.maxFeeds = opts.maxFeeds
-  this.key = key || null
+  this.key = key || crypto.keyPair().publicKey.toString('hex')
   this.db = opts.db || memdb()
   this.kcore = kappa(storage, {
     valueEncoding: json,
-    encryptionKey: key
+    encryptionKey: this.key
   })
 
   // Create (if needed) and open local write feed
@@ -57,7 +58,6 @@ function Cabal (storage, key, opts) {
   this.feed = thunky(function (cb) {
     self.kcore.ready(function () {
       self.kcore.writer('local', function (err, feed) {
-        if (!self.key) self.key = feed.key.toString('hex')
         cb(feed)
       })
     })
