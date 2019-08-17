@@ -281,15 +281,26 @@ test('channel membership', function (t) {
             channel: 'new-channel'
           }
         }, function published () {
-          cabal.getLocalKey((err, lkey) => {
-            cabal.memberships.getMemberships(lkey, (err, channels) => {
-              t.same(channels.length, 1, "we've joined 'new-channel'")
-              t.same(channels[0], "new-channel", "we've joined 'new-channel'")
-              cabal.memberships.isMember(lkey, "new-channel", (err, bool) => {
-                t.same(bool, true, "we're a member of 'new-channel'")
-                t.end()
-              })
-            })
+          var count = 0
+          function checkIfDone () {
+            count++
+            if (count === 3) {
+              t.end()
+            } 
+          }
+          cabal.memberships.getMemberships(lkey, (err, channels) => {
+            t.same(channels.length, 1, "we've joined 'new-channel'")
+            t.same(channels[0], "new-channel", "we've joined 'new-channel'")
+            checkIfDone()
+          })
+          cabal.memberships.isMember(lkey, "new-channel", (err, bool) => {
+            t.same(bool, true, "we're a member of 'new-channel'")
+            checkIfDone()
+          })
+          cabal.memberships.getMembers(lkey, "new-channel", (err, members) => {
+            t.same(members.length, 1, "we're the only member in 'new-channel'")
+            t.same(members[0], lkey)
+            checkIfDone()
           })
         })
       })
