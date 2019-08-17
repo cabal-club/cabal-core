@@ -300,6 +300,10 @@ test('channel membership', function (t) {
             cabal.memberships.getMemberships(lkey, (err, channels) => {
               t.same(channels.length, 1, "we've joined 'new-channel'")
               t.same(channels[0], "new-channel", "we've joined 'new-channel'")
+              cabal.memberships.isMember(lkey, "new-channel", (err, bool) => {
+                t.same(bool, true, "we're a member of 'new-channel'")
+                t.end()
+              })
             })
           })
         })
