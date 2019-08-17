@@ -282,3 +282,28 @@ function syncNetwork (a, b, cb) {
     })
   })
 }
+
+test('channel membership', function (t) {
+  var cabal = Cabal(ram)
+
+  cabal.ready(function () {
+    cabal.getLocalKey((err, lkey) => {
+      cabal.memberships.getMemberships(lkey, (err, channels) => {
+        t.same(channels.length, 0, "haven't joined any channels yet")
+        cabal.publish({
+          type: 'channel/join',
+          content: {
+            channel: 'new-channel'
+          }
+        }, function published () {
+          cabal.getLocalKey((err, lkey) => {
+            cabal.memberships.getMemberships(lkey, (err, channels) => {
+              t.same(channels.length, 1, "we've joined 'new-channel'")
+              t.same(channels[0], "new-channel", "we've joined 'new-channel'")
+            })
+          })
+        })
+      })
+    })
+  })
+})
