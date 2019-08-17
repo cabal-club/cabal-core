@@ -66,8 +66,6 @@ function Cabal (storage, key, opts) {
   })
 
   // views
-
-  /* TODO: refactor `memberships` to `membership`, and in cabal-details.js */
   this.kcore.use('memberships', createMembershipsView(
     sublevel(this.db, MEMBERSHIPS, { valueEncoding: json })))
   this.kcore.use('channels', createChannelView(
