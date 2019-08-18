@@ -304,7 +304,7 @@ test('channel membership', function (t) {
             } 
           }
           cabal.memberships.getMemberships(lkey, (err, channels) => {
-            t.same(channels.length, 1, "we've joined 'new-channel'")
+            t.same(channels.length, 1, "we've only joined 1 channel'")
             t.same(channels[0], "new-channel", "we've joined 'new-channel'")
             checkIfDone()
           })
@@ -316,6 +316,57 @@ test('channel membership', function (t) {
             t.same(members.length, 1, "we're the only member in 'new-channel'")
             t.same(members[0], lkey)
             checkIfDone()
+          })
+        })
+      })
+    })
+  })
+})
+
+test('join two channels then leave one', function (t) {
+  var cabal = Cabal(ram)
+
+  var p1 = new Promise((res, rej) => {
+    cabal.publish({
+      type: 'channel/join',
+      content: {
+        channel: 'channel-1'
+      }
+    }, function (err) {
+      if (!err) return res()
+      rej()
+    })
+  })
+
+  var p2 = new Promise((res, rej) => {
+    cabal.publish({
+      type: 'channel/join',
+      content: {
+        channel: 'channel-2'
+      }
+    }, function (err) {
+      if (!err) return res()
+      rej()
+    })
+  })
+
+  cabal.ready(function () {
+    Promise.all([p1, p2]).then(() => {
+      cabal.getLocalKey((err, lkey) => {
+        cabal.memberships.getMemberships(lkey, (err, channels) => {
+          t.same(channels.length, 2, "we've joined two channels")
+          // leave the second channel
+          cabal.publish({
+            type: 'channel/leave',
+            content: {
+              channel: 'channel-1'
+            }
+          }, function (err) {
+            cabal.memberships.getMemberships(lkey, (err, channels) => {
+              t.same(channels.length, 1, "we successfully left one channel")
+              t.same(channels[0], "channel-2", "we're only in 'channel-2'")
+              t.end()
+            })
           })
         })
       })
