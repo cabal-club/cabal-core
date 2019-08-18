@@ -274,6 +274,7 @@ test('channel membership', function (t) {
   cabal.ready(function () {
     cabal.getLocalKey((err, lkey) => {
       cabal.memberships.getMemberships(lkey, (err, channels) => {
+        t.error(err)
         t.same(channels.length, 0, "haven't joined any channels yet")
         cabal.publish({
           type: 'channel/join',
@@ -289,15 +290,18 @@ test('channel membership', function (t) {
             } 
           }
           cabal.memberships.getMemberships(lkey, (err, channels) => {
+            t.error(err)
             t.same(channels.length, 1, "we've only joined 1 channel'")
             t.same(channels[0], "new-channel", "we've joined 'new-channel'")
             checkIfDone()
           })
           cabal.memberships.isMember(lkey, "new-channel", (err, bool) => {
+            t.error(err)
             t.same(bool, true, "we're a member of 'new-channel'")
             checkIfDone()
           })
           cabal.memberships.getUsers("new-channel", (err, members) => {
+            t.error(err)
             t.same(members.length, 1, "we're the only member in 'new-channel'")
             t.same(members[0], lkey)
             checkIfDone()
@@ -339,6 +343,7 @@ test('join two channels then leave one', function (t) {
     Promise.all([p1, p2]).then(() => {
       cabal.getLocalKey((err, lkey) => {
         cabal.memberships.getMemberships(lkey, (err, channels) => {
+          t.error(err)
           t.same(channels.length, 2, "we've joined two channels")
           // leave the second channel
           cabal.publish({
@@ -348,11 +353,65 @@ test('join two channels then leave one', function (t) {
             }
           }, function (err) {
             cabal.memberships.getMemberships(lkey, (err, channels) => {
+              t.error(err)
               t.same(channels.length, 1, "we successfully left one channel")
               t.same(channels[0], "channel-2", "we're only in 'channel-2'")
               t.end()
             })
           })
+        })
+      })
+    })
+  })
+})
+
+
+test('multiple channel participants', function (t) {
+  function create (id, cb) {
+    var cabal = Cabal(ram)
+    cabal.ready(function () {
+      var msg = {
+        type: 'channel/join',
+        content: {
+          channel: 'new-channel'
+        }
+      }
+      cabal.getLocalKey(function (err, key) {
+        if (err) return cb(err)
+        cabal.key = key
+        cabal.publish(msg, function (err) {
+          if (err) cb(err)
+          else cb(null, cabal)
+        })
+      })
+    })
+  }
+
+  var count = 0
+  function checkIfDone () {
+    count++
+    console.log(count)
+    if (count === 2) {
+      t.end()
+    } 
+  }
+  create(1, function (err, c1) {
+    t.error(err)
+    create(2, function (err, c2) {
+      t.error(err)
+      sync(c1, c2, function (err) {
+        t.error(err, 'sync ok')
+
+        c1.memberships.getUsers("new-channel", (err, members) => {
+          t.error(err)
+          t.same(members.length, 2, "new-channel has two members")
+          checkIfDone()
+        })
+
+        c2.memberships.getUsers("new-channel", (err, members) => {
+          t.error(err)
+          t.same(members.length, 2, "new-channel has two members")
+          checkIfDone()
         })
       })
     })
