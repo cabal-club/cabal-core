@@ -312,7 +312,7 @@ test('channel membership', function (t) {
             t.same(bool, true, "we're a member of 'new-channel'")
             checkIfDone()
           })
-          cabal.memberships.getUsers(lkey, "new-channel", (err, members) => {
+          cabal.memberships.getUsers("new-channel", (err, members) => {
             t.same(members.length, 1, "we're the only member in 'new-channel'")
             t.same(members[0], lkey)
             checkIfDone()
