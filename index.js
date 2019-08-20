@@ -7,6 +7,7 @@ var timestamp = require('monotonic-timestamp')
 var sublevel = require('subleveldown')
 var crypto = require('hypercore-crypto')
 var createChannelView = require('./views/channels')
+var createMembershipsView = require('./views/channel-membership')
 var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
@@ -14,6 +15,7 @@ var swarm = require('./swarm')
 
 var DATABASE_VERSION = 1
 var CHANNELS = 'c'
+var MEMBERSHIPS = 'j'  // j for joined memberships..? :3 
 var MESSAGES = 'm'
 var TOPICS = 't'
 var USERS = 'u'
@@ -64,7 +66,8 @@ function Cabal (storage, key, opts) {
   })
 
   // views
-
+  this.kcore.use('memberships', createMembershipsView(
+    sublevel(this.db, MEMBERSHIPS, { valueEncoding: json })))
   this.kcore.use('channels', createChannelView(
     sublevel(this.db, CHANNELS, { valueEncoding: json })))
   this.kcore.use('messages', createMessagesView(
@@ -76,6 +79,7 @@ function Cabal (storage, key, opts) {
 
   this.messages = this.kcore.api.messages
   this.channels = this.kcore.api.channels
+  this.memberships = this.kcore.api.memberships
   this.topics = this.kcore.api.topics
   this.users = this.kcore.api.users
 }
@@ -107,7 +111,7 @@ Cabal.prototype.getUser = function (key, cb) {
 /**
  * Publish a message to your feed.
  * @param {String} message - The message to publish.
- * @param {Object} opts - Options: date
+ * @param {Object} opts - Options
  * @param {function} cb - When message has been successfully added.
  */
 Cabal.prototype.publish = function (message, opts, cb) {
