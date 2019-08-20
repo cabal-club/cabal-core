@@ -270,12 +270,12 @@ function syncNetwork (a, b, cb) {
         }
       }
 
-      a.on('peer-added', function (key) {
+      a.once('peer-added', function (key) {
         console.log('a-add', key)
         setTimeout(end, 2000)
       })
 
-      b.on('peer-added', function (key) {
+      b.once('peer-added', function (key) {
         console.log('b-add', key)
         setTimeout(end, 2000)
       })
