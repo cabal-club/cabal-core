@@ -6,11 +6,14 @@ var thunky = require('thunky')
 var timestamp = require('monotonic-timestamp')
 var sublevel = require('subleveldown')
 var crypto = require('hypercore-crypto')
+var url = require('url')
+var querystring = require('query-string')
 var createChannelView = require('./views/channels')
 var createMembershipsView = require('./views/channel-membership')
 var createMessagesView = require('./views/messages')
 var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
+var createModerationView = require('./views/moderation')
 var swarm = require('./swarm')
 
 var DATABASE_VERSION = 1
@@ -19,6 +22,7 @@ var MEMBERSHIPS = 'j'  // j for joined memberships..? :3
 var MESSAGES = 'm'
 var TOPICS = 't'
 var USERS = 'u'
+var MODERATION = 'x'
 
 module.exports = Cabal
 module.exports.databaseVersion = DATABASE_VERSION
@@ -28,8 +32,8 @@ module.exports.databaseVersion = DATABASE_VERSION
  * local nickname -> mesh interactions for a single user.
  * @constructor
  * @param {string|function} storage - A hyperdb compatible storage function, or a string representing the local data path.
- * @param {string} key - The dat link
- * @param {Object} opts -
+ * @param {string} key - a protocol string, optionally with url parameters
+ * @param {Object} opts - { modKey }
  */
 function Cabal (storage, key, opts) {
   if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
@@ -49,11 +53,17 @@ function Cabal (storage, key, opts) {
   }
 
   this.maxFeeds = opts.maxFeeds
-  this.key = key || crypto.keyPair().publicKey.toString('hex')
+
+  if (!key) this.key = generateKeyHex()
+  else this.key = sanitizeKey(key)
+  if (!isHypercoreKey(this.key)) throw new Error('invalid cabal key')
+
+  this.modKey = opts.modKey
+
   this.db = opts.db || memdb()
   this.kcore = kappa(storage, {
     valueEncoding: json,
-    encryptionKey: this.key
+    encryptionKey: isHypercoreKey(this.key) ? this.key : null
   })
 
   // Create (if needed) and open local write feed
@@ -77,12 +87,17 @@ function Cabal (storage, key, opts) {
     sublevel(this.db, TOPICS, { valueEncoding: json })))
   this.kcore.use('users', createUsersView(
     sublevel(this.db, USERS, { valueEncoding: json })))
+  this.kcore.use('moderation', createModerationView(
+    this, this.modKey,
+    sublevel(this.db, MODERATION, { valueEncoding: json }))
+  )
 
   this.messages = this.kcore.api.messages
   this.channels = this.kcore.api.channels
   this.memberships = this.kcore.api.memberships
   this.topics = this.kcore.api.topics
   this.users = this.kcore.api.users
+  this.moderation = this.kcore.api.moderation
 }
 
 inherits(Cabal, events.EventEmitter)
@@ -194,6 +209,30 @@ Cabal.prototype._addConnection = function (key) {
 
 Cabal.prototype._removeConnection = function (key) {
   this.emit('peer-dropped', key)
+}
+
+
+function generateKeyHex () {
+  return crypto.keyPair().publicKey.toString('hex')
+}
+
+function isHypercoreKey (key) {
+  if (typeof key === 'string') return key.length === 64 && /^[0-9a-f]+$/.test(key)
+  else if (Buffer.isBuffer(key)) return key.length === 32
+}
+
+// Ensures 'key' is a hex string
+function sanitizeKey (key) {
+  // force to hex string
+  if (Buffer.isBuffer(key)) {
+    key = key.toString('hex')
+  }
+
+  // remove any protocol uri prefix
+  if (typeof key === 'string') key = key.replace(/^.*:\/\//, '')
+  else key = undefined
+
+  return key
 }
 
 function noop () {}

@@ -10,15 +10,15 @@ Core database, replication, swarming, and chat APIs for cabal.
 
 > var Cabal = require('cabal-node')
 
-### var cabal = Cabal([storage][, key][, opts])
+### var cabal = Cabal([storage][, uriString][, opts])
 
 Create a cabal p2p database using storage `storage`, which must be either a
 string (filepath to directory on disk) or an instance of
 [random-access-storage](https://github.com/random-access-storage/).
 
-`key` is a hex string of the key, without any prefixes (like `cabal://`).
+`uriString` is a cabal URI string, of the form `cabal://<hexkey>[?param1=value1&param2=value2`. A hexidecimal key on its own will also be understood.
 
-If this is a new database, `key` can be omitted and will be generated.
+If this is a new cabal, `key` can be omitted and will be generated.
 
 You can pass `opts.db` as a levelup or leveldown instance to use persistent
 storage for indexing instead of using memory. For example:
@@ -86,6 +86,39 @@ Emitted when you connect to a peer. `key` is a hex string of their public key.
 Emitted when you lose a connection to a peer. `key` is a hex string of their
 public key.
 
+## Moderation
+
+Cabal has a *subjective moderation system*.
+
+The three roles are "admin", "moderator", and "ban/key".
+
+Any admin/mod/ban operation can be per-channel, or cabal-wide (the `@` group).
+
+Every user sees themselves as an administrator across the entire cabal. This
+means they can grant admin or moderator powers to anyone, and ban anyone, but
+only they will see its affects on their own computer.
+
+A cabal can be instantiated with a *moderation key*. This is an additional key
+to locally consider as a cabal-wide administrator (in addition to yourself).
+
+This means that if a group of people all specify the same *moderation key*,
+they will collectively see the same set of administrators, moderators, and
+banned users.
+
+#### var rs = cabal.moderation.listBans(channel)
+
+Return a readable objectMode stream of bans for `channel`.
+
+Each ban is an object with either a `key` or `ip` property.
+
+To list cabal-wide bans use the special channel `@`.
+
+#### cabal.moderation.isBanned({ ip, key, channel }, cb)
+
+Determine whether a user identified by `ip` and/or `key` is banned on `channel`
+or cabal-wide as `cb(err, banned)` for a boolean `banned`. If `channel` is
+omitted, only check cabal-wide.
+
 ### Publishing
 
 #### cabal.publish(message, opts, cb)
@@ -117,6 +150,31 @@ documented types include
   content: {
     text: 'whatever the user wants to say',
     channel: 'some channel name. if it didnt exist before, it does now!'
+  }
+}
+```
+
+#### mod/{add,remove}
+
+```js
+{
+  type: '"mod/add" or "mod/remove"',
+  content: {
+    key: 'hex string key of the user to add/remove as mod',
+    channel: 'channel name as a string or "@" for cabal-wide'
+    role: '"admin", "mod", or a custom role string'
+  }
+}
+```
+
+#### ban/{add,remove}
+
+```js
+{
+  type: '"ban/add" or "ban/remove"',
+  content: {
+    key: 'hex string key of the user to ban/unban',
+    channel: 'channel name as a string or "@" for cabal-wide'
   }
 }
 ```
