@@ -13,8 +13,8 @@ test('ban a user by key', function (t) {
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, 'cabal://' + addr + '?modkey=' + key)
-      var cabal2 = Cabal(ram, 'cabal://' + addr + '?modkey=' + key)
+      var cabal1 = Cabal(ram, 'cabal://' + addr, { modKey: key })
+      var cabal2 = Cabal(ram, 'cabal://' + addr, { modKey: key })
       var pending = 3
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2)
@@ -102,8 +102,8 @@ test('delegated moderator ban a user by key', function (t) {
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, 'cabal://' + key + '@' + addr)
-      var cabal2 = Cabal(ram, 'cabal://' + key + '@' + addr)
+      var cabal1 = Cabal(ram, addr, { modKey: key })
+      var cabal2 = Cabal(ram, addr, { modKey: key })
       var pending = 3
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2)
@@ -162,15 +162,15 @@ test('delegated moderator ban a user by key', function (t) {
 test('different mod keys have different views', function (t) {
   t.plan(11)
 
-  var addr = 'cabal://' + randomBytes(32).toString('hex')
+  var addr = randomBytes(32).toString('hex')
 
   var cabal0 = Cabal(ram, addr)
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr + '?modkey=' + key)
+      var cabal1 = Cabal(ram, addr, { modKey: key })
       var cabal2 = Cabal(ram, addr)
-      var cabal3 = Cabal(ram, addr + '?modkey=' + key)
+      var cabal3 = Cabal(ram, addr, { modKey: key })
       var pending = 4
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)

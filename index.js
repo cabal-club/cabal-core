@@ -32,11 +32,11 @@ module.exports.databaseVersion = DATABASE_VERSION
  * local nickname -> mesh interactions for a single user.
  * @constructor
  * @param {string|function} storage - A hyperdb compatible storage function, or a string representing the local data path.
- * @param {string} uriString - a protocol string, optionally with url parameters
- * @param {Object} opts -
+ * @param {string} key - a protocol string, optionally with url parameters
+ * @param {Object} opts - { modKey }
  */
-function Cabal (storage, uriString, opts) {
-  if (!(this instanceof Cabal)) return new Cabal(storage, uriString, opts)
+function Cabal (storage, key, opts) {
+  if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
   if (!opts) opts = {}
   events.EventEmitter.call(this)
   this.setMaxListeners(Infinity)
@@ -54,18 +54,11 @@ function Cabal (storage, uriString, opts) {
 
   this.maxFeeds = opts.maxFeeds
 
-  // Parse the cabal URI string
-  if (!uriString) {
-    // Create a new cabal
-    uriString = 'cabal://' + generateKeyHex()
-  }
-  if (isHypercoreKey(uriString)) uriString = 'cabal://' + sanitizeKey(uriString)
-  var uri = url.parse(uriString)
-  var proto = uri.protocol.replace(':', '')
-  var key = uri.host
-  var params = querystring.parse(uri.query)
-  this.key = key
-  this.modKey = params.modkey
+  if (!key) this.key = generateKeyHex()
+  else this.key = sanitizeKey(key)
+  if (!isHypercoreKey(this.key)) throw new Error('invalid cabal key')
+
+  this.modKey = opts.modKey
 
   this.db = opts.db || memdb()
   this.kcore = kappa(storage, {
@@ -236,7 +229,8 @@ function sanitizeKey (key) {
   }
 
   // remove any protocol uri prefix
-  key = key.replace(/^.*:\/\//, '')
+  if (typeof key === 'string') key = key.replace(/^.*:\/\//, '')
+  else key = undefined
 
   return key
 }
