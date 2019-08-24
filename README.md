@@ -88,6 +88,23 @@ public key.
 
 ## Moderation
 
+Cabal has a *subjective moderation system*.
+
+The three roles are "admin", "moderator", and "ban/key".
+
+Any admin/mod/ban operation can be per-channel, or cabal-wide (the `@` group).
+
+Every user sees themselves as an administrator across the entire cabal. This
+means they can grant admin or moderator powers to anyone, and ban anyone, but
+only they will see its affects on their own computer.
+
+A cabal can be instantiated with a *moderation key*. This is an additional key
+to locally consider as a cabal-wide administrator (in addition to yourself).
+
+This means that if a group of people all specify the same *moderation key*,
+they will collectively see the same set of administrators, moderators, and
+banned users.
+
 #### var rs = cabal.moderation.listBans(channel)
 
 Return a readable objectMode stream of bans for `channel`.
@@ -156,8 +173,7 @@ documented types include
 {
   type: '"ban/add" or "ban/remove"',
   content: {
-    key: 'hex string key of the user to ban/unban (optional)',
-    ip: 'string ip address of the user to ban/unban (optional)',
+    key: 'hex string key of the user to ban/unban',
     channel: 'channel name as a string or "@" for cabal-wide'
   }
 }
