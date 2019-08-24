@@ -28,6 +28,7 @@ module.exports = function (cabal, modKey, db) {
       }
       if (--pending === 0) done()
     })
+
     // check previous modKeys and remove any if the addr changed
     var hasModKey = false
     pump(auth.getMembers('@'), new Transform({
@@ -47,6 +48,7 @@ module.exports = function (cabal, modKey, db) {
         next()
       },
       flush: function (next) {
+        // write the new mod key
         if (modKey && !hasModKey) {
           batch.push({
             type: 'add',
@@ -60,7 +62,7 @@ module.exports = function (cabal, modKey, db) {
         if (--pending === 0) done()
       }
     }))
-    if (--pending === 0) done()
+    if (pending === 0) done()
     function done () {
       if (batch.length > 0) {
         // local key goes first so it can auth the other key
@@ -79,6 +81,7 @@ module.exports = function (cabal, modKey, db) {
       localKey = key
     }
   })
+
   return {
     map: function (rows, next) {
       if (localKey === null) {
