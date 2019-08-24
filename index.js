@@ -65,6 +65,7 @@ function Cabal (storage, uriString, opts) {
   var key = uri.host
   var params = querystring.parse(uri.query)
   this.key = key
+  this.modKey = params.modkey
 
   this.db = opts.db || memdb()
   this.kcore = kappa(storage, {
