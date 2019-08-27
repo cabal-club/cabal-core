@@ -32,6 +32,7 @@ module.exports = function (cabal, modKey, db) {
     // check previous modKeys and remove any if the addr changed
     var hasModKey = false
     pump(auth.getMembers('@'), new Transform({
+      objectMode: true,
       transform: function (row, enc, next) {
         if (row.role === 'admin' && row.key === -1 && row.id !== modKey
         && row.id !== key) {
@@ -61,7 +62,7 @@ module.exports = function (cabal, modKey, db) {
         }
         if (--pending === 0) done()
       }
-    }))
+    }), err => { if (err) throw err })
     if (pending === 0) done()
     function done () {
       if (batch.length > 0) {
