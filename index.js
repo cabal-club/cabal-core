@@ -186,8 +186,12 @@ Cabal.prototype.getLocalKey = function (cb) {
   })
 }
 
-Cabal.prototype.swarm = function (cb) {
-  swarm(this, cb)
+Cabal.prototype.swarm = function (opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts
+    opts = {}
+  }
+  swarm(this, opts, cb)
 }
 
 Cabal.prototype.replicate = function (opts) {

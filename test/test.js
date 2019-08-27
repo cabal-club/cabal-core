@@ -257,9 +257,9 @@ function sync (a, b, cb) {
 function syncNetwork (a, b, cb) {
   var pending = 2
 
-  a.swarm(function (err, swarm1) {
+  a.swarm({block:false}, function (err, swarm1) {
     if (err) return cb(err)
-    b.swarm(function (err, swarm2) {
+    b.swarm({block:false}, function (err, swarm2) {
       if (err) return cb(err)
 
       function end () {
