@@ -44,8 +44,9 @@ module.exports = function (lvl) {
           if (seen[pair]) { delete seen[pair] }
           events.emit('remove', channel, key)
         }
-        lvl.batch(ops, next)
       })
+      if (ops.length) lvl.batch(ops, next)
+      else next()
     },
     // get(channel) => [Key] 
     // isMember(key, channel) => Boolean
