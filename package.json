@@ -49,6 +49,7 @@
     "query-string": "^6.8.2",
     "randombytes": "^2.0.6",
     "read-only-stream": "^2.0.0",
+    "readable-stream": "^3.4.0",
     "strftime": "^0.10.0",
     "subleveldown": "^4.1.0",
     "through2": "^3.0.1",
