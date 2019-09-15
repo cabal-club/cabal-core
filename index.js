@@ -1,7 +1,7 @@
 var kappa = require('kappa-core')
 var events = require('events')
 var inherits = require('inherits')
-var memdb = require('memdb')
+var level = require('level-mem')
 var thunky = require('thunky')
 var timestamp = require('monotonic-timestamp')
 var sublevel = require('subleveldown')
@@ -49,7 +49,8 @@ function Cabal (storage, key, opts) {
       var str = buf.toString('utf8')
       try { var obj = JSON.parse(str) } catch (err) { return {} }
       return obj
-    }
+    },
+    buffer: true
   }
 
   this.maxFeeds = opts.maxFeeds
@@ -60,7 +61,7 @@ function Cabal (storage, key, opts) {
 
   this.modKey = opts.modKey
 
-  this.db = opts.db || memdb()
+  this.db = opts.db || level()
   this.kcore = kappa(storage, {
     valueEncoding: json,
     encryptionKey: isHypercoreKey(this.key) ? this.key : null
