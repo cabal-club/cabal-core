@@ -2,6 +2,7 @@ var pump = require('pump')
 var discovery = require('discovery-swarm')
 var swarmDefaults = require('dat-swarm-defaults')
 var debug = require('debug')('cabal')
+var crypto = require('hypercore-crypto')
 
 // If a peer triggers one of these, don't just throttle them: block them for
 // the rest of the session.
@@ -24,7 +25,7 @@ module.exports = function (cabal, opts, cb) {
     if (err) return cb(err)
 
     var swarm = discovery(Object.assign({}, swarmDefaults(), { id: Buffer.from(key, 'hex') }))
-    swarm.join(cabal.key.toString('hex'))
+    swarm.join(crypto.discoveryKey(cabal.key))
     swarm.on('connection', function (conn, info) {
       var remoteKey = info.id.toString('hex')
       if (opts.block !== false && blocked[remoteKey]) return
