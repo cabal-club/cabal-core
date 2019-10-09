@@ -25,7 +25,9 @@ module.exports = function (cabal, opts, cb) {
     if (err) return cb(err)
 
     var swarm = discovery(Object.assign({}, swarmDefaults(), { id: Buffer.from(key, 'hex') }))
-    swarm.join(crypto.discoveryKey(cabal.key))
+    var cabalKey = Buffer.isBuffer(cabal.key) ? cabal.key : Buffer.from(cabal.key, 'hex')
+    var swarmKey = crypto.discoveryKey(cabalKey)
+    swarm.join(swarmKey.toString('hex'))
     swarm.on('connection', function (conn, info) {
       var remoteKey = info.id.toString('hex')
       if (opts.block !== false && blocked[remoteKey]) return
