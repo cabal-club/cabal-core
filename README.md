@@ -32,10 +32,14 @@ var cabal = Cabal(storage, key, { db: level('/tmp/bot.db') })
 
 Returns the local user's key (as a hex string).
 
-### var ds = cabal.replicate()
+### var ds = cabal.replicate(isInitiator[, opts])
 
 Creates a new, live replication stream. This duplex stream can be piped into any
 transport expressed as a node stream (tcp, websockets, udp, utp, etc).
+
+Ensure that `isInitiator` to `true` to one side, and `false` on the other.
+
+`opts` are passed down into the underlying `hypercore` replication.
 
 ### cabal.ready(cb)
 
