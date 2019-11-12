@@ -106,28 +106,30 @@ module.exports = function (cabal, modKey, db) {
         return readonly(out)
       },
       isBanned: function (core, r, cb) {
-        cb = once(cb || noop)
-        var pending = 1
-        var banned = false
-        ;['key','ip'].forEach(function (key) {
-          if (r.channel && r[key]) {
-            pending++
-            auth.getRole({ group: r.channel, id: r[key] }, function (err, role) {
-              if (err) return cb(err)
-              banned = banned || (role === 'ban/' + key)
-              if (--pending === 0) cb(null, banned)
-            })
-          }
-          if (r[key]) {
-            pending++
-            auth.getRole({ group: '@', id: r[key] }, function (err, role) {
-              if (err) return cb(err)
-              banned = banned || (role === 'ban/' + key)
-              if (--pending === 0) cb(null, banned)
-            })
-          }
+        this.ready(function () {
+          cb = once(cb || noop)
+          var pending = 1
+          var banned = false
+          ;['key','ip'].forEach(function (key) {
+            if (r.channel && r[key]) {
+              pending++
+              auth.getRole({ group: r.channel, id: r[key] }, function (err, role) {
+                if (err) return cb(err)
+                banned = banned || (role === 'ban/' + key)
+                if (--pending === 0) cb(null, banned)
+              })
+            }
+            if (r[key]) {
+              pending++
+              auth.getRole({ group: '@', id: r[key] }, function (err, role) {
+                if (err) return cb(err)
+                banned = banned || (role === 'ban/' + key)
+                if (--pending === 0) cb(null, banned)
+              })
+            }
+          })
+          if (--pending === 0) cb(null, banned)
         })
-        if (--pending === 0) cb(null, banned)
       }
     }
   }
