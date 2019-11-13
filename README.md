@@ -37,7 +37,7 @@ Returns the local user's key (as a hex string).
 Creates a new, live replication stream. This duplex stream can be piped into any
 transport expressed as a node stream (tcp, websockets, udp, utp, etc).
 
-Ensure that `isInitiator` to `true` to one side, and `false` on the other.
+Ensure that `isInitiator` to `true` to one side, and `false` on the other. This is necessary for setting up the encryption mechanism.
 
 `opts` are passed down into the underlying `hypercore` replication.
 
