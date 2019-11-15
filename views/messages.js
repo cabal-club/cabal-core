@@ -1,4 +1,5 @@
 var View = require('kappa-view-level')
+var timestamp = require('monotonic-timestamp')
 var through = require('through2')
 var readonly = require('read-only-stream')
 var charwise = require('charwise')
@@ -15,12 +16,11 @@ module.exports = function (lvl) {
       if (!msg.value.timestamp) return []
 
       // If the message is from <<THE FUTURE>>, index it at _now_.
-      var timestamp = msg.value.timestamp
-      var now = new Date().getTime()
-      if (timestamp > now) timestamp = now
+      var ts = msg.value.timestamp
+      if (isFutureMonotonicTimestamp(ts)) ts = timestamp()
 
       if (msg.value.type.startsWith('chat/') && msg.value.content.channel) {
-        var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(timestamp)
+        var key = 'msg!' + msg.value.content.channel + '!' + charwise.encode(ts)
         return [
           [key, msg]
         ]
@@ -88,4 +88,18 @@ function sanitize (msg) {
   if (typeof msg.value.content.channel !== 'string') return null
   if (typeof msg.value.content.text !== 'string') return null
   return msg
+}
+
+function monotonicTimestampToTimestamp (timestamp) {
+  if (/^[0-9]+\.[0-9]+$/.test(String(timestamp))) {
+    return Number(String(timestamp).split('.')[0])
+  } else {
+    return timestamp
+  }
+}
+
+function isFutureMonotonicTimestamp () {
+  var timestamp = monotonicTimestampToTimestamp(timestamp)
+  var now = new Date().getTime()
+  return timestamp > now
 }
