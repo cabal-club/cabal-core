@@ -102,7 +102,11 @@ module.exports = function (cabal, modKey, db) {
             } else next()
           }
         })
-        pump(auth.getMembers(channel), out)
+
+        this.ready(function () {
+          pump(auth.getMembers(channel), out)
+        })
+
         return readonly(out)
       },
       isBanned: function (core, r, cb) {

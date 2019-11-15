@@ -34,7 +34,7 @@ module.exports = function (cabal, opts, cb) {
       blocked[remoteKey] = true
       connected[remoteKey] = connected[remoteKey] ? connected[remoteKey]+1 : 1
 
-      var r = cabal.replicate()
+      var r = cabal.replicate(info.initiator)
       pump(conn, r, conn, function (err) {
         if (err) debug('ERROR', err)
 

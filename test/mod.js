@@ -221,8 +221,8 @@ function sync (cabals, cb) {
     var a = cabals[i]
     var b = cabals[(i+1)%cabals.length]
     ++pending
-    var ra = a.replicate({ live: false })
-    var rb = b.replicate({ live: false })
+    var ra = a.replicate(true, { live: false })
+    var rb = b.replicate(false, { live: false })
     pump(ra, rb, ra, function (err) {
       if (err) {
         pending = Infinity

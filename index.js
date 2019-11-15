@@ -195,13 +195,13 @@ Cabal.prototype.swarm = function (opts, cb) {
   swarm(this, opts, cb)
 }
 
-Cabal.prototype.replicate = function (opts) {
+Cabal.prototype.replicate = function (isInitiator, opts) {
   opts = opts || {}
   opts = Object.assign({}, {
     live: true,
     maxFeeds: 1024
   }, opts)
-  return this.kcore.replicate(opts)
+  return this.kcore.replicate(isInitiator, opts)
 }
 
 Cabal.prototype.ready = function (cb) {
