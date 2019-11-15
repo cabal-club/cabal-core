@@ -39,7 +39,7 @@
     "discovery-swarm": "^6.0.0",
     "hypercore-crypto": "^1.0.0",
     "inherits": "^2.0.4",
-    "kappa-core": "^4.0.0",
+    "kappa-core": "^6.0.0",
     "kappa-view-level": "^2.0.1",
     "level-mem": "^5.0.1",
     "materialized-group-auth": "^1.1.1",
@@ -59,7 +59,6 @@
   "devDependencies": {
     "collect-stream": "^1.2.1",
     "documentation": "^6.3.2",
-    "hypercore": "^7.5.1",
     "pump": "^3.0.0",
     "random-access-memory": "^3.0.0",
     "standard": "^11.0.1",
