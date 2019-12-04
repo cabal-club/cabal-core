@@ -6,7 +6,8 @@ var crypto = require('hypercore-crypto')
 
 var cabalDiscoveryServers = [
   'eight45.net:9090',
-  'dnsdiscovery.four.parts:9090'
+  'dnsdiscovery.four.parts:9090',
+  'cblgh.org:9090'
 ]
 Array.prototype.push.apply(swarmDefaults.dns.server, cabalDiscoveryServers)
 
