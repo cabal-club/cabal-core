@@ -4,7 +4,11 @@ var swarmDefaults = require('dat-swarm-defaults')()
 var debug = require('debug')('cabal')
 var crypto = require('hypercore-crypto')
 
-swarmDefaults.dns.server.push('eight45.net:9090')
+var cabalDiscoveryServers = [
+  'eight45.net:9090',
+  'dnsdiscovery.four.parts:9090'
+]
+Array.prototype.push.apply(swarmDefaults.dns.server, cabalDiscoveryServers)
 
 // If a peer triggers one of these, don't just throttle them: block them for
 // the rest of the session.
