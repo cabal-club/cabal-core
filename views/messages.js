@@ -98,8 +98,8 @@ function monotonicTimestampToTimestamp (timestamp) {
   }
 }
 
-function isFutureMonotonicTimestamp () {
-  var timestamp = monotonicTimestampToTimestamp(timestamp)
+function isFutureMonotonicTimestamp (ts) {
+  var timestamp = monotonicTimestampToTimestamp(ts)
   var now = new Date().getTime()
   return timestamp > now
 }
