@@ -1,21 +1,7 @@
-var pump = require('pump')
-var discovery = require('discovery-swarm')
-var swarmDefaults = require('dat-swarm-defaults')()
-var debug = require('debug')('cabal')
-var crypto = require('hypercore-crypto')
-
-var cabalDiscoveryServers = [
-  'eight45.net:9090',
-  'dnsdiscovery.four.parts:9090',
-  'cblgh.org:9090'
-]
-Array.prototype.push.apply(swarmDefaults.dns.server, cabalDiscoveryServers)
-
-// If a peer triggers one of these, don't just throttle them: block them for
-// the rest of the session.
-var knownIncompatibilityErrors = {
-  'First shared hypercore must be the same': true
-}
+const pump = require('pump')
+const hyperswarm = require('hyperswarm')
+const debug = require('debug')('cabal')
+const crypto = require('hypercore-crypto')
 
 module.exports = function (cabal, opts, cb) {
   if (typeof opts === 'function') {
@@ -25,43 +11,38 @@ module.exports = function (cabal, opts, cb) {
   cb = cb || function () {}
   opts = opts || {}
 
-  var blocked = {}
-  var connected = {}
-
-  cabal.getLocalKey(function (err, key) {
+  cabal.getLocalKey(function (err, localKey) {
     if (err) return cb(err)
 
-    var swarm = discovery(Object.assign({}, swarmDefaults, { id: Buffer.from(key, 'hex') }))
-    var cabalKey = Buffer.isBuffer(cabal.key) ? cabal.key : Buffer.from(cabal.key, 'hex')
-    var swarmKey = crypto.discoveryKey(cabalKey)
-    swarm.join(swarmKey.toString('hex'))
-    swarm.on('connection', function (conn, info) {
-      var remoteKey = info.id.toString('hex')
-      if (opts.block !== false && blocked[remoteKey]) return
-      blocked[remoteKey] = true
-      connected[remoteKey] = connected[remoteKey] ? connected[remoteKey]+1 : 1
+    const discoveryKey = crypto.discoveryKey(Buffer.from(cabal.key, 'hex'))
 
-      var r = cabal.replicate(info.initiator)
-      pump(conn, r, conn, function (err) {
+    const swarm = hyperswarm()
+    swarm.join(discoveryKey, {
+      lookup: true,
+      announce: true
+    })
+
+    swarm.on('connection', function (socket, info) {
+      let remoteKey
+
+      var r = cabal.replicate(!info.client)
+      pump(socket, r, socket, function (err) {
         if (err) debug('ERROR', err)
-
-        cabal._removeConnection(remoteKey)
-
-        // If the error is one that indicates incompatibility, just leave them
-        // blocked for the rest of this session.
-        if (err && knownIncompatibilityErrors[err.message]) {
-          return
-        }
-
-        // Each disconnects adds 2 powers of two, so: 16 seconds, 64 seconds,
-        // 256 seconds, etc.
-        var blockedDuration = Math.pow(2, (connected[remoteKey] + 1) * 2) * 1000
-        setTimeout(function () {
-          delete blocked[remoteKey]
-        }, blockedDuration)
+        if (remoteKey) cabal._removeConnection(remoteKey)
       })
 
-      cabal._addConnection(remoteKey)
+      const ext = r.registerExtension('peer-id', {
+        encoding: 'json',
+        onmessage (message, peer) {
+          if (remoteKey) return
+          if (!message.id) return
+          const buf = Buffer.from(message.id, 'hex')
+          if (!buf || buf.length !== 32) return
+          remoteKey = message.id
+          cabal._addConnection(remoteKey)
+        }
+      })
+      ext.send({id:localKey})
     })
 
     cb(null, swarm)
