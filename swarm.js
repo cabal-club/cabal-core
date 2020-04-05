@@ -11,12 +11,6 @@ var cabalDiscoveryServers = [
 ]
 Array.prototype.push.apply(swarmDefaults.dns.server, cabalDiscoveryServers)
 
-// If a peer triggers one of these, don't just throttle them: block them for
-// the rest of the session.
-var knownIncompatibilityErrors = {
-  'First shared hypercore must be the same': true
-}
-
 module.exports = function (cabal, opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
@@ -25,7 +19,6 @@ module.exports = function (cabal, opts, cb) {
   cb = cb || function () {}
   opts = opts || {}
 
-  var blocked = {}
   var connected = {}
 
   cabal.getLocalKey(function (err, key) {
@@ -37,28 +30,15 @@ module.exports = function (cabal, opts, cb) {
     swarm.join(swarmKey.toString('hex'))
     swarm.on('connection', function (conn, info) {
       var remoteKey = info.id.toString('hex')
-      if (opts.block !== false && blocked[remoteKey]) return
-      blocked[remoteKey] = true
-      connected[remoteKey] = connected[remoteKey] ? connected[remoteKey]+1 : 1
+      connected[remoteKey] = connected[remoteKey] ? connected[remoteKey] + 1 : 1
 
       var r = cabal.replicate(info.initiator)
       pump(conn, r, conn, function (err) {
         if (err) debug('ERROR', err)
 
-        cabal._removeConnection(remoteKey)
-
-        // If the error is one that indicates incompatibility, just leave them
-        // blocked for the rest of this session.
-        if (err && knownIncompatibilityErrors[err.message]) {
-          return
+        if (!--connected[remoteKey]) {
+          cabal._removeConnection(remoteKey)
         }
-
-        // Each disconnects adds 2 powers of two, so: 16 seconds, 64 seconds,
-        // 256 seconds, etc.
-        var blockedDuration = Math.pow(2, (connected[remoteKey] + 1) * 2) * 1000
-        setTimeout(function () {
-          delete blocked[remoteKey]
-        }, blockedDuration)
       })
 
       cabal._addConnection(remoteKey)
@@ -67,4 +47,3 @@ module.exports = function (cabal, opts, cb) {
     cb(null, swarm)
   })
 }
-
