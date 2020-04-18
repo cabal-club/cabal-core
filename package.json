@@ -36,7 +36,7 @@
     "dat-encoding": "^5.0.1",
     "debug": "^4.1.1",
     "hypercore-crypto": "^1.0.0",
-    "hyperswarm": "^2.8.0",
+    "hyperswarm": "^2.12.1",
     "inherits": "^2.0.4",
     "kappa-core": "^6.0.0",
     "kappa-view-level": "^2.0.1",
