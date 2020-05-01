@@ -113,7 +113,11 @@ banned users.
 
 Return a readable objectMode stream of bans for `channel`.
 
-Each ban is an object with either a `key` or `ip` property.
+Each ban is an object with:
+
+* `ban.type` - `'key'` or `'ip'`
+* `ban.id` - the target of the ban: a key or ip address string
+* `ban.key` - the `'feed@seq'` string you can pass to `banInfo()`
 
 To list cabal-wide bans use the special channel `@`.
 
@@ -122,6 +126,13 @@ To list cabal-wide bans use the special channel `@`.
 Determine whether a user identified by `ip` and/or `key` is banned on `channel`
 or cabal-wide as `cb(err, banned)` for a boolean `banned`. If `channel` is
 omitted, only check cabal-wide.
+
+#### cabal.moderation.banInfo('feed@seq', cb)
+
+Load the original ban message as `cb(err, msg)`.
+
+You can check `msg.content` for things like a `reason` field or you can check
+`msg.timestamp`.
 
 ### Publishing
 
