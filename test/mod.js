@@ -10,9 +10,11 @@ test('ban a user by key', function (t) {
 
   var addr = randomBytes(32).toString('hex')
   var cabal0 = Cabal(ram, 'cabal://' + addr)
+  var key0 = null
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
+      key0 = key
       var cabal1 = Cabal(ram, 'cabal://' + addr, { modKey: key })
       var cabal2 = Cabal(ram, 'cabal://' + addr, { modKey: key })
       var pending = 3
@@ -36,7 +38,9 @@ test('ban a user by key', function (t) {
         t.error(err)
         collect(cabal2.moderation.listBans('@'), function (err, bans) {
           t.error(err)
-          t.deepEqual(bans, [{ key: key1 }])
+          t.deepEqual(bans, [
+            { type: 'key', id: key1, key: key0+'@0' }
+          ])
         })
         cabal2.moderation.isBanned({ key: key1 }, function (err, banned) {
           t.error(err)
@@ -99,9 +103,11 @@ test('delegated moderator ban a user by key', function (t) {
 
   var addr = randomBytes(32).toString('hex')
   var cabal0 = Cabal(ram, 'cabal://' + addr)
+  var key0 = null
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
+      key0 = key
       var cabal1 = Cabal(ram, addr, { modKey: key })
       var cabal2 = Cabal(ram, addr, { modKey: key })
       var pending = 3
@@ -131,7 +137,9 @@ test('delegated moderator ban a user by key', function (t) {
           t.error(err)
           collect(cabal0.moderation.listBans('@'), function (err, bans) {
             t.error(err)
-            t.deepEqual(bans, [{ key: key1 }])
+            t.deepEqual(bans, [
+              { type: 'key', id: key1, key: key2 + '@0' }
+            ])
           })
           collect(cabal1.moderation.listBans('@'), function (err, bans) {
             t.error(err)
@@ -139,7 +147,9 @@ test('delegated moderator ban a user by key', function (t) {
           })
           collect(cabal2.moderation.listBans('@'), function (err, bans) {
             t.error(err)
-            t.deepEqual(bans, [{ key: key1 }])
+            t.deepEqual(bans, [
+              { type: 'key', id: key1, key: key2 + '@0' }
+            ])
           })
           cabal0.moderation.isBanned({ key: key1 }, function (err, banned) {
             t.error(err)
@@ -213,6 +223,59 @@ test('different mod keys have different views', function (t) {
     })
   }
 })
+
+test('ban a user by key with a reason', function (t) {
+  t.plan(10)
+
+  var addr = randomBytes(32).toString('hex')
+  var cabal0 = Cabal(ram, 'cabal://' + addr)
+  var key0 = null
+  cabal0.ready(function () {
+    cabal0.getLocalKey(function (err, key) {
+      key0 = key
+      t.error(err)
+      var cabal1 = Cabal(ram, 'cabal://' + addr, { modKey: key })
+      var cabal2 = Cabal(ram, 'cabal://' + addr, { modKey: key })
+      var pending = 3
+      cabal1.ready(function () {
+        if (--pending === 0) ready(cabal0, cabal1, cabal2)
+      })
+      cabal2.ready(function () {
+        if (--pending === 0) ready(cabal0, cabal1, cabal2)
+      })
+      if (--pending === 0) ready(cabal0, cabal1, cabal2)
+    })
+  })
+  function ready (cabal0, cabal1, cabal2) {
+    cabal1.getLocalKey(function (err, key1) {
+      t.error(err)
+      cabal0.publish({
+        type: 'ban/add',
+        content: { key: key1, reason: 'spammer' }
+      })
+      sync([cabal0,cabal1,cabal2], function (err) {
+        t.error(err)
+        collect(cabal2.moderation.listBans('@'), function (err, bans) {
+          t.error(err)
+          t.deepEqual(bans, [{ type: 'key', id: key1, key: key0+'@0' }])
+          cabal2.moderation.banInfo(bans[0].key, function (err, info) {
+            t.error(err)
+            t.deepEqual(info.content, {
+              key: key1,
+              reason: 'spammer'
+            })
+            t.ok(info.timestamp)
+          })
+        })
+        cabal2.moderation.isBanned({ key: key1, seq: 0 }, function (err, banned) {
+          t.error(err)
+          t.ok(banned)
+        })
+      })
+    })
+  }
+})
+
 
 function sync (cabals, cb) {
   cb = cb || function(){}
