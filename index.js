@@ -179,6 +179,52 @@ Cabal.prototype.publishChannelTopic = function (channel, topic, cb) {
   })
 }
 
+/**
+ * Publish a message that indicates the banning of a specific user.
+ * @param {string} key - the hexadecimal key of the user being banned.
+ * @param {map} [opts] - optional parameters.
+ * @param {string} [opts.channel="@"] - the channel to ban the user from.
+ *                                      (default=cabal-wide)
+ * @param {string} [opts.reason=""] - reason for the banishment.
+ * @param {function} [cb] - callback upon completion.
+ */
+Cabal.prototype.ban = function (key, opts, cb) {
+  if (!cb && typeof opts === 'function') {
+    cb = opts
+    opts = {}
+  }
+  if (!cb) cb = noop
+  if (!opts) opts = {}
+  if (!opts.channel) opts.channel = '@'
+  if (!opts.reason) opts.reason = ''
+  if (!isHexKey(key)) {
+    return process.nextTick(cb, new Error('key must be a 64-character hex string'))
+  }
+  if (typeof opts.channel !== 'string') {
+    return process.nextTick(cb, new Error('opts.channel must be a string'))
+  }
+  if (typeof opts.reason !== 'string') {
+    return process.nextTick(cb, new Error('opts.reason must be a string'))
+  }
+
+  this.feed(function (feed) {
+    if (feed.key.toString('hex') === key) {
+      return cb(new Error('you probably don\'t want to ban yourself'))
+    }
+
+    const msg = {
+      type: 'ban/add',
+      content: {
+        key: key,
+        channel: opts.channel,
+        reason: opts.reason
+      },
+      timestamp: timestamp()
+    }
+    feed.append(msg, cb)
+  })
+}
+
 Cabal.prototype.getLocalKey = function (cb) {
   if (!cb) return
 
@@ -216,14 +262,17 @@ Cabal.prototype._removeConnection = function (key) {
   this.emit('peer-dropped', key)
 }
 
-
 function generateKeyHex () {
   return crypto.keyPair().publicKey.toString('hex')
 }
 
 function isHypercoreKey (key) {
-  if (typeof key === 'string') return key.length === 64 && /^[0-9a-f]+$/.test(key)
-  else if (Buffer.isBuffer(key)) return key.length === 32
+  if (typeof key === 'string') return /^[0-9a-f]{64}$/.test(key)
+  else if (Buffer.isBuffer(key)) return key.toString('hex').length === 32
+}
+
+function isHexKey (key) {
+  return /^[0-9a-fA-F]{64}$/.test(key)
 }
 
 // Ensures 'key' is a hex string
