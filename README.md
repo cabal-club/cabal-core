@@ -140,6 +140,15 @@ Load the original ban message as `cb(err, msg)`.
 You can check `msg.content` for things like a `reason` field or you can check
 `msg.timestamp`.
 
+### cabal.ban(key, [opts], [cb])
+
+Bans a specific user, by their public key.
+
+Valid `opts` include:
+
+- `channel` (string, default="@") - the channel to ban the user from. `"@"` is cabal-wide.
+- `reason` (string, default="") - reason for the banishment.
+
 ### Publishing
 
 #### cabal.publish(message, opts, cb)
@@ -184,18 +193,6 @@ documented types include
     key: 'hex string key of the user to add/remove as mod',
     channel: 'channel name as a string or "@" for cabal-wide'
     role: '"admin", "mod", or a custom role string'
-  }
-}
-```
-
-#### ban/{add,remove}
-
-```js
-{
-  type: '"ban/add" or "ban/remove"',
-  content: {
-    key: 'hex string key of the user to ban/unban',
-    channel: 'channel name as a string or "@" for cabal-wide'
   }
 }
 ```

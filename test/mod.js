@@ -5,6 +5,33 @@ var randomBytes = require('crypto').randomBytes
 var collect = require('collect-stream')
 var pump = require('pump')
 
+test('can publish ban message', function (t) {
+  t.plan(1)
+
+  var cabalKey = randomBytes(32).toString('hex')
+  var fakeKey = randomBytes(32).toString('hex')
+  var cabal = Cabal(ram, 'cabal://' + cabalKey)
+  cabal.ready(() => {
+    cabal.ban(fakeKey, err => {
+      t.error(err)
+    })
+  })
+})
+
+test('can\'t ban self', function (t) {
+  t.plan(1)
+
+  var cabalKey = randomBytes(32).toString('hex')
+  var cabal = Cabal(ram, 'cabal://' + cabalKey)
+  cabal.ready(() => {
+    cabal.getLocalKey(key => {
+      cabal.ban(key, err => {
+        t.ok(err, 'caused an error')
+      })
+    })
+  })
+})
+
 test('ban a user by key', function (t) {
   t.plan(7)
 
@@ -30,10 +57,7 @@ test('ban a user by key', function (t) {
   function ready (cabal0, cabal1, cabal2) {
     cabal1.getLocalKey(function (err, key1) {
       t.error(err)
-      cabal0.publish({
-        type: 'ban/add',
-        content: { key: key1 }
-      })
+      cabal0.ban(key1)
       sync([cabal0,cabal1,cabal2], function (err) {
         t.error(err)
         collect(cabal2.moderation.listBans('@'), function (err, bans) {
@@ -74,10 +98,7 @@ test('banning a user /wo a modkey is local-only', function (t) {
   function ready (cabal0, cabal1, cabal2) {
     cabal1.getLocalKey(function (err, key1) {
       t.error(err)
-      cabal0.publish({
-        type: 'ban/add',
-        content: { key: key1 }
-      })
+      cabal0.ban(key1)
 
       sync([cabal0,cabal1,cabal2], function (err) {
         t.error(err)
@@ -129,10 +150,7 @@ test('delegated moderator ban a user by key', function (t) {
           type: 'mod/add',
           content: { key: key2, role: 'mod' }
         })
-        cabal2.publish({
-          type: 'ban/add',
-          content: { key: key1 }
-        })
+        cabal2.ban(key1)
         sync([cabal0,cabal1,cabal2], function (err) {
           t.error(err)
           collect(cabal0.moderation.listBans('@'), function (err, bans) {
@@ -197,10 +215,7 @@ test('different mod keys have different views', function (t) {
   function ready (cabal0, cabal1, cabal2, cabal3) {
     cabal1.getLocalKey(function (err, key1) {
       t.error(err)
-      cabal0.publish({
-        type: 'ban/add',
-        content: { key: key1 }
-      })
+      cabal0.ban(key1)
       sync([cabal0,cabal1,cabal2,cabal3], function (err) {
         t.error(err)
         cabal0.moderation.isBanned({ key: key1 }, function (err, banned) {
