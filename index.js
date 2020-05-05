@@ -225,6 +225,48 @@ Cabal.prototype.ban = function (key, opts, cb) {
   })
 }
 
+/**
+ * Publish a message that indicates the unbanning of a specific user.
+ * @param {string} key - the hexadecimal key of the user to unban.
+ * @param {map} [opts] - optional parameters.
+ * @param {string} [opts.channel="@"] - the channel to unban the user from.
+ *                                      (default=cabal-wide)
+ * @param {string} [opts.reason=""] - reason for the unbanishment.
+ * @param {function} [cb] - callback upon completion.
+ */
+Cabal.prototype.unban = function (key, opts, cb) {
+  if (!cb && typeof opts === 'function') {
+    cb = opts
+    opts = {}
+  }
+  if (!cb) cb = noop
+  if (!opts) opts = {}
+  if (!opts.channel) opts.channel = '@'
+  if (!opts.reason) opts.reason = ''
+  if (!isHexKey(key)) {
+    return process.nextTick(cb, new Error('key must be a 64-character hex string'))
+  }
+  if (typeof opts.channel !== 'string') {
+    return process.nextTick(cb, new Error('opts.channel must be a string'))
+  }
+  if (typeof opts.reason !== 'string') {
+    return process.nextTick(cb, new Error('opts.reason must be a string'))
+  }
+
+  this.feed(function (feed) {
+    const msg = {
+      type: 'ban/remove',
+      content: {
+        key: key,
+        channel: opts.channel,
+        reason: opts.reason
+      },
+      timestamp: timestamp()
+    }
+    feed.append(msg, cb)
+  })
+}
+
 Cabal.prototype.getLocalKey = function (cb) {
   if (!cb) return
 
