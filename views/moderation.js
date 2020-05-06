@@ -103,15 +103,58 @@ module.exports = function (cabal, modKey, db) {
             } else next()
           }
         })
-
         this.ready(function () {
           pump(auth.getMembers(channel), out)
         })
-
         return readonly(out)
       },
 
+      listMods: function (core, channel, opts) {
+        // shows both mods + admins
+        if (!opts) opts = {}
+        var out = new Transform({
+          objectMode: true,
+          transform: function (row, enc, next) {
+            if (row && (row.role === 'mod' || row.role === 'admin')) {
+              next(null, row)
+            } else next()
+          }
+        })
+        this.ready(function () {
+          pump(auth.getMembers(channel), out)
+        })
+        return readonly(out)
+      },
+
+      listAdmins: function (core, channel, opts) {
+        if (!opts) opts = {}
+        var out = new Transform({
+          objectMode: true,
+          transform: function (row, enc, next) {
+            if (row && row.role === 'admin') {
+              next(null, row)
+            } else next()
+          }
+        })
+        this.ready(function () {
+          pump(auth.getMembers(channel), out)
+        })
+        return readonly(out)
+      },
+
+      listRoles: function (core, channel) {
+        return auth.getMembers(channel)
+      },
+
       banInfo: function (core, feedSeq, cb) {
+        if (typeof feedSeq === 'string') {
+          var p = feedSeq.split('@')
+          feedSeq = { key: p[0], seq: Number(p[1]) }
+        }
+        core._logs.feed(feedSeq.key).get(feedSeq.seq, cb)
+      },
+
+      modInfo: function (core, feedSeq, cb) {
         if (typeof feedSeq === 'string') {
           var p = feedSeq.split('@')
           feedSeq = { key: p[0], seq: Number(p[1]) }
@@ -144,11 +187,16 @@ module.exports = function (cabal, modKey, db) {
           })
           if (--pending === 0) cb(null, banned)
         })
+      },
+
+      getRole: function (core, opts, cb) {
+        auth.getRole({ group: opts.channel, id: opts.key }, cb)
       }
     }
   }
   function map (rows, next) {
     var batch = []
+    var m
     rows.forEach(function (row) {
       if (!row.value || !row.value.content) return
       // todo: add skips for local ip
@@ -158,20 +206,20 @@ module.exports = function (cabal, modKey, db) {
       } else if (row.value.type === 'ban/add'
       && row.value.content.key === localKey) {
         // skip banning of localKey
-      } else if (/^mod\/(add|remove)$/.test(row.value.type)) {
+      } else if (m = /^(mod|admin)\/(add|remove)$/.exec(row.value.type)) {
         batch.push({
-          type: row.value.type.replace(/^mod\//,''),
+          type: m[2],
           by: row.key,
           id: row.value.content.key,
           key: row.key + '@' + row.seq,
           group: row.value.content.channel || '@',
-          role: row.value.content.role
+          role: m[1]
         })
-      } else if (/^ban\/(add|remove)$/.test(row.value.type)) {
+      } else if (m = /^ban\/(add|remove)$/.exec(row.value.type)) {
         ;['key','ip'].forEach(function (key) {
           if (!row.value.content[key]) return
           batch.push({
-            type: row.value.type.replace(/^ban\//,''),
+            type: m[1],
             by: row.key,
             id: row.value.content[key],
             key: row.key + '@' + row.seq,

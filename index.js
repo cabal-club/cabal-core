@@ -189,6 +189,75 @@ Cabal.prototype.publishChannelTopic = function (channel, topic, cb) {
  * @param {function} [cb] - callback upon completion.
  */
 Cabal.prototype.ban = function (key, opts, cb) {
+  this._modCmd('ban/add', key, opts, cb)
+}
+
+/**
+ * Publish a message that reverses a ban of a specific user.
+ * @param {string} key - the hexadecimal key of the user being banned.
+ * @param {map} [opts] - optional parameters.
+ * @param {string} [opts.channel="@"] - the channel to ban the user from.
+ *                                      (default=cabal-wide)
+ * @param {string} [opts.reason=""] - reason for the banishment.
+ * @param {function} [cb] - callback upon completion.
+ */
+Cabal.prototype.unban = function (key, opts, cb) {
+  this._modCmd('ban/remove', key, opts, cb)
+}
+
+/**
+ * Publish a message that adds a moderator by their key.
+ * @param {string} key - the hexadecimal key of the user being banned.
+ * @param {map} [opts] - optional parameters.
+ * @param {string} [opts.channel="@"] - the channel to ban the user from.
+ *                                      (default=cabal-wide)
+ * @param {string} [opts.reason=""] - reason for the banishment.
+ * @param {function} [cb] - callback upon completion.
+ */
+Cabal.prototype.addMod = function (key, opts, cb) {
+  this._modCmd('mod/add', key, opts, cb)
+}
+
+/**
+ * Publish a message that removes a moderator by their key.
+ * @param {string} key - the hexadecimal key of the user being banned.
+ * @param {map} [opts] - optional parameters.
+ * @param {string} [opts.channel="@"] - the channel to ban the user from.
+ *                                      (default=cabal-wide)
+ * @param {string} [opts.reason=""] - reason for the banishment.
+ * @param {function} [cb] - callback upon completion.
+ */
+Cabal.prototype.removeMod = function (key, opts, cb) {
+  this._modCmd('mod/remove', key, opts, cb)
+}
+
+/**
+ * Publish a message that adds an admin by their key.
+ * @param {string} key - the hexadecimal key of the user being banned.
+ * @param {map} [opts] - optional parameters.
+ * @param {string} [opts.channel="@"] - the channel to ban the user from.
+ *                                      (default=cabal-wide)
+ * @param {string} [opts.reason=""] - reason for the banishment.
+ * @param {function} [cb] - callback upon completion.
+ */
+Cabal.prototype.addAdmin = function (key, opts, cb) {
+  this._modCmd('admin/add', key, opts, cb)
+}
+
+/**
+ * Publish a message that removes an admin by their key.
+ * @param {string} key - the hexadecimal key of the user being banned.
+ * @param {map} [opts] - optional parameters.
+ * @param {string} [opts.channel="@"] - the channel to ban the user from.
+ *                                      (default=cabal-wide)
+ * @param {string} [opts.reason=""] - reason for the banishment.
+ * @param {function} [cb] - callback upon completion.
+ */
+Cabal.prototype.removeAdmin = function (key, opts, cb) {
+  this._modCmd('admin/remove', key, opts, cb)
+}
+
+Cabal.prototype._modCmd = function (type, key, opts, cb) {
   if (!cb && typeof opts === 'function') {
     cb = opts
     opts = {}
@@ -213,7 +282,7 @@ Cabal.prototype.ban = function (key, opts, cb) {
     }
 
     const msg = {
-      type: 'ban/add',
+      type,
       content: {
         key: key,
         channel: opts.channel,
