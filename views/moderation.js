@@ -91,14 +91,15 @@ module.exports = function (cabal, modKey, db) {
     },
     events: events,
     api: {
-      listBans: function (core, channel) {
+      listBans: function (core, channel, opts) {
+        if (!opts) opts = {}
         var out = new Transform({
           objectMode: true,
           transform: function (row, enc, next) {
             if (row && row.role === 'ban/key') {
-              next(null, { key: row.id })
+              next(null, { type: 'key', id: row.id, key: row.key })
             } else if (row && row.role === 'ban/ip') {
-              next(null, { ip: row.id })
+              next(null, { type: 'ip', id: row.id, key: row.key })
             } else next()
           }
         })
@@ -109,6 +110,15 @@ module.exports = function (cabal, modKey, db) {
 
         return readonly(out)
       },
+
+      banInfo: function (core, feedSeq, cb) {
+        if (typeof feedSeq === 'string') {
+          var p = feedSeq.split('@')
+          feedSeq = { key: p[0], seq: Number(p[1]) }
+        }
+        core._logs.feed(feedSeq.key).get(feedSeq.seq, cb)
+      },
+
       isBanned: function (core, r, cb) {
         this.ready(function () {
           cb = once(cb || noop)
@@ -153,6 +163,7 @@ module.exports = function (cabal, modKey, db) {
           type: row.value.type.replace(/^mod\//,''),
           by: row.key,
           id: row.value.content.key,
+          key: row.key + '@' + row.seq,
           group: row.value.content.channel || '@',
           role: row.value.content.role
         })
@@ -163,6 +174,7 @@ module.exports = function (cabal, modKey, db) {
             type: row.value.type.replace(/^ban\//,''),
             by: row.key,
             id: row.value.content[key],
+            key: row.key + '@' + row.seq,
             group: row.value.content.channel || '@',
             role: 'ban/' + key
           })
