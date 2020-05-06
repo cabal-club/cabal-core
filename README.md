@@ -115,6 +115,71 @@ This means that if a group of people all specify the same *moderation key*,
 they will collectively see the same set of administrators, moderators, and
 banned users.
 
+### cabal.ban(key, [opts], [cb])
+
+Bans a specific user, by their public key.
+
+Valid `opts` include:
+
+- `channel` (string, default="@") - the channel to ban the user from. `"@"` is cabal-wide.
+- `reason` (string, default="") - reason for the banishment.
+
+### cabal.unban(key, [opts], [cb])
+
+Unban a user by their public key.
+
+Valid `opts` include:
+
+- `channel` (string, default="@") - the channel to ban the user from. `"@"` is cabal-wide.
+- `reason` (string, default="") - reason for the banishment.
+
+### cabal.addMod(key, [opts], [cb])
+
+Add a moderator by their `key`.
+
+Moderators can ban and unban users who are not admins or moderators.
+
+Valid `opts` include:
+
+- `channel` (string, default="@") - the channel to ban the user from. `"@"` is cabal-wide.
+- `reason` (string, default="") - reason or note about adding a moderator
+
+### cabal.removeMod(key, [opts], [cb])
+
+Remove a moderator by their `key`.
+
+Moderators can ban and unban users who are not admins or moderators.
+
+Valid `opts` include:
+
+- `channel` (string, default="@") - the channel to ban the user from. `"@"` is cabal-wide.
+- `reason` (string, default="") - reason or note about removing a moderator
+
+### cabal.addAdmin(key, [opts], [cb])
+
+Add an admin by their `key`.
+
+Admins can ban and unban like moderators and they can also add and remove
+moderators and other admins.
+
+Valid `opts` include:
+
+- `channel` (string, default="@") - the channel to ban the user from. `"@"` is cabal-wide.
+- `reason` (string, default="") - reason or note about adding an admin
+
+
+### cabal.removeAdmin(key, [opts], [cb])
+
+Remove an admin by their `key`.
+
+Admins can ban and unban like moderators and they can also add and remove
+moderators and other admins.
+
+Valid `opts` include:
+
+- `channel` (string, default="@") - the channel to ban the user from. `"@"` is cabal-wide.
+- `reason` (string, default="") - reason or note about removing an admin
+
 #### var rs = cabal.moderation.listBans(channel)
 
 Return a readable objectMode stream of bans for `channel`.
