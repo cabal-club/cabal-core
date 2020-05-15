@@ -100,10 +100,12 @@ Any admin/mod/ban operation can be per-channel, or cabal-wide (the `@` group).
 
 Every user sees themselves as an administrator across the entire cabal. This
 means they can grant admin or moderator powers to anyone, and ban anyone, but
-only they will see its affects on their own computer.
+only they will see its affects on their own computer. That is, until someone
+*adds* them as an administrator or moderation from *their* perspective.
 
 A cabal can be instantiated with a *moderation key*. This is an additional key
-to locally consider as a cabal-wide administrator (in addition to yourself).
+to have your local node consider a user (the user whose key matches the
+moderation key) as a cabal-wide administrator (in addition to yourself).
 
 This means that if a group of people all specify the same *moderation key*,
 they will collectively see the same set of administrators, moderators, and
