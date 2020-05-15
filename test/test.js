@@ -139,7 +139,6 @@ test('local replication', function (t) {
   var sharedKey
 
   function create (id, key, cb) {
-    console.log('create', key)
     var cabal = Cabal(ram, key)
     cabal.ready(function () {
       var msg = {
@@ -258,19 +257,19 @@ function syncNetwork (a, b, cb) {
 
       function end () {
         if (!--pending) {
-          swarm1.destroy(function () {
-            swarm2.destroy(cb)
+          swarm1.destroy()
+          swarm1.once('close', function () {
+            swarm2.destroy()
+            swarm2.once('close', cb)
           })
         }
       }
 
       a.once('peer-added', function (key) {
-        console.log('a-add', key)
         setTimeout(end, 2000)
       })
 
       b.once('peer-added', function (key) {
-        console.log('b-add', key)
         setTimeout(end, 2000)
       })
     })

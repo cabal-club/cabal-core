@@ -43,7 +43,11 @@ Ensure that `isInitiator` to `true` to one side, and `false` on the other. This 
 
 ### cabal.ready(cb)
 
-Call `cb()` when the underlying indexes are caught up.
+Calls `cb()` when the underlying indexes are caught up.
+
+### cabal.close(cb)
+
+Calls `cb()` when the cabal and its resources have been closed. This also leaves the swarm, if joined.
 
 ### Channels
 

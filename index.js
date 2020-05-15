@@ -192,7 +192,14 @@ Cabal.prototype.swarm = function (opts, cb) {
     cb = opts
     opts = {}
   }
-  swarm(this, opts, cb)
+  if (!cb) cb = noop
+  const self = this
+
+  swarm(this, opts, function (err, swarm) {
+    if (err) return cb(err)
+    self._swarm = swarm
+    cb(null, swarm)
+  })
 }
 
 Cabal.prototype.replicate = function (isInitiator, opts) {
@@ -216,6 +223,21 @@ Cabal.prototype._removeConnection = function (key) {
   this.emit('peer-dropped', key)
 }
 
+Cabal.prototype.close = function (cb) {
+  const self = this
+
+  if (this._swarm) {
+    this._swarm.once('close', close)
+    this._swarm.destroy()
+  } else {
+    close()
+  }
+
+  function close () {
+    self.kcore.pause()
+    self.kcore._logs.close(cb)
+  }
+}
 
 function generateKeyHex () {
   return crypto.keyPair().publicKey.toString('hex')
