@@ -5,6 +5,8 @@ var { Readable, Transform } = require('readable-stream')
 var once = require('once')
 var pump = require('pump')
 var readonly = require('read-only-stream')
+var through = require('through2')
+var collect = require('collect-stream')
 var { nextTick } = process
 
 module.exports = function (cabal, modKey, db) {
@@ -61,7 +63,6 @@ module.exports = function (cabal, modKey, db) {
         if (modKey && !hasModKey) {
           batch.push({
             type: 'add',
-            key: -1, // special key to track local addr adds
             id: modKey,
             by: key,
             group: '@',
@@ -99,14 +100,14 @@ module.exports = function (cabal, modKey, db) {
     },
     events: events,
     api: {
-      listBlocks: function (core, channel) {
-        return listByFlag(core, { flag: 'block', channel })
+      listBlocks: function (core, channel, cb) {
+        return listByFlag(core, { flag: 'block', channel }, cb)
       },
-      listHides: function (core, channel) {
-        return listByFlag(core, { flag: 'hide', channel })
+      listHides: function (core, channel, cb) {
+        return listByFlag(core, { flag: 'hide', channel }, cb)
       },
-      listMutes: function (core, channel) {
-        return listByFlag(core, { flag: 'mute', channel })
+      listMutes: function (core, channel, cb) {
+        return listByFlag(core, { flag: 'mute', channel }, cb)
       },
       listByFlag: listByFlag,
       getFlags: function (core, opts, cb) {
@@ -115,6 +116,22 @@ module.exports = function (cabal, modKey, db) {
           var group = opts.channel || '@'
           auth.getFlags({ group, id }, cb)
         })
+      },
+      list: function (core, opts, cb) {
+        if (typeof opts === 'function') {
+          cb = opts
+          opts = {}
+        }
+        var r = auth.list(opts)
+        var out = through.obj(function (row, enc, next) {
+          row.channel = row.group
+          delete row.group
+          next(null, row)
+        })
+        pump(r, out)
+        var ro = readonly(out)
+        if (cb) collect(ro, cb)
+        return ro
       },
       // ^--- queries above | updates below ---v
       setFlags: function (core, opts, cb) {
@@ -144,7 +161,11 @@ module.exports = function (cabal, modKey, db) {
     }
   }
 
-  function listByFlag (core, opts) {
+  function listByFlag (core, opts, cb) {
+    if (typeof opts === 'function') {
+      cb = opts
+      opts = {}
+    }
     var out = new Transform({
       objectMode: true,
       transform: function (row, enc, next) {
@@ -157,7 +178,9 @@ module.exports = function (cabal, modKey, db) {
     core.ready(function () {
       pump(auth.getMembers(opts.channel || '@'), out)
     })
-    return readonly(out)
+    var ro = readonly(out)
+    if (cb) collect(ro, cb)
+    return ro
   }
 
   function publishFlagUpdate (core, opts, cb) {
@@ -181,7 +204,10 @@ module.exports = function (cabal, modKey, db) {
         var id = row.value.content.id
         if (!id) return
         var group = row.value.content.channel || '@'
-        var flags = checkLocal(id, row.key, row.value.content.flags || [])
+        var flags = checkLocal(
+          id, group, row.key,
+          row.value.content.flags || []
+        )
         batch.push({
           type: 'add',
           by: row.key,
@@ -195,17 +221,22 @@ module.exports = function (cabal, modKey, db) {
         if (!id) return
         var group = row.value.content.channel || '@'
         pending++
-        auth.getFlags({ group, id }, function (err, flags) {
+        auth.getFlags({ group, id }, function (err, prevFlags) {
           if (err) return next(err)
-          flags = checkLocal(id, row.key, flags.concat(row.value.content.flags || []))
-          batch.push({
-            type: 'add',
-            by: row.key,
-            key: row.key + '@' + row.seq,
-            id,
-            group,
-            flags
-          })
+          var flags = checkLocal(
+            id, group, row.key,
+            prevFlags.concat(row.value.content.flags || [])
+          )
+          if (!arrayEq(prevFlags, flags)) {
+            batch.push({
+              type: 'add',
+              by: row.key,
+              key: row.key + '@' + row.seq,
+              id,
+              group,
+              flags
+            })
+          }
           if (--pending === 0) done()
         })
       } else if (row.value.type === 'flags/remove') {
@@ -222,7 +253,7 @@ module.exports = function (cabal, modKey, db) {
           flags = flags.filter(function (x) {
             return !has(rmFlags, x)
           })
-          flags = checkLocal(id, row.key, flags)
+          flags = checkLocal(id, group, row.key, flags)
           batch.push({
             type: 'add',
             by: row.key,
@@ -243,10 +274,10 @@ module.exports = function (cabal, modKey, db) {
     }
   }
 
-  function checkLocal (id, key, flags) {
+  function checkLocal (id, channel, key, flags) {
     // do not allow anyone to de-admin, block, hide, or mute local key
     if (id === localKey) {
-      if (!flags.includes('admin')) flags.push('admin')
+      if (channel === '@' && !flags.includes('admin')) flags.push('admin')
       flags = flags.filter(checkLocalFlag)
     }
     return flags
@@ -258,3 +289,10 @@ function checkLocalFlag (x) {
 }
 function noop () {}
 function has (obj, x) { return Object.prototype.hasOwnProperty(obj, x) }
+function arrayEq (a, b) {
+  if (!a || !b || a.length !== b.length) return false
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+  return true
+}

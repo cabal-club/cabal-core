@@ -241,6 +241,100 @@ test("possible to ban self. affects subscribers not self", function (t) {
   })
 })
 
+test('blocks across channels', function (t) {
+  t.plan(57)
+  var addr = randomBytes(32).toString('hex')
+  var cabal0 = Cabal(ram, addr)
+  cabal0.ready(function () {
+    cabal0.getLocalKey(function (err, key) {
+      t.error(err)
+      var cabal1 = Cabal(ram, addr, { modKey: key })
+      var cabal2 = Cabal(ram, addr, { modKey: key })
+      var cabal3 = Cabal(ram, addr, { modKey: key })
+      var pending = 4
+      cabal1.ready(function () {
+        if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)
+      })
+      cabal2.ready(function () {
+        if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)
+      })
+      cabal3.ready(function () {
+        if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)
+      })
+      if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)
+    })
+  })
+  function ready (cabal0, cabal1, cabal2, cabal3) {
+    getKeys([cabal0,cabal1,cabal2,cabal3], function (err, keys) {
+      t.error(err)
+      cabal0.moderation.addFlags({ id: keys[1], flags: ['block'], channel: 'A' })
+      cabal0.moderation.addFlags({ id: keys[2], flags: ['block'], channel: 'B' })
+      cabal0.moderation.addFlags({ id: keys[3], flags: ['block'], channel: 'C' })
+      sync([cabal0,cabal1,cabal2,cabal3], function (err) {
+        t.error(err)
+        var blocked = [{},{},{},{}]
+        var list = []
+        var pending = 1
+        ;[cabal0,cabal1,cabal2,cabal3].forEach(function (cabal, i) {
+          ;['A','B','C'].forEach(function (channel) {
+            if (!blocked[i][channel]) blocked[i][channel] = []
+            keys.forEach(function (id, ik) {
+              pending++
+              cabal.moderation.getFlags({ id, channel }, function (err, flags) {
+                t.error(err)
+                blocked[i][channel][ik] = Number(flags.includes('block'))
+                if (--pending === 0) check()
+              })
+            })
+          })
+          pending++
+          cabal.moderation.list(function (err, x) {
+            t.error(err)
+            list[i] = x
+            if (--pending === 0) check()
+          })
+        })
+        if (--pending === 0) check()
+
+        function check () {
+          t.deepEqual(blocked, [
+            { A: [0,1,0,0], B: [0,0,1,0], C: [0,0,0,1] },
+            { A: [0,0,0,0], B: [0,0,1,0], C: [0,0,0,1] },
+            { A: [0,1,0,0], B: [0,0,0,0], C: [0,0,0,1] },
+            { A: [0,1,0,0], B: [0,0,1,0], C: [0,0,0,0] },
+          ], 'expected block grid')
+          t.deepEqual(list.map(x => x.sort(byKey)), [
+            [
+              { id: keys[0], flags: ['admin'], channel: '@' },
+              { key: keys[0]+'@0', id: keys[1], flags: ['block'], channel: 'A' },
+              { key: keys[0]+'@1', id: keys[2], flags: ['block'], channel: 'B' },
+              { key: keys[0]+'@2', id: keys[3], flags: ['block'], channel: 'C' },
+            ].sort(byKey),
+            [
+              { id: keys[1], flags: ['admin'], channel: '@' },
+              { id: keys[0], flags: ['admin'], channel: '@' },
+              { key: keys[0]+'@1', id: keys[2], flags: ['block'], channel: 'B' },
+              { key: keys[0]+'@2', id: keys[3], flags: ['block'], channel: 'C' },
+            ].sort(byKey),
+            [
+              { id: keys[2], flags: ['admin'], channel: '@' },
+              { id: keys[0], flags: ['admin'], channel: '@' },
+              { key: keys[0]+'@0', id: keys[1], flags: ['block'], channel: 'A' },
+              { key: keys[0]+'@2', id: keys[3], flags: ['block'], channel: 'C' },
+            ].sort(byKey),
+            [
+              { id: keys[3], flags: ['admin'], channel: '@' },
+              { id: keys[0], flags: ['admin'], channel: '@' },
+              { key: keys[0]+'@0', id: keys[1], flags: ['block'], channel: 'A' },
+              { key: keys[0]+'@1', id: keys[2], flags: ['block'], channel: 'B' },
+            ].sort(byKey),
+          ], 'expected block list grid')
+        }
+      })
+    })
+  }
+})
+
 function sync (cabals, cb) {
   cb = cb || function(){}
   var pending = 0
@@ -287,4 +381,11 @@ function getKeys (cabals, cb) {
     })
   })
   if (--pending === 0) cb(null, keys)
+}
+
+function byKey (a, b) {
+  if (!a.key && !b.key) return a.id < b.id ? -1 : +1
+  if (!a.key && b.key) return -1
+  if (a.key && !b.key) return +1
+  return a.key < b.key ? -1 : +1
 }

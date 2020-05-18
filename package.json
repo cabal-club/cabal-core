@@ -32,6 +32,7 @@
   "homepage": "https://github.com/cabal-club/cabal-core#readme",
   "dependencies": {
     "charwise": "^3.0.1",
+    "collect-stream": "^1.2.1",
     "concat-stream": "^2.0.0",
     "dat-encoding": "^5.0.1",
     "debug": "^4.1.1",
@@ -41,7 +42,7 @@
     "kappa-core": "^6.0.0",
     "kappa-view-level": "^2.0.1",
     "level-mem": "^5.0.1",
-    "materialized-group-auth": "^2.0.0",
+    "materialized-group-auth": "^2.1.0",
     "monotonic-timestamp": "0.0.9",
     "once": "^1.4.0",
     "pump": "^3.0.0",
@@ -56,7 +57,6 @@
     "xtend": "^4.0.1"
   },
   "devDependencies": {
-    "collect-stream": "^1.2.1",
     "documentation": "^6.3.2",
     "pump": "^3.0.0",
     "random-access-memory": "^3.0.0",

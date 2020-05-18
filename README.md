@@ -131,23 +131,45 @@ Each `row` object in the output stream has:
 * `row.flags` - array of string flags
 * `row.key` - string of `key@seq` referring to log records
 
-#### cabal.moderation.listBlocks(channel)
+Optionally collect results into `cb(err, rows)`.
+
+#### cabal.moderation.list(cb)
+
+Return a readable object stream of records for all moderation actions across all
+channels.
+
+Each `row` object in the output stream has:
+
+* `row.id` - string key which is the target of this moderation operation
+* `row.flags` - array of string flags set for this user
+* `row.channel` - string channel name this operation applies to
+* `row.key` - key of log record (not defined for self-admin and admins added by modkey)
+
+Optionally collect results into `cb(err, rows)`.
+
+#### cabal.moderation.listBlocks(channel, cb)
 
 Return a readable object stream of records for the blocks in `channel`.
 
 The objects in the output have the same form as `listByFlag()`.
 
-#### cabal.moderation.listHides(channel)
+Optionally collect results into `cb(err, rows)`.
+
+#### cabal.moderation.listHides(channel, cb)
 
 Return a readable object stream of records for the hides in `channel`.
 
 The objects in the output have the same form as `listByFlag()`.
 
-#### cabal.moderation.listMutes(channel)
+Optionally collect results into `cb(err, rows)`.
+
+#### cabal.moderation.listMutes(channel, cb)
 
 Return a readable object stream of records for the mutes in `channel`.
 
 The objects in the output have the same form as `listByFlag()`.
+
+Optionally collect results into `cb(err, rows)`.
 
 #### cabal.moderation.getFlags({ id, channel }, cb)
 
