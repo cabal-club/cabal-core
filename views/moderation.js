@@ -5,10 +5,17 @@ var { Readable, Transform } = require('readable-stream')
 var once = require('once')
 var pump = require('pump')
 var readonly = require('read-only-stream')
+var { nextTick } = process
 
 module.exports = function (cabal, modKey, db) {
   var events = new EventEmitter()
   var auth = mauth(db)
+  auth.on('update', function (update) {
+    events.emit('update', update)
+  })
+  auth.on('skip', function (skip) {
+    events.emit('skip', skip)
+  })
   var queue = []
   var localKey = null
   cabal.getLocalKey(function (err, key) {
@@ -23,7 +30,7 @@ module.exports = function (cabal, modKey, db) {
           id: key,
           by: null,
           group: '@',
-          role: 'admin'
+          flags: [ 'admin' ]
         })
       }
       if (--pending === 0) done()
@@ -34,7 +41,8 @@ module.exports = function (cabal, modKey, db) {
     pump(auth.getMembers('@'), new Transform({
       objectMode: true,
       transform: function (row, enc, next) {
-        if (row.role === 'admin' && row.key === -1 && row.id !== modKey
+        var flags = row && row.flags || []
+        if (flags.includes('admin') && row.key === -1 && row.id !== modKey
         && row.id !== key) {
           batch.push({
             type: 'remove',
@@ -43,7 +51,7 @@ module.exports = function (cabal, modKey, db) {
             group: '@'
           })
         }
-        if (modKey && row.role === 'admin' && row.id === modKey) {
+        if (modKey && flags.includes('admin') && row.id === modKey) {
           hasModKey = true
         }
         next()
@@ -57,7 +65,7 @@ module.exports = function (cabal, modKey, db) {
             id: modKey,
             by: key,
             group: '@',
-            role: 'admin'
+            flags: [ 'admin' ]
           })
         }
         if (--pending === 0) done()
@@ -77,9 +85,9 @@ module.exports = function (cabal, modKey, db) {
       } else finish()
     }
     function finish () {
+      localKey = key
       queue.forEach(function (q) { q() })
       queue = []
-      localKey = key
     }
   })
 
@@ -91,88 +99,162 @@ module.exports = function (cabal, modKey, db) {
     },
     events: events,
     api: {
-      listBans: function (core, channel) {
-        var out = new Transform({
-          objectMode: true,
-          transform: function (row, enc, next) {
-            if (row && row.role === 'ban/key') {
-              next(null, { key: row.id })
-            } else if (row && row.role === 'ban/ip') {
-              next(null, { ip: row.id })
-            } else next()
-          }
-        })
-
-        this.ready(function () {
-          pump(auth.getMembers(channel), out)
-        })
-
-        return readonly(out)
+      listBlocks: function (core, channel) {
+        return listByFlag(core, { flag: 'block', channel })
       },
-      isBanned: function (core, r, cb) {
-        this.ready(function () {
-          cb = once(cb || noop)
-          var pending = 1
-          var banned = false
-          ;['key','ip'].forEach(function (key) {
-            if (r.channel && r[key]) {
-              pending++
-              auth.getRole({ group: r.channel, id: r[key] }, function (err, role) {
-                if (err) return cb(err)
-                banned = banned || (role === 'ban/' + key)
-                if (--pending === 0) cb(null, banned)
-              })
-            }
-            if (r[key]) {
-              pending++
-              auth.getRole({ group: '@', id: r[key] }, function (err, role) {
-                if (err) return cb(err)
-                banned = banned || (role === 'ban/' + key)
-                if (--pending === 0) cb(null, banned)
-              })
-            }
-          })
-          if (--pending === 0) cb(null, banned)
+      listHides: function (core, channel) {
+        return listByFlag(core, { flag: 'hide', channel })
+      },
+      listMutes: function (core, channel) {
+        return listByFlag(core, { flag: 'mute', channel })
+      },
+      listByFlag: listByFlag,
+      getFlags: function (core, opts, cb) {
+        core.ready(function () {
+          var id = opts.id
+          var group = opts.channel || '@'
+          auth.getFlags({ group, id }, cb)
         })
-      }
+      },
+      // ^--- queries above | updates below ---v
+      setFlags: function (core, opts, cb) {
+        publishFlagUpdate(core, {
+          type: 'set',
+          id: opts.id,
+          channel: opts.channel,
+          flags: opts.flags
+        }, cb)
+      },
+      addFlags: function (core, opts, cb) {
+        publishFlagUpdate(core, {
+          type: 'add',
+          id: opts.id,
+          channel: opts.channel,
+          flags: opts.flags
+        }, cb)
+      },
+      removeFlags: function (core, opts, cb) {
+        publishFlagUpdate(core, {
+          type: 'remove',
+          id: opts.id,
+          channel: opts.channel,
+          flags: opts.flags
+        }, cb)
+      },
     }
   }
+
+  function listByFlag (core, opts) {
+    var out = new Transform({
+      objectMode: true,
+      transform: function (row, enc, next) {
+        var flags = row && row.flags || []
+        if (row && (opts.flag === undefined || flags.includes(opts.flag))) {
+          next(null, row)
+        } else next()
+      }
+    })
+    core.ready(function () {
+      pump(auth.getMembers(opts.channel || '@'), out)
+    })
+    return readonly(out)
+  }
+
+  function publishFlagUpdate (core, opts, cb) {
+    cabal.publish({
+      type: 'flags/' + opts.type,
+      content: {
+        id: opts.id,
+        channel: opts.channel || '@',
+        flags: opts.flags || []
+      }
+    }, cb)
+  }
+
   function map (rows, next) {
+    next = once(next)
     var batch = []
+    var pending = 1
     rows.forEach(function (row) {
       if (!row.value || !row.value.content) return
-      // todo: add skips for local ip
-      if (row.value.type === 'mod/remove'
-      && row.value.content.key === localKey) {
-        // skip removal of localKey as admin
-      } else if (row.value.type === 'ban/add'
-      && row.value.content.key === localKey) {
-        // skip banning of localKey
-      } else if (/^mod\/(add|remove)$/.test(row.value.type)) {
+      if (row.value.type === 'flags/set') {
+        var id = row.value.content.id
+        if (!id) return
+        var group = row.value.content.channel || '@'
+        var flags = checkLocal(id, row.key, row.value.content.flags || [])
         batch.push({
-          type: row.value.type.replace(/^mod\//,''),
+          type: 'add',
           by: row.key,
-          id: row.value.content.key,
-          group: row.value.content.channel || '@',
-          role: row.value.content.role
+          key: row.key + '@' + row.seq,
+          id,
+          group,
+          flags
         })
-      } else if (/^ban\/(add|remove)$/.test(row.value.type)) {
-        ;['key','ip'].forEach(function (key) {
-          if (!row.value.content[key]) return
+      } else if (row.value.type === 'flags/add') {
+        var id = row.value.content.id
+        if (!id) return
+        var group = row.value.content.channel || '@'
+        pending++
+        auth.getFlags({ group, id }, function (err, flags) {
+          if (err) return next(err)
+          flags = checkLocal(id, row.key, flags.concat(row.value.content.flags || []))
           batch.push({
-            type: row.value.type.replace(/^ban\//,''),
+            type: 'add',
             by: row.key,
-            id: row.value.content[key],
-            group: row.value.content.channel || '@',
-            role: 'ban/' + key
+            key: row.key + '@' + row.seq,
+            id,
+            group,
+            flags
           })
+          if (--pending === 0) done()
+        })
+      } else if (row.value.type === 'flags/remove') {
+        var id = row.value.content.id
+        if (!id) return
+        var group = row.value.content.channel || '@'
+        pending++
+        auth.getFlags({ group, id }, function (err, flags) {
+          if (err) return next(err)
+          var rmFlags = {}
+          ;(row.value.content.flags || []).forEach(function (x) {
+            rmFlags[x] = true
+          })
+          flags = flags.filter(function (x) {
+            return !has(rmFlags, x)
+          })
+          flags = checkLocal(id, row.key, flags)
+          batch.push({
+            type: 'add',
+            by: row.key,
+            key: row.key + '@' + row.seq,
+            id,
+            group,
+            flags
+          })
+          if (--pending === 0) done()
         })
       }
     })
-    if (batch.length > 0) {
-      auth.batch(batch, { skip: true }, next)
-    } else next()
+    if (--pending === 0) done()
+    function done () {
+      if (batch.length > 0) {
+        auth.batch(batch, { skip: true }, next)
+      } else next()
+    }
+  }
+
+  function checkLocal (id, key, flags) {
+    // do not allow anyone to de-admin, block, hide, or mute local key
+    if (id === localKey) {
+      if (!flags.includes('admin')) flags.push('admin')
+      flags = flags.filter(checkLocalFlag)
+    }
+    return flags
   }
 }
 
+function checkLocalFlag (x) {
+  return !/^(block|hide|mute)$/.test(x)
+}
 function noop () {}
+function has (obj, x) { return Object.prototype.hasOwnProperty(obj, x) }

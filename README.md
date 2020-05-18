@@ -49,6 +49,11 @@ Calls `cb()` when the underlying indexes are caught up.
 
 Calls `cb()` when the cabal and its resources have been closed. This also leaves the swarm, if joined.
 
+### cabal.getMessage(key, cb)
+
+Read a message from `key`, a string of `feedKey@seq` or an object of
+`{ key, seq }` as `cb(err, node)` from the underlying hypercore.
+
 ### Channels
 
 #### cabal.channels.get(function (error, channels) {})
@@ -115,19 +120,61 @@ This means that if a group of people all specify the same *moderation key*,
 they will collectively see the same set of administrators, moderators, and
 banned users.
 
-#### var rs = cabal.moderation.listBans(channel)
+#### cabal.moderation.listByFlag({ channel, flag })
 
-Return a readable objectMode stream of bans for `channel`.
+Return a readable object stream of records for `channel` that for each user with
+`flag` set.
 
-Each ban is an object with either a `key` or `ip` property.
+Each `row` object in the output stream has:
 
-To list cabal-wide bans use the special channel `@`.
+* `row.id` - string user key
+* `row.flags` - array of string flags
+* `row.key` - string of `key@seq` referring to log records
 
-#### cabal.moderation.isBanned({ ip, key, channel }, cb)
+#### cabal.moderation.listBlocks(channel)
 
-Determine whether a user identified by `ip` and/or `key` is banned on `channel`
-or cabal-wide as `cb(err, banned)` for a boolean `banned`. If `channel` is
-omitted, only check cabal-wide.
+Return a readable object stream of records for the blocks in `channel`.
+
+The objects in the output have the same form as `listByFlag()`.
+
+#### cabal.moderation.listHides(channel)
+
+Return a readable object stream of records for the hides in `channel`.
+
+The objects in the output have the same form as `listByFlag()`.
+
+#### cabal.moderation.listMutes(channel)
+
+Return a readable object stream of records for the mutes in `channel`.
+
+The objects in the output have the same form as `listByFlag()`.
+
+#### cabal.moderation.getFlags({ id, channel }, cb)
+
+Get a list of flags set for the user identified by `id` in `channel` as
+`cb(err, flags)`.
+
+#### cabal.moderation.setFlags({ id, channel, flags }, cb)
+
+Set an array of `flags` for `id` in `channel`.
+
+#### cabal.moderation.addFlags({ id, channel, flags }, cb)
+
+Add an array of `flags` to the existing set of flags for `id` in `channel`.
+
+#### cabal.moderation.removeFlags({ id, channel, flags }, cb)
+
+Remove an array of `flags` from the existing set of flags for `id` in `channel`.
+
+#### cabal.moderation.events.on('update', function (update) {})
+
+This event happens when a user's flags change with `update`, the log record
+responsible for the state change.
+
+#### cabal.moderation.events.on('skip', function (skip) {})
+
+This event happens when a moderation update was skipped with `skip`, the log
+record responsible for the state change.
 
 ### Publishing
 
@@ -160,31 +207,6 @@ documented types include
   content: {
     text: 'whatever the user wants to say',
     channel: 'some channel name. if it didnt exist before, it does now!'
-  }
-}
-```
-
-#### mod/{add,remove}
-
-```js
-{
-  type: '"mod/add" or "mod/remove"',
-  content: {
-    key: 'hex string key of the user to add/remove as mod',
-    channel: 'channel name as a string or "@" for cabal-wide'
-    role: '"admin", "mod", or a custom role string'
-  }
-}
-```
-
-#### ban/{add,remove}
-
-```js
-{
-  type: '"ban/add" or "ban/remove"',
-  content: {
-    key: 'hex string key of the user to ban/unban',
-    channel: 'channel name as a string or "@" for cabal-wide'
   }
 }
 ```

@@ -5,7 +5,7 @@ var randomBytes = require('crypto').randomBytes
 var collect = require('collect-stream')
 var pump = require('pump')
 
-test('ban a user by key', function (t) {
+test('block a user by key', function (t) {
   t.plan(7)
 
   var addr = randomBytes(32).toString('hex')
@@ -28,26 +28,23 @@ test('ban a user by key', function (t) {
   function ready (cabal0, cabal1, cabal2) {
     cabal1.getLocalKey(function (err, key1) {
       t.error(err)
-      cabal0.publish({
-        type: 'ban/add',
-        content: { key: key1 }
-      })
+      cabal0.moderation.addFlags({ id: key1, flags: ['block'] })
       sync([cabal0,cabal1,cabal2], function (err) {
         t.error(err)
-        collect(cabal2.moderation.listBans('@'), function (err, bans) {
+        collect(cabal2.moderation.listBlocks('@'), function (err, blocks) {
           t.error(err)
-          t.deepEqual(bans, [{ key: key1 }])
+          t.deepEqual(blocks.map(onlyKeys(['id'])), [ { id: key1 } ])
         })
-        cabal2.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal2.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.ok(banned)
+          t.deepEqual(flags, ['block'])
         })
       })
     })
   }
 })
 
-test('banning a user /wo a modkey is local-only', function (t) {
+test('blocking a user /wo a modkey is local-only', function (t) {
   t.plan(9)
 
   var addr = randomBytes(32).toString('hex')
@@ -70,24 +67,20 @@ test('banning a user /wo a modkey is local-only', function (t) {
   function ready (cabal0, cabal1, cabal2) {
     cabal1.getLocalKey(function (err, key1) {
       t.error(err)
-      cabal0.publish({
-        type: 'ban/add',
-        content: { key: key1 }
-      })
-
+      cabal0.moderation.addFlags({ id: key1, flags: ['block'] })
       sync([cabal0,cabal1,cabal2], function (err) {
         t.error(err)
-        cabal0.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal0.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.ok(banned)
+          t.deepEqual(flags, ['block'])
         })
-        cabal1.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal1.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.notOk(banned)
+          t.deepEqual(flags, ['admin'])
         })
-        cabal2.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal2.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.notOk(banned)
+          t.deepEqual(flags, [])
         })
       })
     })
@@ -95,7 +88,7 @@ test('banning a user /wo a modkey is local-only', function (t) {
 })
 
 test('delegated moderator ban a user by key', function (t) {
-  t.plan(16)
+  t.plan(15)
 
   var addr = randomBytes(32).toString('hex')
   var cabal0 = Cabal(ram, 'cabal://' + addr)
@@ -115,44 +108,39 @@ test('delegated moderator ban a user by key', function (t) {
     })
   })
   function ready (cabal0, cabal1, cabal2) {
-    cabal1.getLocalKey(function (err, key1) {
+    getKeys([cabal0,cabal1,cabal2], function (err, keys) {
       t.error(err)
-      cabal2.getLocalKey(function (err, key2) {
+      cabal0.moderation.setFlags({ id: keys[2], flags: ['mod'] })
+      cabal2.moderation.setFlags({ id: keys[1], flags: ['block'] })
+      sync([cabal0,cabal1,cabal2], function (err) {
         t.error(err)
-        cabal0.publish({
-          type: 'mod/add',
-          content: { key: key2, role: 'mod' }
-        })
-        cabal2.publish({
-          type: 'ban/add',
-          content: { key: key1 }
-        })
-        sync([cabal0,cabal1,cabal2], function (err) {
+        collect(cabal0.moderation.listBlocks('@'), function (err, bans) {
           t.error(err)
-          collect(cabal0.moderation.listBans('@'), function (err, bans) {
-            t.error(err)
-            t.deepEqual(bans, [{ key: key1 }])
-          })
-          collect(cabal1.moderation.listBans('@'), function (err, bans) {
-            t.error(err)
-            t.deepEqual(bans, [], 'cannot ban self')
-          })
-          collect(cabal2.moderation.listBans('@'), function (err, bans) {
-            t.error(err)
-            t.deepEqual(bans, [{ key: key1 }])
-          })
-          cabal0.moderation.isBanned({ key: key1 }, function (err, banned) {
-            t.error(err)
-            t.ok(banned)
-          })
-          cabal1.moderation.isBanned({ key: key1 }, function (err, banned) {
-            t.error(err)
-            t.notOk(banned, 'cannot ban self')
-          })
-          cabal2.moderation.isBanned({ key: key1 }, function (err, banned) {
-            t.error(err)
-            t.ok(banned)
-          })
+          t.deepEqual(bans, [
+            { id: keys[1], flags: ['block'], key: keys[2] + '@0' }
+          ])
+        })
+        collect(cabal1.moderation.listBlocks('@'), function (err, bans) {
+          t.error(err)
+          t.deepEqual(bans, [], 'cannot block self')
+        })
+        collect(cabal2.moderation.listBlocks('@'), function (err, bans) {
+          t.error(err)
+          t.deepEqual(bans, [
+            { id: keys[1], flags: ['block'], key: keys[2]+'@0' }
+          ])
+        })
+        cabal0.moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, ['block'])
+        })
+        cabal1.moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, ['admin'], 'cannot ban self')
+        })
+        cabal2.moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, ['block'])
         })
       })
     })
@@ -187,31 +175,70 @@ test('different mod keys have different views', function (t) {
   function ready (cabal0, cabal1, cabal2, cabal3) {
     cabal1.getLocalKey(function (err, key1) {
       t.error(err)
-      cabal0.publish({
-        type: 'ban/add',
-        content: { key: key1 }
-      })
+      cabal0.moderation.addFlags({ id: key1, flags: ['block'] })
       sync([cabal0,cabal1,cabal2,cabal3], function (err) {
         t.error(err)
-        cabal0.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal0.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.ok(banned)
+          t.deepEqual(flags, ['block'])
         })
-        cabal1.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal1.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.notOk(banned)
+          t.deepEqual(flags, ['admin'])
         })
-        cabal2.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal2.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.notOk(banned)
+          t.deepEqual(flags, [])
         })
-        cabal3.moderation.isBanned({ key: key1 }, function (err, banned) {
+        cabal3.moderation.getFlags({ id: key1 }, function (err, flags) {
           t.error(err)
-          t.ok(banned)
+          t.deepEqual(flags, ['block'])
         })
       })
     })
   }
+})
+
+test('can publish ban message', function (t) {
+  t.plan(1)
+  var cabalKey = randomBytes(32).toString('hex')
+  var fakeKey = randomBytes(32).toString('hex')
+  var cabal = Cabal(ram, 'cabal://' + cabalKey)
+  cabal.ready(() => {
+    cabal.moderation.addFlags({ id: fakeKey, flags: ['block'] }, err => {
+      t.error(err)
+    })
+  })
+})
+
+test("possible to ban self. affects subscribers not self", function (t) {
+  // This way you can prevent others from subscribing to your mod key.
+  // Or you can remove yourself from moderation duties without needing to change
+  // a key that many people are using.
+  // You can also migrate keys using this self-blocking mechanism.
+  t.plan(6)
+
+  var cabalKey = randomBytes(32).toString('hex')
+  var cabal0 = Cabal(ram, 'cabal://' + cabalKey)
+  var cabal1 = Cabal(ram, 'cabal://' + cabalKey)
+  getKeys([cabal0,cabal1], function (err, keys) {
+    t.error(err)
+    cabal1.moderation.setFlags({ id: keys[0], flags: ['admin'] })
+    cabal0.moderation.setFlags({ id: keys[0], flags: ['block'] })
+    sync([cabal0,cabal1], function (err) {
+      t.error(err)
+      cabal0.moderation.getFlags({ id: keys[0] }, function (err, flags) {
+        t.error(err)
+        t.deepEqual(flags, ['admin']) // blocking self has no local effect
+      })
+      cabal1.ready(function () {
+        cabal1.moderation.getFlags({ id: keys[0] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, ['block'])
+        })
+      })
+    })
+  })
 })
 
 function sync (cabals, cb) {
@@ -237,4 +264,27 @@ function sync (cabals, cb) {
   // XXX: hack, because one of the syncs is hanging (bug!)
   pending = Infinity
   setTimeout(cb, 1000)
+}
+
+function onlyKeys (keys) {
+  return function (obj) {
+    var res = {}
+    keys.forEach(function (key) {
+      res[key] = obj[key]
+    })
+    return res
+  }
+}
+
+function getKeys (cabals, cb) {
+  var keys = [], pending = 1
+  cabals.forEach(function (cabal, i) {
+    pending++
+    cabal.getLocalKey(function (err, key) {
+      if (err) return cb(err)
+      keys[i] = key
+      if (--pending === 0) cb(null, keys)
+    })
+  })
+  if (--pending === 0) cb(null, keys)
 }

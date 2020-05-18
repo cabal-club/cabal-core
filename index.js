@@ -187,6 +187,14 @@ Cabal.prototype.getLocalKey = function (cb) {
   })
 }
 
+Cabal.prototype.getMessage = function (feedAtSeq, cb) {
+  if (typeof feedAtSeq === 'string') {
+    var p = feedAtSeq.split('@')
+    feedAtSeq = { key: p[0], seq: Number(p[1]) }
+  }
+  this.kcore._logs.feed(feedAtSeq.key).get(feedAtSeq.seq, cb)
+}
+
 Cabal.prototype.swarm = function (opts, cb) {
   if (typeof opts === 'function') {
     cb = opts
@@ -244,7 +252,7 @@ function generateKeyHex () {
 }
 
 function isHypercoreKey (key) {
-  if (typeof key === 'string') return key.length === 64 && /^[0-9a-f]+$/.test(key)
+  if (typeof key === 'string') return /^[0-9a-f]{64}$/.test(key)
   else if (Buffer.isBuffer(key)) return key.length === 32
 }
 
