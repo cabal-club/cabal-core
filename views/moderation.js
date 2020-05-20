@@ -135,28 +135,13 @@ module.exports = function (cabal, modKey, db) {
       },
       // ^--- queries above | updates below ---v
       setFlags: function (core, opts, cb) {
-        publishFlagUpdate(core, {
-          type: 'set',
-          id: opts.id,
-          channel: opts.channel,
-          flags: opts.flags
-        }, cb)
+        publishFlagUpdate(core, 'set', opts, cb)
       },
       addFlags: function (core, opts, cb) {
-        publishFlagUpdate(core, {
-          type: 'add',
-          id: opts.id,
-          channel: opts.channel,
-          flags: opts.flags
-        }, cb)
+        publishFlagUpdate(core, 'add', opts, cb)
       },
       removeFlags: function (core, opts, cb) {
-        publishFlagUpdate(core, {
-          type: 'remove',
-          id: opts.id,
-          channel: opts.channel,
-          flags: opts.flags
-        }, cb)
+        publishFlagUpdate(core, 'remove', opts, cb)
       },
     }
   }
@@ -183,14 +168,14 @@ module.exports = function (cabal, modKey, db) {
     return ro
   }
 
-  function publishFlagUpdate (core, opts, cb) {
+  function publishFlagUpdate (core, type, opts, cb) {
+    var content = Object.assign({}, opts, {
+      channel: opts.channel || '@',
+      flags: opts.flags || []
+    })
     cabal.publish({
-      type: 'flags/' + opts.type,
-      content: {
-        id: opts.id,
-        channel: opts.channel || '@',
-        flags: opts.flags || []
-      }
+      type: 'flags/' + type,
+      content
     }, cb)
   }
 
