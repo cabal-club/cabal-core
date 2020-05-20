@@ -335,6 +335,96 @@ test('blocks across channels', function (t) {
   }
 })
 
+test('block and then unblock', function (t) {
+  t.plan(28)
+  var addr = randomBytes(32).toString('hex')
+  var cabals = [Cabal(ram, addr)]
+  cabals[0].ready(function () {
+    cabals[0].getLocalKey(function (err, key) {
+      t.error(err)
+      cabals.push(Cabal(ram, addr + "?mod=" + key))
+      cabals.push(Cabal(ram, addr + "?mod=" + key))
+      getKeys(cabals, function (err, keys) {
+        ready(cabals, keys)
+      })
+    })
+  })
+  function ready (cabals, keys) {
+    getKeys(cabals, function (err, keys) {
+      t.error(err)
+      cabals[0].moderation.addFlags({ id: keys[1], flags: ['block'] })
+      sync(cabals, function (err) {
+        t.error(err)
+        var pending = 7
+        collect(cabals[0].moderation.listBlocks('@'), function (err, blocks) {
+          t.error(err)
+          t.deepEqual(blocks.map(onlyKeys(['id'])), [ { id: keys[1] } ])
+          if (--pending === 0) unblock(cabals, keys)
+        })
+        cabals[0].moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, ['block'])
+          if (--pending === 0) unblock(cabals, keys)
+        })
+        collect(cabals[1].moderation.listBlocks('@'), function (err, blocks) {
+          // not blocked from own perspective
+          t.error(err)
+          t.deepEqual(blocks.map(onlyKeys(['id'])), [])
+          if (--pending === 0) unblock(cabals, keys)
+        })
+        cabals[1].moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          // admin from own perspective
+          t.error(err)
+          t.deepEqual(flags, ['admin'])
+          if (--pending === 0) unblock(cabals, keys)
+        })
+        collect(cabals[2].moderation.listBlocks('@'), function (err, blocks) {
+          t.error(err)
+          t.deepEqual(blocks.map(onlyKeys(['id'])), [ { id: keys[1] } ])
+          if (--pending === 0) unblock(cabals, keys)
+        })
+        cabals[2].moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, ['block'])
+          if (--pending === 0) unblock(cabals, keys)
+        })
+        if (--pending === 0) unblock(cabals, keys)
+      })
+    })
+    function unblock (cabals, keys) {
+      cabals[0].moderation.removeFlags({ id: keys[1], flags: ['block'] })
+      sync(cabals, function (err) {
+        t.error(err)
+        collect(cabals[0].moderation.listBlocks('@'), function (err, blocks) {
+          t.error(err)
+          t.deepEqual(blocks.map(onlyKeys(['id'])), [])
+        })
+        cabals[0].moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, [])
+        })
+        collect(cabals[1].moderation.listBlocks('@'), function (err, blocks) {
+          t.error(err)
+          t.deepEqual(blocks.map(onlyKeys(['id'])), [])
+        })
+        cabals[1].moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, ['admin'])
+        })
+        collect(cabals[2].moderation.listBlocks('@'), function (err, blocks) {
+          t.error(err)
+          t.deepEqual(blocks.map(onlyKeys(['id'])), [])
+        })
+        cabals[2].moderation.getFlags({ id: keys[1] }, function (err, flags) {
+          t.error(err)
+          t.deepEqual(flags, [])
+        })
+      })
+    }
+  }
+})
+
+
 function sync (cabals, cb) {
   cb = cb || function(){}
   var pending = 0
