@@ -393,7 +393,7 @@ test('block and then unblock', function (t) {
     })
     function unblock (cabals, keys) {
       cabals[0].moderation.removeFlags({ id: keys[1], flags: ['block'] })
-      sync(cabals, function (err) {
+      nSync(cabals, 2, function (err) {
         t.error(err)
         collect(cabals[0].moderation.listBlocks('@'), function (err, blocks) {
           t.error(err)
@@ -448,6 +448,14 @@ function sync (cabals, cb) {
   // XXX: hack, because one of the syncs is hanging (bug!)
   pending = Infinity
   setTimeout(cb, 1000)
+}
+
+function nSync (cabals, n, cb) {
+  sync(cabals, function (err) {
+    if (err) cb(err)
+    else if (n === 1) cb()
+    else nSync(cabals, n-1, cb)
+  })
 }
 
 function onlyKeys (keys) {

@@ -274,7 +274,7 @@ function checkLocalFlag (x) {
   return !/^(block|hide|mute)$/.test(x)
 }
 function noop () {}
-function has (obj, x) { return Object.prototype.hasOwnProperty(obj, x) }
+function has (obj, x) { return Object.prototype.hasOwnProperty.call(obj, x) }
 function arrayEq (a, b) {
   if (!a || !b || a.length !== b.length) return false
   for (var i = 0; i < a.length; i++) {
