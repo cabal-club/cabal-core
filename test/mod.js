@@ -9,12 +9,12 @@ test('block a user by key', function (t) {
   t.plan(7)
 
   var addr = randomBytes(32).toString('hex')
-  var cabal0 = Cabal(ram, 'cabal://' + addr)
+  var cabal0 = Cabal(ram, addr)
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, 'cabal://' + addr, { modKey: key })
-      var cabal2 = Cabal(ram, 'cabal://' + addr, { modKey: key })
+      var cabal1 = Cabal(ram, addr + "?mod=" + key)
+      var cabal2 = Cabal(ram, addr + "?mod=" + key)
       var pending = 3
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2)
@@ -91,12 +91,12 @@ test('delegated moderator ban a user by key', function (t) {
   t.plan(15)
 
   var addr = randomBytes(32).toString('hex')
-  var cabal0 = Cabal(ram, 'cabal://' + addr)
+  var cabal0 = Cabal(ram, addr)
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr, { modKey: key })
-      var cabal2 = Cabal(ram, addr, { modKey: key })
+      var cabal1 = Cabal(ram, addr + "?mod=" + key)
+      var cabal2 = Cabal(ram, addr + "?mod=" + key)
       var pending = 3
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2)
@@ -150,15 +150,15 @@ test('delegated moderator ban a user by key', function (t) {
 test('different mod keys have different views', function (t) {
   t.plan(11)
 
-  var addr = randomBytes(32).toString('hex')
+  var addr = randomBytes(32).toString('hex') 
 
   var cabal0 = Cabal(ram, addr)
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr, { modKey: key })
+      var cabal1 = Cabal(ram, addr + "?mod=" + key)
       var cabal2 = Cabal(ram, addr)
-      var cabal3 = Cabal(ram, addr, { modKey: key })
+      var cabal3 = Cabal(ram, addr + "?mod=" + key)
       var pending = 4
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)

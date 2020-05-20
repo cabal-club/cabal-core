@@ -9,8 +9,9 @@ var through = require('through2')
 var collect = require('collect-stream')
 var { nextTick } = process
 
-module.exports = function (cabal, modKey, db) {
+module.exports = function (cabal, db) {
   var events = new EventEmitter()
+  var modKey = cabal.modKeys[0]
   var auth = mauth(db)
   auth.on('update', function (update) {
     events.emit('update', update)
