@@ -6,8 +6,6 @@ var thunky = require('thunky')
 var timestamp = require('monotonic-timestamp')
 var sublevel = require('subleveldown')
 var crypto = require('hypercore-crypto')
-var url = require('url')
-var querystring = require('query-string')
 var createChannelView = require('./views/channels')
 var createMembershipsView = require('./views/channel-membership')
 var createMessagesView = require('./views/messages')
@@ -18,7 +16,7 @@ var swarm = require('./swarm')
 
 var DATABASE_VERSION = 1
 var CHANNELS = 'c'
-var MEMBERSHIPS = 'j'  // j for joined memberships..? :3 
+var MEMBERSHIPS = 'j' // j for joined memberships..? :3
 var MESSAGES = 'm'
 var TOPICS = 't'
 var USERS = 'u'
@@ -33,7 +31,6 @@ module.exports.databaseVersion = DATABASE_VERSION
  * @constructor
  * @param {string|function} storage - A hyperdb compatible storage function, or a string representing the local data path.
  * @param {string} key - a protocol string, optionally with url parameters
- * @param {Object} opts - { modKey }
  */
 function Cabal (storage, key, opts) {
   if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
@@ -54,12 +51,19 @@ function Cabal (storage, key, opts) {
   }
 
   this.maxFeeds = opts.maxFeeds
+  this.modKeys = []
+  this.adminKeys = []
 
   if (!key) this.key = generateKeyHex()
-  else this.key = sanitizeKey(key)
+  else {
+    if (Buffer.isBuffer(key)) key = key.toString('hex')
+    if (!key.startsWith('cabal://')) key = 'cabal://' + key
+    const uri = new URL(key)
+    this.key = sanitizeKey(uri.host)
+    this.modKeys = uri.searchParams.getAll('mod')
+    this.adminKeys = uri.searchParams.getAll('admin')
+  }
   if (!isHypercoreKey(this.key)) throw new Error('invalid cabal key')
-
-  this.modKey = opts.modKey
 
   this.db = opts.db || level()
   this.kcore = kappa(storage, {
@@ -89,8 +93,7 @@ function Cabal (storage, key, opts) {
   this.kcore.use('users', createUsersView(
     sublevel(this.db, USERS, { valueEncoding: json })))
   this.kcore.use('moderation', createModerationView(
-    this, this.modKey,
-    sublevel(this.db, MODERATION, { valueEncoding: json }))
+    this, sublevel(this.db, MODERATION, { valueEncoding: json }))
   )
 
   this.messages = this.kcore.api.messages

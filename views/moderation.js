@@ -6,8 +6,9 @@ var once = require('once')
 var pump = require('pump')
 var readonly = require('read-only-stream')
 
-module.exports = function (cabal, modKey, db) {
+module.exports = function (cabal, db) {
   var events = new EventEmitter()
+  var modKey = cabal.modKeys[0]
   var auth = mauth(db)
   var queue = []
   var localKey = null
