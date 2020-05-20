@@ -248,9 +248,9 @@ test('blocks across channels', function (t) {
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr, { modKey: key })
-      var cabal2 = Cabal(ram, addr, { modKey: key })
-      var cabal3 = Cabal(ram, addr, { modKey: key })
+      var cabal1 = Cabal(ram, addr+'?mod='+key)
+      var cabal2 = Cabal(ram, addr+'?mod='+key)
+      var cabal3 = Cabal(ram, addr+'?mod='+key)
       var pending = 4
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)
