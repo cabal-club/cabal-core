@@ -99,8 +99,8 @@ module.exports = function (cabal, db) {
         return queue.push(function () { map(rows, next) })
       } else map(rows, next)
     },
-    events: events,
     api: {
+      events: events,
       listBlocks: function (core, channel, cb) {
         return listByFlag(core, { flag: 'block', channel }, cb)
       },
