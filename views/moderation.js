@@ -11,7 +11,8 @@ var { nextTick } = process
 
 module.exports = function (cabal, db) {
   var events = new EventEmitter()
-  var modKey = cabal.modKeys[0]
+  // TODO: use *all* keys from cabal.adminKeys, and cabal.modKeys
+  var adminKey = cabal.adminKeys[0]
   var auth = mauth(db)
   auth.on('update', function (update) {
     events.emit('update', update)
@@ -39,13 +40,13 @@ module.exports = function (cabal, db) {
       if (--pending === 0) done()
     })
 
-    // check previous modKeys and remove any if the addr changed
-    var hasModKey = false
+    // check previous adminKeys and remove any if the addr changed
+    var hasAdminKey = false
     pump(auth.getMembers('@'), new Transform({
       objectMode: true,
       transform: function (row, enc, next) {
         var flags = row && row.flags || []
-        if (flags.includes('admin') && row.key === -1 && row.id !== modKey
+        if (flags.includes('admin') && row.key === -1 && row.id !== adminKey
         && row.id !== key) {
           batch.push({
             type: 'remove',
@@ -54,17 +55,17 @@ module.exports = function (cabal, db) {
             group: '@'
           })
         }
-        if (modKey && flags.includes('admin') && row.id === modKey) {
-          hasModKey = true
+        if (adminKey && flags.includes('admin') && row.id === adminKey) {
+          hasAdminKey = true
         }
         next()
       },
       flush: function (next) {
-        // write the new mod key
-        if (modKey && !hasModKey) {
+        // write the new admin key
+        if (adminKey && !hasAdminKey) {
           batch.push({
             type: 'add',
-            id: modKey,
+            id: adminKey,
             by: key,
             group: '@',
             flags: [ 'admin' ]
