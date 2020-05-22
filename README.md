@@ -171,6 +171,22 @@ The objects in the output have the same form as `listByFlag()`.
 
 Optionally collect results into `cb(err, rows)`.
 
+#### cabal.moderation.listModerationBy(key, cb)
+
+Return a readable object stream of moderation documents authored by `key`.
+
+Each `row` object in the output is a document used for adding, removing, and
+setting flags.
+
+* `row.type` - `"flags/add"`, `"flags/set"`, or `"flags/remove"`
+* `row.content.id` - string key target of this moderation operation
+* `row.content.flags` - array of string flags for this operation
+* `row.content.reason` - array of string flags for this operation
+* `row.content.channel` - string channel name this operation applies to
+* `row.timestamp` - number, when this action was made in milliseconds since 1970
+
+Optionally collect results into `cb(err, rows)`.
+
 #### cabal.moderation.getFlags({ id, channel }, cb)
 
 Get a list of flags set for the user identified by `id` in `channel` as
