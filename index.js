@@ -60,7 +60,7 @@ function Cabal (storage, key, opts) {
     if (Buffer.isBuffer(key)) key = key.toString('hex')
     if (!key.startsWith('cabal://')) key = 'cabal://' + key
     const uri = new URL(key)
-    this.key = sanitizeKey(uri.host)
+    this.key = sanitizeKey(key)
     this.modKeys = uri.searchParams.getAll('mod')
     this.adminKeys = uri.searchParams.getAll('admin')
   }
@@ -258,22 +258,15 @@ function generateKeyHex () {
 }
 
 function isHypercoreKey (key) {
-  if (typeof key === 'string') return /^[0-9a-f]{64}$/.test(key)
+  if (typeof key === 'string') return /^[0-9A-Fa-f]{64}$/.test(key)
   else if (Buffer.isBuffer(key)) return key.length === 32
 }
 
 // Ensures 'key' is a hex string
 function sanitizeKey (key) {
-  // force to hex string
-  if (Buffer.isBuffer(key)) {
-    key = key.toString('hex')
-  }
-
-  // remove any protocol uri prefix
-  if (typeof key === 'string') key = key.replace(/^.*:\/\//, '')
-  else key = undefined
-
-  return key
+  const match = key.match(/^cabal:\/\/([0-9A-Fa-f]{64})/)
+  if (match === null) return undefined
+  return match[1]
 }
 
 function noop () {}
