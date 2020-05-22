@@ -10,9 +10,11 @@ var collect = require('collect-stream')
 var duplexify = require('duplexify')
 var { nextTick } = process
 
-module.exports = function (cabal, db) {
+const MOD = 'm!'
+
+module.exports = function (cabal, authDb, infoDb) {
   var events = new EventEmitter()
-  var auth = mauth(db)
+  var auth = mauth(authDb)
   auth.on('update', function (update) {
     events.emit('update', update)
   })
@@ -159,6 +161,22 @@ module.exports = function (cabal, db) {
         if (cb) collect(ro, cb)
         return ro
       }),
+      listModerationBy: function (core, key, cb) {
+        var r = infoDb.createReadStream({
+          gt: MOD + key + '@',
+          lt: MOD + key + '@\uffff'
+        })
+        var out = through.obj(function (row, enc, next) {
+          cabal.getMessage(row.key.slice(MOD.length), function (err, doc) {
+            if (err) return next(err)
+            next(null, doc)
+          })
+        })
+        pump(r, out)
+        var ro = readonly(out)
+        if (cb) collect(ro, cb)
+        return ro
+      },
       // ^--- queries above | updates below ---v
       setFlags: function (core, opts, cb) {
         publishFlagUpdate(core, 'set', opts, cb)
@@ -237,12 +255,20 @@ module.exports = function (cabal, db) {
   function map (rows, next) {
     next = once(next)
     var batch = []
+    var infoBatch = []
     var pending = 1
     rows.forEach(function (row) {
       if (!row.value || !row.value.content) return
+      var id = row.value.content.id
+      if (!id) return
+      if (/^flags\/(set|add|remove)$/.test(row.value.type)) {
+        infoBatch.push({
+          type: 'put',
+          key: MOD + row.key + '@' + row.seq,
+          value: ''
+        })
+      }
       if (row.value.type === 'flags/set') {
-        var id = row.value.content.id
-        if (!id) return
         var group = row.value.content.channel || '@'
         var flags = checkLocal(
           id, group, row.key,
@@ -257,8 +283,6 @@ module.exports = function (cabal, db) {
           flags
         })
       } else if (row.value.type === 'flags/add') {
-        var id = row.value.content.id
-        if (!id) return
         var group = row.value.content.channel || '@'
         pending++
         auth.getFlags({ group, id }, function (err, prevFlags) {
@@ -280,8 +304,6 @@ module.exports = function (cabal, db) {
           if (--pending === 0) done()
         })
       } else if (row.value.type === 'flags/remove') {
-        var id = row.value.content.id
-        if (!id) return
         var group = row.value.content.channel || '@'
         pending++
         auth.getFlags({ group, id }, function (err, flags) {
@@ -308,9 +330,22 @@ module.exports = function (cabal, db) {
     })
     if (--pending === 0) done()
     function done () {
+      var pending = 1
       if (batch.length > 0) {
-        auth.batch(batch, { skip: true }, next)
-      } else next()
+        pending++
+        auth.batch(batch, { skip: true }, function (err) {
+          if (err) next(err)
+          else if (--pending === 0) next()
+        })
+      }
+      if (infoBatch.length > 0) {
+        pending++
+        infoDb.batch(infoBatch, function (err) {
+          if (err) next(err)
+          else if (--pending === 0) next()
+        })
+      }
+      if (--pending === 0) next()
     }
   }
 

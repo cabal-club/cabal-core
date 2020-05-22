@@ -20,7 +20,8 @@ var MEMBERSHIPS = 'j' // j for joined memberships..? :3
 var MESSAGES = 'm'
 var TOPICS = 't'
 var USERS = 'u'
-var MODERATION = 'x'
+var MODERATION_AUTH = 'x'
+var MODERATION_INFO = 'y'
 
 module.exports = Cabal
 module.exports.databaseVersion = DATABASE_VERSION
@@ -93,8 +94,10 @@ function Cabal (storage, key, opts) {
   this.kcore.use('users', createUsersView(
     sublevel(this.db, USERS, { valueEncoding: json })))
   this.kcore.use('moderation', createModerationView(
-    this, sublevel(this.db, MODERATION, { valueEncoding: json }))
-  )
+    this,
+    sublevel(this.db, MODERATION_AUTH, { valueEncoding: json }),
+    sublevel(this.db, MODERATION_INFO, { valueEncoding: json })
+  ))
 
   this.messages = this.kcore.api.messages
   this.channels = this.kcore.api.channels
