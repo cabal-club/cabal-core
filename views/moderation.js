@@ -124,8 +124,8 @@ module.exports = function (cabal, db) {
 
   return {
     map: wrap(map),
-    events: events,
     api: {
+      events: events,
       listBlocks: wrapReadStream(function (core, channel, cb) {
         return listByFlag(core, { flag: 'block', channel }, cb)
       }),
