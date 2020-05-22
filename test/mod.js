@@ -13,8 +13,8 @@ test('block a user by key', function (t) {
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr + "?admin=" + key)
-      var cabal2 = Cabal(ram, addr + "?admin=" + key)
+      var cabal1 = Cabal(ram, addr, { adminKeys: [key] })
+      var cabal2 = Cabal(ram, addr, { adminKeys: [key] })
       var pending = 3
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2)
@@ -95,8 +95,8 @@ test('delegated moderator ban a user by key', function (t) {
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr + "?admin=" + key)
-      var cabal2 = Cabal(ram, addr + "?admin=" + key)
+      var cabal1 = Cabal(ram, addr, { adminKeys: [key] })
+      var cabal2 = Cabal(ram, addr, { adminKeys: [key] })
       var pending = 3
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2)
@@ -156,9 +156,9 @@ test('different mod keys have different views', function (t) {
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr + "?admin=" + key)
+      var cabal1 = Cabal(ram, addr, { adminKeys: [key] })
       var cabal2 = Cabal(ram, addr)
-      var cabal3 = Cabal(ram, addr + "?admin=" + key)
+      var cabal3 = Cabal(ram, addr, { adminKeys: [key] })
       var pending = 4
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)
@@ -248,9 +248,9 @@ test('blocks across channels', function (t) {
   cabal0.ready(function () {
     cabal0.getLocalKey(function (err, key) {
       t.error(err)
-      var cabal1 = Cabal(ram, addr+'?admin='+key)
-      var cabal2 = Cabal(ram, addr+'?admin='+key)
-      var cabal3 = Cabal(ram, addr+'?admin='+key)
+      var cabal1 = Cabal(ram, addr, { adminKeys: [key] })
+      var cabal2 = Cabal(ram, addr, { adminKeys: [key] })
+      var cabal3 = Cabal(ram, addr, { adminKeys: [key] })
       var pending = 4
       cabal1.ready(function () {
         if (--pending === 0) ready(cabal0, cabal1, cabal2, cabal3)
@@ -342,8 +342,8 @@ test('block and then unblock', function (t) {
   cabals[0].ready(function () {
     cabals[0].getLocalKey(function (err, key) {
       t.error(err)
-      cabals.push(Cabal(ram, addr + "?admin=" + key))
-      cabals.push(Cabal(ram, addr + "?admin=" + key))
+      cabals.push(Cabal(ram, addr, { adminKeys: [key] }))
+      cabals.push(Cabal(ram, addr, { adminKeys: [key] }))
       getKeys(cabals, function (err, keys) {
         ready(cabals, keys)
       })
