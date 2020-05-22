@@ -1,4 +1,5 @@
 var mauth = require('materialized-group-auth')
+var Writable = require('readable-stream').Writable
 var sub = require('subleveldown')
 var EventEmitter = require('events').EventEmitter
 var { Readable, Transform } = require('readable-stream')
@@ -150,13 +151,13 @@ module.exports = function (cabal, authDb, infoDb) {
           cb = opts
           opts = {}
         }
-        var r = auth.list(opts)
         var out = through.obj(function (row, enc, next) {
           row.channel = row.group
           delete row.group
           next(null, row)
         })
         this.ready(function () {
+          var r = auth.list(opts)
           pump(r, out)
         })
         var ro = readonly(out)
@@ -208,22 +209,22 @@ module.exports = function (cabal, authDb, infoDb) {
     clearIndex: function (cb) {
       var batch = []
       var maxSize = 5000
-      pump(dataDb.createKeyStream(), new Writable({
-        objectMode: true,
-        write: function (key, enc, next) {
-          batch.push({ type: 'del', key })
-          if (batch.length >= maxSize) {
-            console.log('deleting', batch.length, 'entries')
-            dataDb.batch(batch, next)
-          } else next()
-        },
-        final: function (next) {
-          if (batch.length > 0) dataDb.batch(batch, next)
-          else next()
-        }
-      }), ondone)
+      db.open(function () {
+        pump(db.createKeyStream(), new Writable({
+          objectMode: true,
+          write: function (key, enc, next) {
+            batch.push({ type: 'del', key })
+            if (batch.length >= maxSize) {
+              db.batch(batch, next)
+            } else next()
+          },
+          final: function (next) {
+            if (batch.length > 0) db.batch(batch, next)
+            else next()
+          }
+        }), ondone)
+      })
       function ondone (err) {
-        console.log('done')
         if (err) cb(err)
         else cb()
       }
