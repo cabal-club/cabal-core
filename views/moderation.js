@@ -195,11 +195,11 @@ module.exports = function (cabal, authDb, infoDb) {
     // view lifecycle
     storeState: function (state, cb) {
       state = state.toString('base64')
-      db.put('state', state, cb)
+      authDb.put('state', state, cb)
     },
 
     fetchState: function (cb) {
-      db.get('state', function (err, state) {
+      authDb.get('state', function (err, state) {
         if (err && err.notFound) cb()
         else if (err) cb(err)
         else cb(null, Buffer.from(state, 'base64'))
@@ -209,22 +209,39 @@ module.exports = function (cabal, authDb, infoDb) {
     clearIndex: function (cb) {
       var batch = []
       var maxSize = 5000
-      db.open(function () {
-        pump(db.createKeyStream(), new Writable({
+      let pending = 2
+      infoDb.open(function () {
+        pump(infoDb.createKeyStream(), new Writable({
           objectMode: true,
           write: function (key, enc, next) {
             batch.push({ type: 'del', key })
             if (batch.length >= maxSize) {
-              db.batch(batch, next)
+              infoDb.batch(batch, next)
             } else next()
           },
           final: function (next) {
-            if (batch.length > 0) db.batch(batch, next)
+            if (batch.length > 0) infoDb.batch(batch, next)
+            else next()
+          }
+        }), ondone)
+      })
+      authDb.open(function () {
+        pump(authDb.createKeyStream(), new Writable({
+          objectMode: true,
+          write: function (key, enc, next) {
+            batch.push({ type: 'del', key })
+            if (batch.length >= maxSize) {
+              authDb.batch(batch, next)
+            } else next()
+          },
+          final: function (next) {
+            if (batch.length > 0) authDb.batch(batch, next)
             else next()
           }
         }), ondone)
       })
       function ondone (err) {
+        if (--pending) return
         if (err) cb(err)
         else cb()
       }
