@@ -189,6 +189,44 @@ module.exports = function (cabal, authDb, infoDb) {
       removeFlags: function (core, opts, cb) {
         publishFlagUpdate(core, 'remove', opts, cb)
       },
+    },
+
+    // view lifecycle
+    storeState: function (state, cb) {
+      state = state.toString('base64')
+      db.put('state', state, cb)
+    },
+
+    fetchState: function (cb) {
+      db.get('state', function (err, state) {
+        if (err && err.notFound) cb()
+        else if (err) cb(err)
+        else cb(null, Buffer.from(state, 'base64'))
+      })
+    },
+
+    clearIndex: function (cb) {
+      var batch = []
+      var maxSize = 5000
+      pump(dataDb.createKeyStream(), new Writable({
+        objectMode: true,
+        write: function (key, enc, next) {
+          batch.push({ type: 'del', key })
+          if (batch.length >= maxSize) {
+            console.log('deleting', batch.length, 'entries')
+            dataDb.batch(batch, next)
+          } else next()
+        },
+        final: function (next) {
+          if (batch.length > 0) dataDb.batch(batch, next)
+          else next()
+        }
+      }), ondone)
+      function ondone (err) {
+        console.log('done')
+        if (err) cb(err)
+        else cb()
+      }
     }
   }
 
