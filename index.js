@@ -93,7 +93,7 @@ function Cabal (storage, key, opts) {
     sublevel(this.db, TOPICS, { valueEncoding: json })))
   this.kcore.use('users', createUsersView(
     sublevel(this.db, USERS, { valueEncoding: json })))
-  this.kcore.use('moderation', createModerationView(
+  this.kcore.use('moderation', 2, ,createModerationView(
     this,
     sublevel(this.db, MODERATION_AUTH, { valueEncoding: json }),
     sublevel(this.db, MODERATION_INFO, { valueEncoding: json })
