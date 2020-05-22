@@ -156,7 +156,9 @@ module.exports = function (cabal, authDb, infoDb) {
           delete row.group
           next(null, row)
         })
-        pump(r, out)
+        this.ready(function () {
+          pump(r, out)
+        })
         var ro = readonly(out)
         if (cb) collect(ro, cb)
         return ro
