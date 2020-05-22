@@ -153,6 +153,9 @@ module.exports = function (cabal, db) {
       cb = opts
       opts = {}
     }
+    if (typeof opts === 'string') {
+      opts = { flag: opts }
+    }
     var out = new Transform({
       objectMode: true,
       transform: function (row, enc, next) {

@@ -424,6 +424,70 @@ test('block and then unblock', function (t) {
   }
 })
 
+test('multiple admins and mods', function (t) {
+  t.plan(14)
+  var addr = randomBytes(32).toString('hex')
+  var cabals = []
+  for (var i = 0; i < 4; i++) {
+    cabals.push(Cabal(ram, addr))
+  }
+  getKeys(cabals, function (err, keys) {
+    t.error(err)
+    cabals.push(Cabal(ram, addr
+      + `?admin=${keys[0]}&admin=${keys[1]}&mod=${keys[2]}&mod=${keys[3]}`))
+    cabals.push(Cabal(ram, addr+`?admin=${keys[3]}&mod=${keys[1]}`))
+    cabals.push(Cabal(ram, addr+`?mod=${keys[2]}`))
+    allReady(cabals, function () {
+      getKeys(cabals, function (err, keys) {
+        t.error(err)
+        ready(keys)
+      })
+    })
+  })
+  function ready (keys) {
+    cabals[4].moderation.listByFlag('admin', function (err, admins) {
+      t.error(err)
+      t.deepEquals(admins.map(onlyKeys(['id'])).sort(byKey), [
+        { id: keys[4] },
+        { id: keys[0] },
+        { id: keys[1] },
+      ].sort(byKey))
+    })
+    cabals[4].moderation.listByFlag('mod', function (err, admins) {
+      t.error(err)
+      t.deepEquals(admins.map(onlyKeys(['id'])).sort(byKey), [
+        { id: keys[2] },
+        { id: keys[3] },
+      ].sort(byKey))
+    })
+    cabals[5].moderation.listByFlag('admin', function (err, admins) {
+      t.error(err)
+      t.deepEquals(admins.map(onlyKeys(['id'])).sort(byKey), [
+        { id: keys[5] },
+        { id: keys[3] },
+      ].sort(byKey))
+    })
+    cabals[5].moderation.listByFlag('mod', function (err, admins) {
+      t.error(err)
+      t.deepEquals(admins.map(onlyKeys(['id'])).sort(byKey), [
+        { id: keys[1] },
+      ].sort(byKey))
+    })
+    cabals[6].moderation.listByFlag('admin', function (err, admins) {
+      t.error(err)
+      t.deepEquals(admins.map(onlyKeys(['id'])).sort(byKey), [
+        { id: keys[6] },
+      ].sort(byKey))
+    })
+    cabals[6].moderation.listByFlag('mod', function (err, admins) {
+      t.error(err)
+      t.deepEquals(admins.map(onlyKeys(['id'])).sort(byKey), [
+        { id: keys[2] },
+      ].sort(byKey))
+    })
+  }
+})
+
 
 function sync (cabals, cb) {
   cb = cb || function(){}
@@ -479,6 +543,16 @@ function getKeys (cabals, cb) {
     })
   })
   if (--pending === 0) cb(null, keys)
+}
+
+function allReady (cabals, cb) {
+  var pending = 1
+  cabals.forEach(function (cabal) {
+    cabal.ready(function () {
+      if (--pending === 0) cb()
+    })
+  })
+  if (--pending === 0) cb()
 }
 
 function byKey (a, b) {
