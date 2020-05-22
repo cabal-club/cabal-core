@@ -59,10 +59,9 @@ function Cabal (storage, key, opts) {
   else {
     if (Buffer.isBuffer(key)) key = key.toString('hex')
     if (!key.startsWith('cabal://')) key = 'cabal://' + key
-    const uri = new URL(key)
     this.key = sanitizeKey(key)
-    this.modKeys = uri.searchParams.getAll('mod')
-    this.adminKeys = uri.searchParams.getAll('admin')
+    this.modKeys = opts.modKeys || []
+    this.adminKeys = opts.adminKeys || []
   }
   if (!isHypercoreKey(this.key)) throw new Error('invalid cabal key')
 
