@@ -7,12 +7,11 @@ var pump = require('pump')
 var readonly = require('read-only-stream')
 var through = require('through2')
 var collect = require('collect-stream')
+var duplexify = require('duplexify')
 var { nextTick } = process
 
 module.exports = function (cabal, db) {
   var events = new EventEmitter()
-  // TODO: use *all* keys from cabal.adminKeys, and cabal.modKeys
-  var adminKey = cabal.adminKeys[0]
   var auth = mauth(db)
   auth.on('update', function (update) {
     events.emit('update', update)
@@ -41,13 +40,15 @@ module.exports = function (cabal, db) {
     })
 
     // check previous adminKeys and remove any if the addr changed
-    var hasAdminKey = false
+    var hasAdminKeys = {}
+    var hasModKeys = {}
+    var userFlags = {}
     pump(auth.getMembers('@'), new Transform({
       objectMode: true,
       transform: function (row, enc, next) {
         var flags = row && row.flags || []
-        if (flags.includes('admin') && row.key === -1 && row.id !== adminKey
-        && row.id !== key) {
+        if (flags.includes('admin') && row.key === undefined &&
+        cabal.adminKeys.includes(row.id) && row.id !== key) {
           batch.push({
             type: 'remove',
             id: row.id,
@@ -55,22 +56,49 @@ module.exports = function (cabal, db) {
             group: '@'
           })
         }
-        if (adminKey && flags.includes('admin') && row.id === adminKey) {
-          hasAdminKey = true
+        if (cabal.adminKeys.length > 0 && flags.includes('admin') &&
+        cabal.adminKeys.includes(row.id)) {
+          hasAdminKeys[row.id] = true
+          userFlags[row.id] = flags
+        }
+        if (flags.includes('mod') && row.key === undefined &&
+        cabal.modKeys.includes(row.id) && row.id !== key) {
+          batch.push({
+            type: 'remove',
+            id: row.id,
+            by: key,
+            group: '@'
+          })
+        }
+        if (cabal.modKeys.length > 0 && flags.includes('mod') &&
+        cabal.modKeys.includes(row.id)) {
+          hasModKeys[row.id] = true
+          userFlags[row.id] = flags
         }
         next()
       },
       flush: function (next) {
         // write the new admin key
-        if (adminKey && !hasAdminKey) {
+        cabal.adminKeys.forEach(function (id) {
+          if (hasAdminKeys[id]) return
           batch.push({
             type: 'add',
-            id: adminKey,
+            id,
             by: key,
             group: '@',
-            flags: [ 'admin' ]
+            flags: (userFlags[id] || []).concat('admin')
           })
-        }
+        })
+        cabal.modKeys.forEach(function (id) {
+          if (hasModKeys[id]) return
+          batch.push({
+            type: 'add',
+            id,
+            by: key,
+            group: '@',
+            flags: (userFlags[id] || []).concat('mod')
+          })
+        })
         if (--pending === 0) done()
       }
     }), err => { if (err) throw err })
@@ -90,36 +118,32 @@ module.exports = function (cabal, db) {
     function finish () {
       localKey = key
       queue.forEach(function (q) { q() })
-      queue = []
+      queue = null
     }
   })
 
   return {
-    map: function (rows, next) {
-      if (localKey === null) {
-        return queue.push(function () { map(rows, next) })
-      } else map(rows, next)
-    },
+    map: wrap(map),
     events: events,
     api: {
-      listBlocks: function (core, channel, cb) {
+      listBlocks: wrapReadStream(function (core, channel, cb) {
         return listByFlag(core, { flag: 'block', channel }, cb)
-      },
-      listHides: function (core, channel, cb) {
+      }),
+      listHides: wrapReadStream(function (core, channel, cb) {
         return listByFlag(core, { flag: 'hide', channel }, cb)
-      },
-      listMutes: function (core, channel, cb) {
+      }),
+      listMutes: wrapReadStream(function (core, channel, cb) {
         return listByFlag(core, { flag: 'mute', channel }, cb)
-      },
-      listByFlag: listByFlag,
-      getFlags: function (core, opts, cb) {
+      }),
+      listByFlag: wrapReadStream(listByFlag),
+      getFlags: wrap(function (core, opts, cb) {
         core.ready(function () {
           var id = opts.id
           var group = opts.channel || '@'
           auth.getFlags({ group, id }, cb)
         })
-      },
-      list: function (core, opts, cb) {
+      }),
+      list: wrapReadStream(function (core, opts, cb) {
         if (typeof opts === 'function') {
           cb = opts
           opts = {}
@@ -134,7 +158,7 @@ module.exports = function (cabal, db) {
         var ro = readonly(out)
         if (cb) collect(ro, cb)
         return ro
-      },
+      }),
       // ^--- queries above | updates below ---v
       setFlags: function (core, opts, cb) {
         publishFlagUpdate(core, 'set', opts, cb)
@@ -145,6 +169,32 @@ module.exports = function (cabal, db) {
       removeFlags: function (core, opts, cb) {
         publishFlagUpdate(core, 'remove', opts, cb)
       },
+    }
+  }
+
+  function wrap (f) {
+    return function () {
+      var args = arguments
+      var self = this
+      if (queue !== null) {
+        return queue.push(function () { f.apply(self, args) })
+      }
+      return f.apply(self, args)
+    }
+  }
+
+  function wrapReadStream (f) {
+    return function () {
+      var args = arguments
+      var self = this
+      if (queue !== null) {
+        var stream = duplexify()
+        queue.push(function () {
+          stream.setReadable(f.apply(self, args))
+        })
+        return stream
+      }
+      return f.apply(self, args)
     }
   }
 
