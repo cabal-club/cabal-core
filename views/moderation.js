@@ -1,4 +1,5 @@
 var mauth = require('materialized-group-auth')
+var Writable = require('readable-stream').Writable
 var sub = require('subleveldown')
 var EventEmitter = require('events').EventEmitter
 var { Readable, Transform } = require('readable-stream')
@@ -50,7 +51,7 @@ module.exports = function (cabal, authDb, infoDb) {
       transform: function (row, enc, next) {
         var flags = row && row.flags || []
         if (flags.includes('admin') && row.key === undefined &&
-        cabal.adminKeys.includes(row.id) && row.id !== key) {
+        !cabal.adminKeys.includes(row.id) && row.id !== key) {
           batch.push({
             type: 'remove',
             id: row.id,
@@ -64,7 +65,7 @@ module.exports = function (cabal, authDb, infoDb) {
           userFlags[row.id] = flags
         }
         if (flags.includes('mod') && row.key === undefined &&
-        cabal.modKeys.includes(row.id) && row.id !== key) {
+        !cabal.modKeys.includes(row.id) && row.id !== key) {
           batch.push({
             type: 'remove',
             id: row.id,
@@ -150,13 +151,15 @@ module.exports = function (cabal, authDb, infoDb) {
           cb = opts
           opts = {}
         }
-        var r = auth.list(opts)
         var out = through.obj(function (row, enc, next) {
           row.channel = row.group
           delete row.group
           next(null, row)
         })
-        pump(r, out)
+        this.ready(function () {
+          var r = auth.list(opts)
+          pump(r, out)
+        })
         var ro = readonly(out)
         if (cb) collect(ro, cb)
         return ro
@@ -187,6 +190,61 @@ module.exports = function (cabal, authDb, infoDb) {
       removeFlags: function (core, opts, cb) {
         publishFlagUpdate(core, 'remove', opts, cb)
       },
+    },
+
+    // view lifecycle
+    storeState: function (state, cb) {
+      state = state.toString('base64')
+      authDb.put('state', state, cb)
+    },
+
+    fetchState: function (cb) {
+      authDb.get('state', function (err, state) {
+        if (err && err.notFound) cb()
+        else if (err) cb(err)
+        else cb(null, Buffer.from(state, 'base64'))
+      })
+    },
+
+    clearIndex: function (cb) {
+      var batch = []
+      var maxSize = 5000
+      let pending = 2
+      infoDb.open(function () {
+        pump(infoDb.createKeyStream(), new Writable({
+          objectMode: true,
+          write: function (key, enc, next) {
+            batch.push({ type: 'del', key })
+            if (batch.length >= maxSize) {
+              infoDb.batch(batch, next)
+            } else next()
+          },
+          final: function (next) {
+            if (batch.length > 0) infoDb.batch(batch, next)
+            else next()
+          }
+        }), ondone)
+      })
+      authDb.open(function () {
+        pump(authDb.createKeyStream(), new Writable({
+          objectMode: true,
+          write: function (key, enc, next) {
+            batch.push({ type: 'del', key })
+            if (batch.length >= maxSize) {
+              authDb.batch(batch, next)
+            } else next()
+          },
+          final: function (next) {
+            if (batch.length > 0) authDb.batch(batch, next)
+            else next()
+          }
+        }), ondone)
+      })
+      function ondone (err) {
+        if (--pending) return
+        if (err) cb(err)
+        else cb()
+      }
     }
   }
 

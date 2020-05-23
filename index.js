@@ -52,17 +52,14 @@ function Cabal (storage, key, opts) {
   }
 
   this.maxFeeds = opts.maxFeeds
-  this.modKeys = []
-  this.adminKeys = []
+  this.modKeys = opts.modKeys || []
+  this.adminKeys = opts.adminKeys || []
 
   if (!key) this.key = generateKeyHex()
   else {
     if (Buffer.isBuffer(key)) key = key.toString('hex')
     if (!key.startsWith('cabal://')) key = 'cabal://' + key
-    const uri = new URL(key)
     this.key = sanitizeKey(key)
-    this.modKeys = uri.searchParams.getAll('mod')
-    this.adminKeys = uri.searchParams.getAll('admin')
   }
   if (!isHypercoreKey(this.key)) throw new Error('invalid cabal key')
 
@@ -93,7 +90,7 @@ function Cabal (storage, key, opts) {
     sublevel(this.db, TOPICS, { valueEncoding: json })))
   this.kcore.use('users', createUsersView(
     sublevel(this.db, USERS, { valueEncoding: json })))
-  this.kcore.use('moderation', createModerationView(
+  this.kcore.use('moderation', 2, createModerationView(
     this,
     sublevel(this.db, MODERATION_AUTH, { valueEncoding: json }),
     sublevel(this.db, MODERATION_INFO, { valueEncoding: json })
