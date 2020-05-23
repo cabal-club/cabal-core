@@ -1,6 +1,6 @@
 {
   "name": "cabal-core",
-  "version": "11.2.0",
+  "version": "11.2.1",
   "description": " p2p db functions for chat ",
   "main": "index.js",
   "scripts": {
