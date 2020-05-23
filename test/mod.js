@@ -211,8 +211,7 @@ test('can publish ban message', function (t) {
   })
 })
 
-// fails
-test.skip("possible to ban self. affects subscribers not self", function (t) {
+test("possible to ban self. affects subscribers not self", function (t) {
   // This way you can prevent others from subscribing to your mod key.
   // Or you can remove yourself from moderation duties without needing to change
   // a key that many people are using.
@@ -226,16 +225,18 @@ test.skip("possible to ban self. affects subscribers not self", function (t) {
     t.error(err)
     cabal1.moderation.setFlags({ id: keys[0], flags: ['admin'] })
     cabal0.moderation.setFlags({ id: keys[0], flags: ['block'] })
-    sync([cabal0,cabal1], function (err) {
-      t.error(err)
-      cabal0.moderation.getFlags({ id: keys[0] }, function (err, flags) {
+    allReady([cabal0,cabal1], function () {
+      sync([cabal0,cabal1], function (err) {
         t.error(err)
-        t.deepEqual(flags, ['admin']) // blocking self has no local effect
-      })
-      cabal1.ready(function () {
-        cabal1.moderation.getFlags({ id: keys[0] }, function (err, flags) {
+        cabal0.moderation.getFlags({ id: keys[0] }, function (err, flags) {
           t.error(err)
-          t.deepEqual(flags, ['block'])
+          t.deepEqual(flags, ['admin']) // blocking self has no local effect
+        })
+        cabal1.ready(function () {
+          cabal1.moderation.getFlags({ id: keys[0] }, function (err, flags) {
+            t.error(err)
+            t.deepEqual(flags, ['block'])
+          })
         })
       })
     })
@@ -425,8 +426,7 @@ test('block and then unblock', function (t) {
   }
 })
 
-// fails
-test.skip('multiple admins and mods', function (t) {
+test('multiple admins and mods', function (t) {
   t.plan(14)
   var addr = randomBytes(32).toString('hex')
   var cabals = []
@@ -435,10 +435,17 @@ test.skip('multiple admins and mods', function (t) {
   }
   getKeys(cabals, function (err, keys) {
     t.error(err)
-    cabals.push(Cabal(ram, addr
-      + `?admin=${keys[0]}&admin=${keys[1]}&mod=${keys[2]}&mod=${keys[3]}`))
-    cabals.push(Cabal(ram, addr+`?admin=${keys[3]}&mod=${keys[1]}`))
-    cabals.push(Cabal(ram, addr+`?mod=${keys[2]}`))
+    cabals.push(Cabal(ram, addr, {
+      adminKeys: [keys[0],keys[1]],
+      modKeys: [keys[2],keys[3]]
+    }))
+    cabals.push(Cabal(ram, addr, {
+      adminKeys: [keys[3]],
+      modKeys: [keys[1]]
+    }))
+    cabals.push(Cabal(ram, addr, {
+      modKeys: [keys[2]]
+    }))
     allReady(cabals, function () {
       getKeys(cabals, function (err, keys) {
         t.error(err)
@@ -550,6 +557,7 @@ function getKeys (cabals, cb) {
 function allReady (cabals, cb) {
   var pending = 1
   cabals.forEach(function (cabal) {
+    pending++
     cabal.ready(function () {
       if (--pending === 0) cb()
     })

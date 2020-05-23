@@ -52,16 +52,14 @@ function Cabal (storage, key, opts) {
   }
 
   this.maxFeeds = opts.maxFeeds
-  this.modKeys = []
-  this.adminKeys = []
+  this.modKeys = opts.modKeys || []
+  this.adminKeys = opts.adminKeys || []
 
   if (!key) this.key = generateKeyHex()
   else {
     if (Buffer.isBuffer(key)) key = key.toString('hex')
     if (!key.startsWith('cabal://')) key = 'cabal://' + key
     this.key = sanitizeKey(key)
-    this.modKeys = opts.modKeys || []
-    this.adminKeys = opts.adminKeys || []
   }
   if (!isHypercoreKey(this.key)) throw new Error('invalid cabal key')
 
