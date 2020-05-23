@@ -31,7 +31,7 @@ module.exports.databaseVersion = DATABASE_VERSION
  * local nickname -> mesh interactions for a single user.
  * @constructor
  * @param {string|function} storage - A hyperdb compatible storage function, or a string representing the local data path.
- * @param {string} key - a protocol string, optionally with url parameters
+ * @param {string|Buffer} key - a hypercore public key
  */
 function Cabal (storage, key, opts) {
   if (!(this instanceof Cabal)) return new Cabal(storage, key, opts)
