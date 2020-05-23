@@ -51,7 +51,7 @@ module.exports = function (cabal, authDb, infoDb) {
       transform: function (row, enc, next) {
         var flags = row && row.flags || []
         if (flags.includes('admin') && row.key === undefined &&
-        cabal.adminKeys.includes(row.id) && row.id !== key) {
+        !cabal.adminKeys.includes(row.id) && row.id !== key) {
           batch.push({
             type: 'remove',
             id: row.id,
@@ -65,7 +65,7 @@ module.exports = function (cabal, authDb, infoDb) {
           userFlags[row.id] = flags
         }
         if (flags.includes('mod') && row.key === undefined &&
-        cabal.modKeys.includes(row.id) && row.id !== key) {
+        !cabal.modKeys.includes(row.id) && row.id !== key) {
           batch.push({
             type: 'remove',
             id: row.id,
