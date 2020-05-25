@@ -8,7 +8,7 @@ Core database, replication, swarming, and chat APIs for cabal.
 
 ## API
 
-> var Cabal = require('cabal-node')
+> var Cabal = require('cabal-core')
 
 ### var cabal = Cabal([storage][, key][, opts])
 
