@@ -1,4 +1,6 @@
-var EventEmitter = require('events').EventEmitter
+const EventEmitter = require('events').EventEmitter
+const pump = require('pump')
+const Writable = require('readable-stream').Writable
   
 /*
 view data structure, the value (1) doesn't matter
@@ -14,7 +16,7 @@ module.exports = function (lvl) {
   var events = new EventEmitter()
 
   return {
-    maxBatch: 100,
+    maxBatch: 500,
     map: function (msgs, next) {
       // 1. go over each msg
       // 2. check if it's a leave/join msg (skip if not)
@@ -123,6 +125,26 @@ module.exports = function (lvl) {
         else cb(null, Buffer.from(state, 'base64'))
       })
     },
+
+    clearIndex: function (cb) {
+      var batch = []
+      var maxSize = 5000
+      lvl.open(function () {
+        pump(lvl.createKeyStream(), new Writable({
+          objectMode: true,
+          write: function (key, enc, next) {
+            batch.push({ type: 'del', key })
+            if (batch.length >= maxSize) {
+              lvl.batch(batch, next)
+            } else next()
+          },
+          final: function (next) {
+            if (batch.length > 0) lvl.batch(batch, next)
+            else next()
+          }
+        }), cb)
+      })
+    }
   }
 }
 

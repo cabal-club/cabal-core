@@ -126,6 +126,7 @@ module.exports = function (cabal, authDb, infoDb) {
   })
 
   return {
+    maxBatch: 500,
     map: wrap(map),
     api: {
       events: events,
