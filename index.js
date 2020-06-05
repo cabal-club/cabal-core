@@ -20,8 +20,8 @@ var MEMBERSHIPS = 'j' // j for joined memberships..? :3
 var MESSAGES = 'm'
 var TOPICS = 't'
 var USERS = 'u'
-var MODERATION_AUTH = 'x'
-var MODERATION_INFO = 'y'
+var MODERATION_AUTH = 'mx'
+var MODERATION_INFO = 'my'
 
 module.exports = Cabal
 module.exports.databaseVersion = DATABASE_VERSION
