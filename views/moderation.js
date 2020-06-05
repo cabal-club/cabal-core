@@ -14,6 +14,7 @@ var { nextTick } = process
 const MOD = 'm!'
 
 module.exports = function (cabal, authDb, infoDb) {
+    console.error("HERAAAAAAA")
   var events = new EventEmitter()
   var auth = mauth(authDb)
   auth.on('update', function (update) {
@@ -320,6 +321,14 @@ module.exports = function (cabal, authDb, infoDb) {
       var id = row.value.content.id
       if (!id) return
       if (/^flags\/(set|add|remove)$/.test(row.value.type)) {
+        // row has been published by a cabal peer and we're indexing it. 
+        // emit event so interfaces may update
+        events.emit('flag-event', { 
+          by: row.key,
+          keyseq: `${row.key}@${row.seq}`, 
+          ...row.value.content
+        })
+
         infoBatch.push({
           type: 'put',
           key: MOD + row.key + '@' + row.seq,
