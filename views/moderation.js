@@ -14,7 +14,6 @@ var { nextTick } = process
 const MOD = 'm!'
 
 module.exports = function (cabal, authDb, infoDb) {
-    console.error("HERAAAAAAA")
   var events = new EventEmitter()
   var auth = mauth(authDb)
   auth.on('update', function (update) {
