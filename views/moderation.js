@@ -323,6 +323,7 @@ module.exports = function (cabal, authDb, infoDb) {
         // row has been published by a cabal peer and we're indexing it. 
         // emit event so interfaces may update
         events.emit('flag-event', { 
+          type: row.value.type.replace(/^flags\//, ''),
           by: row.key,
           keyseq: `${row.key}@${row.seq}`, 
           ...row.value.content
