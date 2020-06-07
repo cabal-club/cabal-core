@@ -25,7 +25,7 @@ module.exports = function (cabal, opts, cb) {
     swarm.on('connection', function (socket, info) {
       let remoteKey
 
-      var r = cabal.replicate(!info.client)
+      var r = cabal.replicate(info.client)
       pump(socket, r, socket, function (err) {
         if (err) debug('ERROR', err)
         if (remoteKey) cabal._removeConnection(remoteKey)
