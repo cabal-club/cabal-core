@@ -245,8 +245,9 @@ Cabal.prototype.close = function (cb) {
   }
 
   function close () {
-    self.kcore.pause()
-    self.kcore._logs.close(cb)
+    self.kcore.pause(function () {
+      self.kcore._logs.close(cb)
+    })
   }
 }
 
