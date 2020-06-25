@@ -265,7 +265,7 @@ module.exports = function (cabal, authDb, infoDb) {
       var args = arguments
       var self = this
       if (queue !== null) {
-        var stream = duplexify()
+        var stream = duplexify.obj()
         queue.push(function () {
           stream.setReadable(f.apply(self, args))
         })

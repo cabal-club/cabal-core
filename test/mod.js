@@ -150,7 +150,7 @@ test('delegated moderator ban a user by key', function (t) {
 test('different mod keys have different views', function (t) {
   t.plan(11)
 
-  var addr = randomBytes(32).toString('hex') 
+  var addr = randomBytes(32).toString('hex')
 
   var cabal0 = Cabal(ram, addr)
   cabal0.ready(function () {
@@ -495,6 +495,28 @@ test('multiple admins and mods', function (t) {
       ].sort(byKey))
     })
   }
+})
+
+test("can stream mod action", function (t) {
+  t.plan(4)
+  const addr = randomBytes(32).toString('hex')
+  const cabals = [Cabal(ram, addr), Cabal(ram, addr)]
+  getKeys(cabals, function (err, keys) {
+    t.error(err)
+    const key = keys[1]
+    cabals[0].moderation.addFlags({
+      id: key,
+      channel: 'default',
+      flags: ['hide'],
+      reason: 'bad takes. simply the worst'
+    }, function (err) {
+      t.error(err)
+    })
+  })
+  const rs = cabals[0].moderation.list()
+  rs.on('data', function (row) {
+    t.ok(row)
+  })
 })
 
 
