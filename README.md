@@ -128,7 +128,8 @@ banned users.
 #### cabal.moderation.listByFlag({ channel, flag })
 
 Return a readable object stream of records for `channel` that for each user with
-`flag` set. `flag` must be one of: "hidden", "admin", or "mod".
+`flag` set. Flags used by cabal-core include: "hide", "mute", "block", "admin",
+and "mod".
 
 Each `row` object in the output stream has:
 
