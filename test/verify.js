@@ -46,7 +46,6 @@ test('verified swarm connections', function (t) {
       Object.entries(cabals).forEach(function ([id,cabal]) {
         cabal.swarm({
           verify: function (pk, cb) {
-            pk = pk.toString('hex')
             var allow = allowed[id] && allowed[id].includes(pkCabals[pk])
             var key = `${id}:${pkCabals[pk]}`
             if (!allow) connected[key] = false
@@ -58,7 +57,6 @@ test('verified swarm connections', function (t) {
           swarms[id] = swarm
         })
         cabal.on('peer-added', function (pk) {
-          pk = pk.toString('hex')
           var key = `${id}:${pkCabals[pk]}`
           //console.log('ADDED',key,pk)
           if (connected[key]) return

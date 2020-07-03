@@ -40,24 +40,25 @@ module.exports = function (cabal, opts, cb) {
         localFeedPublicKey: feed.key,
         localFeedSecretKey: feed.secretKey,
         onVerify: function (ok, remotePubKey) {
+          var pk = remotePubKey.toString('hex')
           if (!ok) {
             info.destroy()
             r.destroy()
           } else if (typeof opts.verify === 'function') {
-            opts.verify(remotePubKey, function (err, allowed) {
+            opts.verify(pk, function (err, allowed) {
               if (err) {
                 debug('ERROR', err)
                 info.destroy()
                 r.destroy()
               } else if (allowed) {
-                accept(remotePubKey)
+                accept(pk)
               } else {
                 info.ban()
                 r.destroy()
               }
             })
           }
-          else accept()
+          else accept(pk)
         }
       }))
     })

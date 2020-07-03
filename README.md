@@ -98,8 +98,8 @@ The returned object is an instance of [discovery-swarm](https://github.com/mafin
 The swarm performs a negotiation with peers over an extension to authenticate
 the remote peer's reported public key. You can supply an
 `opts.verify(remotePubKey, cb)` function that can accept connections from a
-`remotePubKey` by calling `cb(null, true)` or reject the connection by calling
-`cb(null, false)`.
+hex string `remotePubKey` by calling `cb(null, true)` or reject the connection
+by calling `cb(null, false)`.
 
 #### cabal.on('peer-added', function (key) {})
 
