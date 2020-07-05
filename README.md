@@ -59,6 +59,12 @@ Calls `cb()` when the cabal and its resources have been closed. This also leaves
 Read a message from `key`, a string of `feedKey@seq` or an object of
 `{ key, seq }` as `cb(err, node)` from the underlying hypercore.
 
+## cabal.removeConnection(key)
+
+Disconnect from a user by their hex string `key` and do not reconnect to them
+for the duration of this session. You can use this method along with the
+`opts.verify` option to `swarm()` in order to implement network blocking behavior.
+
 ### Channels
 
 #### cabal.channels.get(function (error, channels) {})

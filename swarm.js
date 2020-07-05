@@ -28,11 +28,11 @@ module.exports = function (cabal, opts, cb) {
       var r = new Proto(info.client)
       pump(socket, r, socket, function (err) {
         if (err) debug('ERROR', err)
-        if (remoteKey) cabal._removeConnection(remoteKey)
+        if (remoteKey) cabal._removeConnection(remoteKey, info)
       })
       function accept (remotePubKey) {
         remoteKey = remotePubKey
-        cabal._addConnection(remotePubKey)
+        cabal._addConnection(remotePubKey, info)
         cabal.replicate(r)
       }
 
