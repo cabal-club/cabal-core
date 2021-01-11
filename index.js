@@ -54,6 +54,7 @@ function Cabal (storage, key, opts) {
   this.maxFeeds = opts.maxFeeds
   this.modKeys = opts.modKeys || []
   this.adminKeys = opts.adminKeys || []
+  this.preferredPort = opts.preferredPort || 13331
 
   if (!key) this.key = generateKeyHex()
   else {
