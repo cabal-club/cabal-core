@@ -60,6 +60,12 @@ Calls `cb()` when the cabal and its resources have been closed. This also leaves
 Read a message from `key`, a string of `feedKey@seq` or an object of
 `{ key, seq }` as `cb(err, node)` from the underlying hypercore.
 
+## cabal.removeConnection(key)
+
+Disconnect from a user by their hex string `key` and do not reconnect to them
+for the duration of this session. You can use this method along with the
+`opts.verify` option to `swarm()` in order to implement network blocking behavior.
+
 ### Channels
 
 #### cabal.channels.get(function (error, channels) {})
@@ -90,11 +96,17 @@ Calls `fn` with every new message that arrives in `channel`.
 
 > var swarm = require('cabal-core/swarm')
 
-#### cabal.swarm(cb)
+#### cabal.swarm(opts, cb)
 
 Joins the P2P swarm for a cabal. This seeks out peers who are also part of this cabal by various means (internet, local network), connects to them, and replicates cabal messages between them.
 
 The returned object is an instance of [discovery-swarm](https://github.com/mafintosh/discovery-swarm).
+
+The swarm performs a negotiation with peers over an extension to authenticate
+the remote peer's reported public key. You can supply an
+`opts.verify(remotePubKey, cb)` function that can accept connections from a
+hex string `remotePubKey` by calling `cb(null, true)` or reject the connection
+by calling `cb(null, false)`.
 
 #### cabal.on('peer-added', function (key) {})
 

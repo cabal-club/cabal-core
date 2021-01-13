@@ -103,6 +103,8 @@ function Cabal (storage, key, opts) {
   this.topics = this.kcore.api.topics
   this.users = this.kcore.api.users
   this.moderation = this.kcore.api.moderation
+
+  this._connections = {}
 }
 
 inherits(Cabal, events.EventEmitter)
@@ -227,12 +229,20 @@ Cabal.prototype.ready = function (cb) {
   this.kcore.ready(cb)
 }
 
-Cabal.prototype._addConnection = function (key) {
+Cabal.prototype._addConnection = function (key, info) {
+  this._connections[key] = info
   this.emit('peer-added', key)
 }
 
 Cabal.prototype._removeConnection = function (key) {
+  delete this._connections[key]
   this.emit('peer-dropped', key)
+}
+
+Cabal.prototype.removeConnection = function (key) {
+  if (this._connections[key]) {
+    this._connections[key].ban()
+  }
 }
 
 Cabal.prototype.close = function (cb) {
