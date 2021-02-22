@@ -21,7 +21,7 @@ message schema:
 */
 
 function getAuthorizedKeys (kcore, cb) {
-	return Promise.all([getKeys('admin'), getKeys('mod')]).then(res => cb(res[0].concat(res[1]).map(row => row.id)))
+  return Promise.all([getKeys('admin'), getKeys('mod')]).then(res => cb(res[0].concat(res[1]).map(row => row.id)))
 
   // collect pubkeys for cabal-wide mods or admins
   function getKeys (flag) {
@@ -31,8 +31,8 @@ function getAuthorizedKeys (kcore, cb) {
         resolve(result)
       }
       kcore.api.moderation.listByFlag({ flag, channel: '@' }, processResult)
-		})
-	}
+    })
+  }
 }
 
 module.exports = function (lvl) {
