@@ -78,7 +78,7 @@ module.exports = function (lvl) {
       api: {
         // get the list of currently archived channels 
         // TODO: include stored values (use lvl.createValueStream() somehow?)
-        getArchivedChannels: function (core, cb) {
+        get: function (core, cb) {
           this.ready(function () {
             // query mod view to determine if archiver is either a mod or an admin 
             getAuthorizedKeys(core, authorizedKeys => {
