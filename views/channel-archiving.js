@@ -5,7 +5,7 @@ const makeView = require('kappa-view')
   
 /*
 view data structure, the value (1) doesn't matter
-archive!<channelname>: '<pubkey of archiver>:<reason string>'
+archive!<channelname>: '<pubkey of archivist>:<reason string>'
 archive!default: 'feed..b01:unused channel'
 
 ARCHIVE msg: leveldb PUT
@@ -15,7 +15,7 @@ message schema:
 { 
   channel: <channel>,
   type: 'channel/archive' or 'channel/unarchive',
-  key: <pubkey of archiver>,
+  key: <pubkey of archivist>,
   reason: <optional string reason for archiving>
 }
 */
@@ -35,7 +35,7 @@ function getAuthorizedKeys (kcore, cb) {
   }
 }
 
-module.exports = function (lvl) {
+module.exports = function (cabal, lvl) {
   var events = new EventEmitter()
 
   return makeView(lvl, function (db) {
@@ -47,28 +47,33 @@ module.exports = function (lvl) {
         // 3. accumulate a levelup PUT or DEL operation for it
         // 4. write it all to leveldb as a batch
         const ops = []
-        const seen = {}
         msgs.forEach(function (msg) {
           if (!sanitize(msg)) { return }
           const channel = msg.value.content.channel
           const reason = msg.value.content.reason || ''
           const key = msg.key
-          const pair = channel+key // a composite key, to know if we have seen this pair
           if (msg.value.type === 'channel/archive') {
+            ops.push({
+              type: 'del',
+              key: `unarchive!${channel}!${key}`
+            })
             ops.push({
               type: 'put',
               key: `archive!${channel}!${key}`,
-              value: `${reason}`
+              value: `${key}@${msg.seq}`
             })
 
-            if (!seen[pair]) events.emit('archive', channel, reason, key)
-            seen[pair] = true
+            events.emit('archive', channel, reason, key)
           } else if (msg.value.type === 'channel/unarchive') {
+            ops.push({
+              type: 'put',
+              key: `unarchive!${channel}!${key}`,
+              value: `${key}@${msg.seq}`
+            })
             ops.push({
               type: 'del', 
               key: `archive!${channel}!${key}`,
             })
-            if (seen[pair]) { delete seen[pair] }
             events.emit('unarchive', channel, reason, key)
           }
         })
@@ -76,18 +81,40 @@ module.exports = function (lvl) {
         else next()
       },
       api: {
-        // get the list of currently archived channels 
-        // TODO: include stored values (use lvl.createValueStream() somehow?)
-        get: function (core, cb) {
+        // get the list of channels explicitly unarchived by key, typically the local user
+        getUnarchived: function (core, peerkey, cb) {
           this.ready(function () {
-            // query mod view to determine if archiver is either a mod or an admin 
+            const channels = []
+            db.createKeyStream({
+              gt: 'unarchive!!',
+              lt: 'unarchive!~'
+            })
+              .on('data', function (row) {
+                // structure of `row`: unarchive!<channel>!<key>
+                const pieces = row.split('!')
+                const channel = pieces[1]
+                const key = pieces[2]
+                if (key === peerkey) {
+                  channels.push(channel)
+                }
+              })
+              .once('end', function () {
+                cb(null, channels)
+              })
+              .once('error', cb)
+          })
+        },
+        // get the list of currently archived channels 
+        get: function (core, cb) {
+          this.ready(() => {
+            // query mod view to determine if archiving will be applied locally (archiver is a mod or an admin)
             getAuthorizedKeys(core, authorizedKeys => {
               const channels = []
               db.createKeyStream({
                 gt: 'archive!!',
                 lt: 'archive!~'
               })
-                .on('data', function (row) {
+                .on('data', (row) => {
                   // structure of `row`: archive!<channel>!<key>
                   const pieces = row.split('!')
                   const channel = pieces[1]
@@ -96,8 +123,19 @@ module.exports = function (lvl) {
                     channels.push(channel)
                   }
                 })
-                .once('end', function () {
-                  cb(null, channels)
+                .once('end', () => {
+                  // the local user's **unarchived** channels take precedence over other's archived channels
+                  cabal.getLocalKey((err, localKey) => {
+                    if (err) return cb(null, channels)
+                    core.api.archives.getUnarchived(localKey, (err, unarchivedChannels) => {
+                      unarchivedChannels = unarchivedChannels || []
+                      unarchivedChannels.forEach(ch => {
+                        const i = channels.indexOf(ch)
+                        if (i >= 0) { channels.splice(i, 1) }
+                      })
+                      cb(null, channels)
+                    })
+                  })
                 })
                 .once('error', cb)
             })

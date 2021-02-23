@@ -99,6 +99,7 @@ function Cabal (storage, key, opts) {
     sublevel(this.db, MODERATION_INFO, { valueEncoding: json })
   ))
   this.kcore.use('archives', createArchivingView(
+    this,
     sublevel(this.db, ARCHIVES, { valueEncoding: json })))
 
   this.messages = this.kcore.api.messages
