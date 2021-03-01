@@ -3,20 +3,21 @@ const pump = require('pump')
 const Writable = require('readable-stream').Writable
 const makeView = require('kappa-view')
   
-/*
-view data structure, the value (1) doesn't matter
-archive!<channelname>: '<pubkey of archivist>:<reason string>'
-archive!default: 'feed..b01:unused channel'
-
-ARCHIVE msg: leveldb PUT
-UNARCHIVE msg: leveldb DEL
+/* view data structure
+archive!<channelname>: '<pubkey of archivist>@<sequence of message for archivist's feed>'
+archive!default: 'feed..b01@1337'
 
 message schema: 
 { 
-  channel: <channel>,
-  type: 'channel/archive' or 'channel/unarchive',
   key: <pubkey of archivist>,
-  reason: <optional string reason for archiving>
+  seq: <sequence of archive action in log>,
+  value: {
+    type: 'channel/archive' or 'channel/unarchive',
+    content: {
+      channel: <channel>,
+      reason: <optional string reason for archiving || ''>
+    }
+  }
 }
 */
 
@@ -27,7 +28,7 @@ function getAuthorizedKeys (kcore, cb) {
   function getKeys (flag) {
     return new Promise((resolve, reject) => {
       function processResult (err, result) {
-        if (err) resolve([])
+        if (err) return resolve([])
         resolve(result)
       }
       kcore.api.moderation.listByFlag({ flag, channel: '@' }, processResult)
@@ -44,7 +45,8 @@ module.exports = function (cabal, lvl) {
       map: function (msgs, next) {
         // 1. go over each msg
         // 2. check if it's an archive/unarchive msg (skip if not)
-        // 3. accumulate a levelup PUT or DEL operation for it
+        // 3. accumulate a level PUT for message type, level DEL for opposite
+        //    e.g. if channel/archive -> PUT archive:<channel>, DEL unarchive:<channel>
         // 4. write it all to leveldb as a batch
         const ops = []
         msgs.forEach(function (msg) {
@@ -52,29 +54,22 @@ module.exports = function (cabal, lvl) {
           const channel = msg.value.content.channel
           const reason = msg.value.content.reason || ''
           const key = msg.key
-          if (msg.value.type === 'channel/archive') {
-            ops.push({
-              type: 'del',
-              key: `unarchive!${channel}!${key}`
-            })
+          if (/^channel\/(un)?archive$/.test(msg.value.type)) {
+            const activeType = (msg.value.type === "channel/archive") ? "archive" : "unarchive"
+            const oppositeType = (activeType === "archive") ? "unarchive" : "archive"
+
             ops.push({
               type: 'put',
-              key: `archive!${channel}!${key}`,
+              key: `${activeType}!${channel}!${key}`,
               value: `${key}@${msg.seq}`
             })
 
-            events.emit('archive', channel, reason, key)
-          } else if (msg.value.type === 'channel/unarchive') {
             ops.push({
-              type: 'put',
-              key: `unarchive!${channel}!${key}`,
-              value: `${key}@${msg.seq}`
+              type: 'del',
+              key: `${oppositeType}!${channel}!${key}`
             })
-            ops.push({
-              type: 'del', 
-              key: `archive!${channel}!${key}`,
-            })
-            events.emit('unarchive', channel, reason, key)
+
+            events.emit(activeType, channel, reason, key)
           }
         })
         if (ops.length) db.batch(ops, next)
@@ -91,12 +86,8 @@ module.exports = function (cabal, lvl) {
             })
               .on('data', function (row) {
                 // structure of `row`: unarchive!<channel>!<key>
-                const pieces = row.split('!')
-                const channel = pieces[1]
-                const key = pieces[2]
-                if (key === peerkey) {
-                  channels.push(channel)
-                }
+                const [_, channel, key] = row.split('!') // drop 'unarchive' when splitting on !
+                if (key === peerkey) { channels.push(channel) }
               })
               .once('end', function () {
                 cb(null, channels)
@@ -116,12 +107,8 @@ module.exports = function (cabal, lvl) {
               })
                 .on('data', (row) => {
                   // structure of `row`: archive!<channel>!<key>
-                  const pieces = row.split('!')
-                  const channel = pieces[1]
-                  const key = pieces[2]
-                  if (authorizedKeys.indexOf(key) >= 0) {
-                    channels.push(channel)
-                  }
+                  const [_, channel, key] = row.split('!') // drop 'archive' when splitting on !
+                  if (authorizedKeys.indexOf(key) >= 0) { channels.push(channel) }
                 })
                 .once('end', () => {
                   // the local user's **unarchived** channels take precedence over other's archived channels
@@ -131,6 +118,8 @@ module.exports = function (cabal, lvl) {
                       unarchivedChannels = unarchivedChannels || []
                       unarchivedChannels.forEach(ch => {
                         const i = channels.indexOf(ch)
+                        // if the local user has unarchived a previously archived channel:
+                        // remove the archived channel from the result
                         if (i >= 0) { channels.splice(i, 1) }
                       })
                       cb(null, channels)
