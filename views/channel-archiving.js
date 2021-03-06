@@ -4,8 +4,12 @@ const Writable = require('readable-stream').Writable
 const makeView = require('kappa-view')
   
 /* view data structure
-archive!<channelname>: '<pubkey of archivist>@<sequence of message for archivist's feed>'
-archive!default: 'feed..b01@1337'
+1. archive!<channelname>: '<pubkey of archivist>@<sequence of message for archivist's feed>'
+example: 
+  archive!default: 'feed..b01@1337'
+2. unarchive!<channelname>: '<pubkey of archivist>@<sequence of message for archivist's feed>'
+example: 
+  archive!default: 'feed..b01@1337'
 
 message schema: 
 { 
