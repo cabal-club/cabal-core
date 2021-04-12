@@ -59,7 +59,7 @@ module.exports = function (keypair, lvl) {
         const indexKey = getPublicKeyOfOtherParty(res)
 
         // Index the message, as msg!otherPartysPublicKey!timestamp mapping to msgId
-        const key = 'msg!' + indexKey + '!' + charwise.encode(ts)
+        const key = `${msg}!${indexKey}!${charwise.encode(ts)}`
         ops.push({
           type: 'put',
           key,
