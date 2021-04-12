@@ -3,6 +3,7 @@ var events = require('events')
 var inherits = require('inherits')
 var level = require('level-mem')
 var thunky = require('thunky')
+var {box} = require('./lib/crypto')
 var timestamp = require('monotonic-timestamp')
 var sublevel = require('subleveldown')
 var crypto = require('hypercore-crypto')
@@ -13,6 +14,7 @@ var createTopicsView = require('./views/topics')
 var createUsersView = require('./views/users')
 var createModerationView = require('./views/moderation')
 var createArchivingView = require('./views/channel-archiving')
+var createPrivateMessagesView = require('./views/private-messages')
 var swarm = require('./swarm')
 
 var DATABASE_VERSION = 1
@@ -24,6 +26,7 @@ var USERS = 'u'
 var MODERATION_AUTH = 'mx'
 var MODERATION_INFO = 'my'
 var ARCHIVES = 'a' 
+var PRIVATE_MESSAGES = 'p'
 
 module.exports = Cabal
 module.exports.databaseVersion = DATABASE_VERSION
@@ -101,6 +104,12 @@ function Cabal (storage, key, opts) {
   this.kcore.use('archives', createArchivingView(
     this,
     sublevel(this.db, ARCHIVES, { valueEncoding: json })))
+  this.feed((feed) => {
+    self.kcore.use('privateMessages', createPrivateMessagesView(
+      {public:feed.key, private:feed.secretKey},
+      sublevel(self.db, PRIVATE_MESSAGES, { valueEncoding: json })))
+    this.privateMessages = this.kcore.api.privateMessages
+  })
 
   this.messages = this.kcore.api.messages
   this.channels = this.kcore.api.channels
@@ -151,6 +160,40 @@ Cabal.prototype.publish = function (message, opts, cb) {
     message.timestamp = message.timestamp || timestamp()
     feed.append(message, function (err) {
       cb(err, err ? null : message)
+    })
+  })
+}
+
+/**
+ * Publish a message to your feed, encrypted to specific recipient's key.
+ * @param {String} text - The textual message to publish.
+ * @param {String|Buffer[32]) recipientKey - A recipient's public key to encrypt the message to.
+ * @param {function} cb - When the message has been successfully written.
+ */
+Cabal.prototype.publishPrivateMessage = function (text, recipientKey, cb) {
+  if (!cb) cb = noop
+  if (typeof text !== 'string') return process.nextTick(cb, new Error('text must be a string'))
+  if (!isHypercoreKey(recipientKey)) return process.nextTick(cb, new Error('recipientKey must be a 32-byte hypercore key'))
+
+  if (typeof recipientKey === 'string') recipientKey = Buffer.from(recipientKey, 'hex')
+
+  this.feed(function (feed) {
+    const message = {
+      type: 'private/text',
+      content: {
+        recipients: [recipientKey.toString('hex')],
+        text
+      },
+      timestamp: timestamp()
+    }
+    const ciphertext = box(Buffer.from(JSON.stringify(message)), [recipientKey, feed.key]).toString('base64')
+    const encryptedMessage = {
+      type: 'encrypted',
+      content: ciphertext
+    }
+
+    feed.append(encryptedMessage, function (err) {
+      cb(err, err ? null : encryptedMessage)
     })
   })
 }
