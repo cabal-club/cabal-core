@@ -157,7 +157,7 @@ module.exports = function (keypair, lvl) {
     }
   }
 }
-
+// Trims the monotonic timestamp's suffix, returning a timestamp that is valid to use as `new Date(timestamp)`
 function monotonicTimestampToTimestamp (timestamp) {
   if (/^[0-9]+\.[0-9]+$/.test(String(timestamp))) {
     return Number(String(timestamp).split('.')[0])
