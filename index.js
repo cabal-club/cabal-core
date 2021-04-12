@@ -106,7 +106,7 @@ function Cabal (storage, key, opts) {
     sublevel(this.db, ARCHIVES, { valueEncoding: json })))
   this.feed((feed) => {
     self.kcore.use('privateMessages', createPrivateMessagesView(
-      {public:feed.key, private:feed.secretKey},
+       { public: feed.key, private: feed.secretKey },
       sublevel(self.db, PRIVATE_MESSAGES, { valueEncoding: json })))
     this.privateMessages = this.kcore.api.privateMessages
   })
