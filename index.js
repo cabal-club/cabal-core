@@ -165,7 +165,7 @@ Cabal.prototype.publish = function (message, opts, cb) {
 }
 
 /**
- * Publish a message to your feed, encrypted to specific recipient's key.
+ * Publish a message to your feed, encrypted to a specific recipient's key.
  * @param {String} text - The textual message to publish.
  * @param {String|Buffer[32]) recipientKey - A recipient's public key to encrypt the message to.
  * @param {function} cb - When the message has been successfully written.
