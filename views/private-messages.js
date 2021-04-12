@@ -7,6 +7,12 @@ const readonly = require('read-only-stream')
 const xtend = require('xtend')
 const collect = require('collect-stream')
 
+/**
+ * Create a new materialized view for private messages.
+ *
+ * @param {{public,private}} keypair - The keypair of the local user.
+ * @param {LevelUP} lvl - a LevelUP instance.
+**/
 module.exports = function (keypair, lvl) {
   const events = new EventEmitter()
 
@@ -29,7 +35,7 @@ module.exports = function (keypair, lvl) {
       msgs.forEach(function (msg) {
         if (msg.value.type !== 'encrypted') return
 
-        // Attempt to decypt.
+        // Attempt to decrypt.
         let jsonBuffer, res
         try {
           jsonBuffer = unbox(Buffer.from(msg.value.content, 'base64'), keypair.private)
