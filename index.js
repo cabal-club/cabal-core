@@ -186,7 +186,8 @@ Cabal.prototype.publishPrivateMessage = function (text, recipientKey, cb) {
       },
       timestamp: timestamp()
     }
-    const ciphertext = box(Buffer.from(JSON.stringify(message)), [recipientKey, feed.key]).toString('base64')
+// Note: we encrypt the message to the recipient, but also to ourselves (so that we can read our part of the convo!)
+     const ciphertext = box(Buffer.from(JSON.stringify(message)), [recipientKey, feed.key]).toString('base64')
     const encryptedMessage = {
       type: 'encrypted',
       content: ciphertext
