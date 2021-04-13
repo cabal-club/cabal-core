@@ -221,6 +221,34 @@ responsible for the state change.
 This event happens when a moderation update was skipped with `skip`, the log
 record responsible for the state change.
 
+### Private Messages
+
+#### cabal.publishPrivateMessage(text, recipientKey, cb)
+
+Write the private message string `text` to be encrypted so that only
+`recipientKey` (the public key of its recipient) can read it.
+
+A `timestamp` field is set automatically with the current local system time.
+
+#### cabal.privateMessages.list(cb)
+
+Returns a list of strings of all users' public keys that have sent a PM to you,
+or who you have sent a PM to.
+
+#### var rs = cabal.privateMessages.read(channel, opts)
+
+Returns a readable stream of messages (most recent first) from a channel.
+
+Pass `opts.limit` to set a maximum number of messages to read.
+
+#### cabal.privateMessages.events.on('message', fn)
+
+Calls `fn` with every new private message that arrives.
+
+#### cabal.privateMessages.events.on(publicKey, fn)
+
+Calls `fn` with every new message that arrives to or from `publicKey`.
+
 ### Publishing
 
 #### cabal.publish(message, opts, cb)
