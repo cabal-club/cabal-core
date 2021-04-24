@@ -17,7 +17,8 @@ module.exports = function (cabal, opts, cb) {
     const discoveryKey = crypto.discoveryKey(Buffer.from(cabal.key, 'hex'))
 
     const { preferredPort } = cabal
-    const swarm = hyperswarm({ preferredPort })
+    opts["preferredPort"] = preferredPort
+    const swarm = hyperswarm(opts)
     swarm.join(discoveryKey, {
       lookup: true,
       announce: true
