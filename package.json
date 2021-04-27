@@ -11,6 +11,9 @@
     "type": "git",
     "url": "git+https://github.com/cabal-club/cabal-core.git"
   },
+  "browser": {
+    "hyperswarm": "hyperswarm-web"
+  },
   "keywords": [
     "cabal",
     "decentralized",
@@ -37,10 +40,11 @@
     "dat-encoding": "^5.0.1",
     "debug": "^4.1.1",
     "duplexify": "^4.1.1",
-    "hypercore-crypto": "^1.0.0",
+    "hypercore-crypto": "^2.1.1",
     "hyperswarm": "^2.13.0",
+    "hyperswarm-web": "^2.1.1",
     "inherits": "^2.0.4",
-    "kappa-core": "^6.0.0",
+    "kappa-core": "^7.0.0",
     "kappa-view-level": "^2.0.1",
     "level-mem": "^5.0.1",
     "materialized-group-auth": "^2.1.0",
