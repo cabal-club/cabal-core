@@ -4,7 +4,9 @@ Core database, replication, swarming, and chat APIs for cabal.
 
 ## Usage
 
-    npm install cabal-core
+```
+npm install cabal-core
+```
 
 ## API
 
@@ -23,7 +25,7 @@ If this is a new cabal, `key` can be omitted and will be generated.
 You can pass `opts.db` as a levelup or leveldown instance to use persistent
 storage for indexing instead of using memory. For example:
 
-``` js
+```js
 var level = require('level')
 var cabal = Cabal(storage, key, { db: level('/tmp/bot.db') })
 ```
@@ -107,7 +109,7 @@ public key.
 
 ## Moderation
 
-Cabal has a *subjective moderation system*.
+Cabal has a _subjective moderation system_.
 
 The three roles are "admin", "moderator", and "ban/key".
 
@@ -116,13 +118,13 @@ Any admin/mod/ban operation can be per-channel, or cabal-wide (the `@` group).
 Every user sees themselves as an administrator across the entire cabal. This
 means they can grant admin or moderator powers to anyone, and ban anyone, but
 only they will see its affects on their own computer. That is, until someone
-*adds* them as an administrator or moderation from *their* perspective.
+_adds_ them as an administrator or moderation from _their_ perspective.
 
-A cabal can be instantiated with a *moderation key*. This is an additional key
+A cabal can be instantiated with a _moderation key_. This is an additional key
 to have your local node consider a user (the user whose key matches the
 moderation key) as a cabal-wide administrator (in addition to yourself).
 
-This means that if a group of people all specify the same *moderation key*,
+This means that if a group of people all specify the same _moderation key_,
 they will collectively see the same set of administrators, moderators, and
 banned users.
 
@@ -134,9 +136,9 @@ and "mod".
 
 Each `row` object in the output stream has:
 
-* `row.id` - string user key
-* `row.flags` - array of string flags
-* `row.key` - string of `key@seq` referring to log records
+- `row.id` - string user key
+- `row.flags` - array of string flags
+- `row.key` - string of `key@seq` referring to log records
 
 Optionally collect results into `cb(err, rows)`.
 
@@ -147,10 +149,10 @@ channels.
 
 Each `row` object in the output stream has:
 
-* `row.id` - string key which is the target of this moderation operation
-* `row.flags` - array of string flags set for this user
-* `row.channel` - string channel name this operation applies to
-* `row.key` - key of log record (not defined for self-admin and admins added by modkey)
+- `row.id` - string key which is the target of this moderation operation
+- `row.flags` - array of string flags set for this user
+- `row.channel` - string channel name this operation applies to
+- `row.key` - key of log record (not defined for self-admin and admins added by modkey)
 
 Optionally collect results into `cb(err, rows)`.
 
@@ -185,12 +187,12 @@ Return a readable object stream of moderation documents authored by `key`.
 Each `row` object in the output is a document used for adding, removing, and
 setting flags.
 
-* `row.type` - `"flags/add"`, `"flags/set"`, or `"flags/remove"`
-* `row.content.id` - string key target of this moderation operation
-* `row.content.flags` - array of string flags for this operation
-* `row.content.reason` - array of string flags for this operation
-* `row.content.channel` - string channel name this operation applies to
-* `row.timestamp` - number, when this action was made in milliseconds since 1970
+- `row.type` - `"flags/add"`, `"flags/set"`, or `"flags/remove"`
+- `row.content.id` - string key target of this moderation operation
+- `row.content.flags` - array of string flags for this operation
+- `row.content.reason` - array of string flags for this operation
+- `row.content.channel` - string channel name this operation applies to
+- `row.timestamp` - number, when this action was made in milliseconds since 1970
 
 Optionally collect results into `cb(err, rows)`.
 
