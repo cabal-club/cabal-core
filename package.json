@@ -65,6 +65,7 @@
   },
   "devDependencies": {
     "documentation": "^6.3.2",
+    "hallmark": "^3.1.0",
     "pump": "^3.0.0",
     "random-access-memory": "^3.0.0",
     "standard": "^11.0.1",
