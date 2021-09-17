@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.0.3] - 2018-11-06
+
+### Added
+
+- Add `cabal.protocolVersion` as `1.0.0` ([#25](https://github.com/cabal-club/cabal-core/issues/25)) ([**@cblgh**](https://github.com/cblgh))
+- Add `cabal.getProtocolVersion()` ([#25](https://github.com/cabal-club/cabal-core/issues/25)) ([**@cblgh**](https://github.com/cblgh))
+
+### Removed
+
+- Remove unused `crypto` dependency ([#21](https://github.com/cabal-club/cabal-core/issues/21)) ([**@lachenmayer**](https://github.com/lachenmayer))
+
+### Fixed
+
+- Reorder function calls in `cabal.publishNick()` ([#25](https://github.com/cabal-club/cabal-core/issues/25)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [3.0.2] - 2018-09-05
 
 _There were several tags in between version `3.0.0` and `2.3.0` where [**@hackergrrl**](https://github.com/hackergrrl) were developing on a separate branch while things were happening on master. Versions `2.3.1`, `3.0.0` and `3.0.1` never got published to npm. Major API rewrite._
@@ -94,6 +109,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[3.0.3]: https://github.com/cabal-club/cabal-core/compare/v3.0.2...v3.0.3
 
 [3.0.2]: https://github.com/cabal-club/cabal-core/compare/v2.3.0...v3.0.2
 
