@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0] - 2018-06-23
+
+_This should have been a patch instead of a minor version._
+
+### Fixed
+
+- Update `hyperdb` to `3.1.2` to fix a connection issue ([**@cblgh**](https://github.com/cblgh))
+
 ## [2.1.1] - 2018-05-29
 
 ### Fixed
@@ -43,6 +51,8 @@ _This should have been a minor instead of a patch version._
 ## [1.0.0] - 2018-05-16
 
 :seedling: Initial release.
+
+[2.2.0]: https://github.com/cabal-club/cabal-core/compare/v2.1.1...v2.2.0
 
 [2.1.1]: https://github.com/cabal-club/cabal-core/compare/v2.1.0...v2.1.1
 
