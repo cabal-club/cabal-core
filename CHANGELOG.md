@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.3.0] - 2018-08-13
+
+### Changed
+
+- Sort the channel list alphabetically ([#8](https://github.com/cabal-club/cabal-core/issues/8)) ([**@cinnamon-bun**](https://github.com/cinnamon-bun))
+
 ## [2.2.0] - 2018-06-23
 
 _This should have been a patch instead of a minor version._
@@ -51,6 +57,8 @@ _This should have been a minor instead of a patch version._
 ## [1.0.0] - 2018-05-16
 
 :seedling: Initial release.
+
+[2.3.0]: https://github.com/cabal-club/cabal-core/compare/v2.2.0...v2.3.0
 
 [2.2.0]: https://github.com/cabal-club/cabal-core/compare/v2.1.1...v2.2.0
 
