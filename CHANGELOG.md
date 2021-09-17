@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.0.0] - 2018-11-16
+
+_This release was based partly from `3.0.4` but also merged in changes from `3.1.0`. Check git history for more fine grained details._
+
+### Changed
+
+- **Breaking:** renamed `cabal.protocolVersion` to `cabal.databaseVersion` ([#28](https://github.com/cabal-club/cabal-core/issues/28)) ([**@cblgh**](https://github.com/cblgh))
+- **Breaking:** renamed `cabal.getProtocolVersion()` to `cabal.getDatabaseVersion()` ([#28](https://github.com/cabal-club/cabal-core/issues/28)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [3.0.4] - 2018-11-11
 
 _This version was published to npm after `3.1.0` and is almost identical. We therefore only list the changes for `3.0.4` and omit the `3.1.0` version._
@@ -126,6 +135,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[4.0.0]: https://github.com/cabal-club/cabal-core/compare/v3.0.4...v4.0.0
 
 [3.0.4]: https://github.com/cabal-club/cabal-core/compare/v3.0.3...v3.0.4
 
