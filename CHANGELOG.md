@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.0.4] - 2018-11-11
+
+_This version was published to npm after `3.1.0` and is almost identical. We therefore only list the changes for `3.0.4` and omit the `3.1.0` version._
+
+### Added
+
+- Add view for `topics` ([#24](https://github.com/cabal-club/cabal-core/issues/24)) ([**@nikolaiwarner**](https://github.com/nikolaiwarner))
+- Add `cabal.publishChannelTopic()` ([#24](https://github.com/cabal-club/cabal-core/issues/24)) ([**@nikolaiwarner**](https://github.com/nikolaiwarner))
+
+### Removed
+
+- Remove unused requires ([#25](https://github.com/cabal-club/cabal-core/issues/25)) ([**@cblgh**](https://github.com/cblgh))
+
+### Fixed
+
+- Fix reliable key exchange ([#27](https://github.com/cabal-club/cabal-core/issues/27)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [3.0.3] - 2018-11-06
 
 ### Added
@@ -109,6 +126,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[3.0.4]: https://github.com/cabal-club/cabal-core/compare/v3.0.3...v3.0.4
 
 [3.0.3]: https://github.com/cabal-club/cabal-core/compare/v3.0.2...v3.0.3
 
