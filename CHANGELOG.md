@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.1] - 2018-05-27
+
+_This should have been a minor instead of a patch version._
+
+### Added
+
+- Add message type. Defaults to `'chat/text'` ([**@cblgh**](https://github.com/cblgh))
+
 ## [2.0.0] - 2018-05-24
 
 ### Changed
@@ -21,6 +29,8 @@
 ## [1.0.0] - 2018-05-16
 
 :seedling: Initial release.
+
+[2.0.1]: https://github.com/cabal-club/cabal-core/compare/v2.0.0...v2.0.1
 
 [2.0.0]: https://github.com/cabal-club/cabal-core/compare/v1.0.0...v2.0.0
 
