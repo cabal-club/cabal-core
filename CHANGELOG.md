@@ -1,5 +1,34 @@
 # Changelog
 
+## [3.0.2] - 2018-09-05
+
+_There were several tags in between version `3.0.0` and `2.3.0` where [**@hackergrrl**](https://github.com/hackergrrl) were developing on a separate branch while things were happening on master. Versions `2.3.1`, `3.0.0` and `3.0.1` never got published to npm. Major API rewrite._
+
+### Changed
+
+- Rename module from `cabal-node` to `cabal-core` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Base storage on `kappa` instead of `hyperdb` ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Added
+
+- Add `cabal.getUser()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Add `cabal.publish()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Add `cabal.publishNick()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Add `cabal.getLocalKey()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Add views for `channels`, `messages` and `users` ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Removed
+
+- **Breaking:** remove `cabal.onconnection()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.watch()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.getMessages()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.getChannels()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.joinChannel()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.leaveChannel()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.createReadStream()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.metadata()` ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** remove `cabal.message()` ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [2.3.0] - 2018-08-13
 
 _This version was published both as `cabal-node` and `cabal-core`._
@@ -65,6 +94,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[3.0.2]: https://github.com/cabal-club/cabal-core/compare/v2.3.0...v3.0.2
 
 [2.3.0]: https://github.com/cabal-club/cabal-core/compare/v2.2.0...v2.3.0
 
