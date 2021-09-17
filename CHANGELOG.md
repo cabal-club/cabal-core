@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.1] - 2018-05-29
+
+### Fixed
+
+- Fix bug where `cabal.leaveChannel()` didn't actually leave the channel ([**@karissa**](https://github.com/karissa))
+
 ## [2.1.0] - 2018-05-29
 
 _This should have been a patch instead of a minor version._
@@ -37,6 +43,8 @@ _This should have been a minor instead of a patch version._
 ## [1.0.0] - 2018-05-16
 
 :seedling: Initial release.
+
+[2.1.1]: https://github.com/cabal-club/cabal-core/compare/v2.1.0...v2.1.1
 
 [2.1.0]: https://github.com/cabal-club/cabal-core/compare/v2.0.1...v2.1.0
 
