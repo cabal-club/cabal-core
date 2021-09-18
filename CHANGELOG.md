@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.1] - 2019-05-21
+
+### Changed
+
+- Update `kappa-core` to `^3.0.1` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Update `concat-stream` to `^2.0.0` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Update `through2` to `^3.0.1` ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [5.0.0] - 2019-05-21
 
 ### Changed
@@ -162,6 +170,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[5.0.1]: https://github.com/cabal-club/cabal-core/compare/v5.0.0...v5.0.1
 
 [5.0.0]: https://github.com/cabal-club/cabal-core/compare/v4.0.1...v5.0.0
 
