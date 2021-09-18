@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.0.1] - 2019-07-31
+
+### Added
+
+- Add `debug` logging under `cabal` for network errors ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [6.0.0] - 2019-07-03
 
 ### Changed
@@ -208,6 +214,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[6.0.1]: https://github.com/cabal-club/cabal-core/compare/v6.0.0...v6.0.1
 
 [6.0.0]: https://github.com/cabal-club/cabal-core/compare/v5.1.2...v6.0.0
 
