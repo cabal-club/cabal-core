@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.1.0] - 2019-08-19
+
+### Changed
+
+- Throttle or block misbehaving peers by host and port ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [7.0.1] - 2019-08-04
 
 ### Changed
@@ -234,6 +240,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[7.1.0]: https://github.com/cabal-club/cabal-core/compare/v7.0.1...v7.1.0
 
 [7.0.1]: https://github.com/cabal-club/cabal-core/compare/v7.0.0...v7.0.1
 
