@@ -1,5 +1,17 @@
 # Changelog
 
+## [7.2.1] - 2019-08-27
+
+### Added
+
+- Add moderation view ([#45](https://github.com/cabal-club/cabal-core/issues/45)) ([**@substack**](https://github.com/substack), [**@hackergrrl**](https://github.com/hackergrrl))
+
+### Fixed
+
+- Set max listeners for `Cabal` event emitter ([#50](https://github.com/cabal-club/cabal-core/issues/50)) ([**@cblgh**](https://github.com/cblgh))
+- Fix a case where channel membership indexing hangs ([**@hackergrrl**](https://github.com/hackergrrl))
+- Let the network test ignore swarm blocking logic (blocking on remote key instead of host and port) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [7.2.0] - 2019-08-20
 
 ### Added
@@ -246,6 +258,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[7.2.1]: https://github.com/cabal-club/cabal-core/compare/v7.2.0...v7.2.1
 
 [7.2.0]: https://github.com/cabal-club/cabal-core/compare/v7.1.0...v7.2.0
 
