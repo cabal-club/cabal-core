@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.0.1] - 2019-08-04
+
+### Changed
+
+- Use the same cabal key consistently ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [7.0.0] - 2019-08-04
 
 ### Changed
@@ -228,6 +234,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[7.0.1]: https://github.com/cabal-club/cabal-core/compare/v7.0.0...v7.0.1
 
 [7.0.0]: https://github.com/cabal-club/cabal-core/compare/v6.0.2...v7.0.0
 
