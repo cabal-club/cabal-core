@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.1.1] - 2019-05-26
+
+### Changed
+
+- Update `kappa-view-level` to `^2.0.0` ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Fixed
+
+- Use `base64` for channel view state ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [5.1.0] - 2019-05-26
 
 ### Added
@@ -177,6 +187,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[5.1.1]: https://github.com/cabal-club/cabal-core/compare/v5.1.0...v5.1.1
 
 [5.1.0]: https://github.com/cabal-club/cabal-core/compare/v5.0.1...v5.1.0
 
