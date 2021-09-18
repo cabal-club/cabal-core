@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.0.0] - 2019-05-21
+
+### Changed
+
+- **Breaking:** use `discovery-swarm` to shuttle around peer id (`swarm` function now calls back with swarm) ([#39](https://github.com/cabal-club/cabal-core/issues/39)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- **Breaking:** add options parameter to `cabal.replicate(opts)` (`.maxFeeds` no longer passed indirectly via the `Cabal` constructor) ([#39](https://github.com/cabal-club/cabal-core/issues/39)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Added
+
+- Expose swarm functionality via `cabal.swarm(cb)` ([#39](https://github.com/cabal-club/cabal-core/issues/39)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Removed
+
+- Remove node 6 from travis ([**@hackergrrl**](https://github.com/hackergrrl))
+- Remove `multifeed` dependency ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [4.0.1] - 2019-05-08
 
 ### Added
@@ -146,6 +162,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[5.0.0]: https://github.com/cabal-club/cabal-core/compare/v4.0.1...v5.0.0
 
 [4.0.1]: https://github.com/cabal-club/cabal-core/compare/v4.0.0...v4.0.1
 
