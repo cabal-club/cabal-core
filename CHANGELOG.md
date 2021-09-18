@@ -259,7 +259,7 @@ _This version was published as `cabal-node`._
 
 ### Fixed
 
-- Fix bug where `cabal.leaveChannel()` didn't actually leave the channel ([**@karissa**](https://github.com/karissa))
+- Fix bug where `cabal.leaveChannel()` didn't actually leave the channel ([**@okdistribute**](https://github.com/okdistribute))
 
 ## [2.1.0] - 2018-05-29
 
@@ -267,7 +267,7 @@ _This should have been a patch instead of a minor version. Not published to npm.
 
 ### Changed
 
-- Change how channels are stored internally ([**@karissa**](https://github.com/karissa))
+- Change how channels are stored internally ([**@okdistribute**](https://github.com/okdistribute))
 
 ## [2.0.1] - 2018-05-27
 
@@ -283,13 +283,13 @@ _This version was published as `cabal-node`._
 
 ### Changed
 
-- **Breaking:** change on-disk format to improve performance getting channel list ([#2](https://github.com/cabal-club/cabal-core/issues/2)) ([**@karissa**](https://github.com/karissa))
+- **Breaking:** change on-disk format to improve performance getting channel list ([#2](https://github.com/cabal-club/cabal-core/issues/2)) ([**@okdistribute**](https://github.com/okdistribute))
 - Batch multiple transactions ([**@cblgh**](https://github.com/cblgh))
 
 ### Added
 
 - Add methods for getting messages and channels ([#1](https://github.com/cabal-club/cabal-core/issues/1)) ([**@cblgh**](https://github.com/cblgh))
-- Add watch function for db messages ([**@karissa**](https://github.com/karissa))
+- Add watch function for db messages ([**@okdistribute**](https://github.com/okdistribute))
 
 ### Fixed
 
