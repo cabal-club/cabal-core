@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.0] - 2019-05-26
+
+### Added
+
+- Add `.db` option to `Cabal` constructor for durable storage ([#41](https://github.com/cabal-club/cabal-core/issues/41)) ([**@substack**](https://github.com/substack))
+- Add `cabal.ready(cb)` ([#41](https://github.com/cabal-club/cabal-core/issues/41)) ([**@substack**](https://github.com/substack))
+
 ## [5.0.1] - 2019-05-21
 
 ### Changed
@@ -170,6 +177,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[5.1.0]: https://github.com/cabal-club/cabal-core/compare/v5.0.1...v5.1.0
 
 [5.0.1]: https://github.com/cabal-club/cabal-core/compare/v5.0.0...v5.0.1
 
