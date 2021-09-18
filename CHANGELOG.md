@@ -1,5 +1,15 @@
 # Changelog
 
+## [7.0.0] - 2019-08-04
+
+### Changed
+
+- **Breaking:** enable multifeed protocol encryption ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Fixed
+
+- Fix net swarm test by using a real hypercore key ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [6.0.2] - 2019-08-03
 
 - Remove `package-lock.json` (again) ([**@hackergrrl**](https://github.com/hackergrrl))
@@ -218,6 +228,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[7.0.0]: https://github.com/cabal-club/cabal-core/compare/v6.0.2...v7.0.0
 
 [6.0.2]: https://github.com/cabal-club/cabal-core/compare/v6.0.1...v6.0.2
 
