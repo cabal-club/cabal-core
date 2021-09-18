@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.1.2] - 2019-06-03
+
+### Removed
+
+- Remove `package-lock.json` ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Fixed
+
+- Set `.maxFeeds` default to `1024` in `cabal.replicate()` ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [5.1.1] - 2019-05-26
 
 ### Changed
@@ -187,6 +197,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[5.1.2]: https://github.com/cabal-club/cabal-core/compare/v5.1.1...v5.1.2
 
 [5.1.1]: https://github.com/cabal-club/cabal-core/compare/v5.1.0...v5.1.1
 
