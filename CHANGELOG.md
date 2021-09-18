@@ -1,5 +1,11 @@
 # Changelog
 
+## [9.0.2] - 2021-09-18
+
+### Fixed
+
+- Add missing parameter in `isFutureMonotonicTimestamp()` ([#68](https://github.com/cabal-club/cabal-core/issues/68)) ([**@okdistribute**](https://github.com/okdistribute))
+
 ## [9.0.1] - 2019-12-04
 
 ### Added
@@ -296,6 +302,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[9.0.2]: https://github.com/cabal-club/cabal-core/compare/v9.0.1...v9.0.2
 
 [9.0.1]: https://github.com/cabal-club/cabal-core/compare/v9.0.0...v9.0.1
 
