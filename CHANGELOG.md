@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.0.0] - 2019-10-09
+
+### Changed
+
+- **Breaking:** hash cabal key with blake2b ([**@hackergrrl**](https://github.com/hackergrrl))
+- Replace `memdb` with `level-mem` ([#57](https://github.com/cabal-club/cabal-core/issues/57)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [7.2.1] - 2019-08-27
 
 ### Added
@@ -258,6 +265,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[8.0.0]: https://github.com/cabal-club/cabal-core/compare/v7.2.1...v8.0.0
 
 [7.2.1]: https://github.com/cabal-club/cabal-core/compare/v7.2.0...v7.2.1
 
