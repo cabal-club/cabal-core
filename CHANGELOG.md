@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.0.1] - 2020-05-01
+
+### Changed
+
+- Update `hyperswarm` to `2.13.x` ([#74](https://github.com/cabal-club/cabal-core/issues/74)) ([**@nikolaiwarner**](https://github.com/nikolaiwarner))
+- Update `package-lock.json` (here we go again) ([#74](https://github.com/cabal-club/cabal-core/issues/74)) ([**@nikolaiwarner**](https://github.com/nikolaiwarner))
+
 ## [10.0.0] - 2020-03-23
 
 ### Changed
@@ -319,6 +326,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[10.0.1]: https://github.com/cabal-club/cabal-core/compare/v10.0.0...v10.0.1
 
 [10.0.0]: https://github.com/cabal-club/cabal-core/compare/v9.0.2...v10.0.0
 
