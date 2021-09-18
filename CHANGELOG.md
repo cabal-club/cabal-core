@@ -1,5 +1,22 @@
 # Changelog
 
+## [9.0.0] - 2019-11-21
+
+### Changed
+
+- **Breaking:** upgrade hypercore (via multifeed) ([#61](https://github.com/cabal-club/cabal-core/issues/61)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Update `kappa-core` to `6.x` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Use `hypercore-crypto` to generate test key ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Added
+
+- Add node 10 ([#61](https://github.com/cabal-club/cabal-core/issues/61)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Fixed
+
+- Wait for view to be ready on mod api ([#61](https://github.com/cabal-club/cabal-core/issues/61)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Encode now-timestamps to avoid overwrites ([#62](https://github.com/cabal-club/cabal-core/issues/62)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [8.0.1] - 2019-10-09
 
 ### Fixed
@@ -271,6 +288,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[9.0.0]: https://github.com/cabal-club/cabal-core/compare/v8.0.1...v9.0.0
 
 [8.0.1]: https://github.com/cabal-club/cabal-core/compare/v8.0.0...v8.0.1
 
