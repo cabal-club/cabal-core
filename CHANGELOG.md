@@ -1,5 +1,11 @@
 # Changelog
 
+## [7.2.0] - 2019-08-20
+
+### Added
+
+- Add channel membership view ([#52](https://github.com/cabal-club/cabal-core/issues/52)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [7.1.0] - 2019-08-19
 
 ### Changed
@@ -240,6 +246,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[7.2.0]: https://github.com/cabal-club/cabal-core/compare/v7.1.0...v7.2.0
 
 [7.1.0]: https://github.com/cabal-club/cabal-core/compare/v7.0.1...v7.1.0
 
