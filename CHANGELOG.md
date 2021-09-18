@@ -1,5 +1,16 @@
 # Changelog
 
+## [10.0.0] - 2021-09-18
+
+### Changed
+
+- **Breaking:** use hyperswarm. This removes `discovery-swarm` for finding peers. Peers before this commit
+  will not be able to discover peers from this commit onwards ([#71](https://github.com/cabal-club/cabal-core/issues/71)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Added
+
+- Add `FUNDING.yml` ([**@cblgh**](https://github.com/cblgh))
+
 ## [9.0.2] - 2021-09-18
 
 ### Fixed
@@ -302,6 +313,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[10.0.0]: https://github.com/cabal-club/cabal-core/compare/v9.0.2...v10.0.0
 
 [9.0.2]: https://github.com/cabal-club/cabal-core/compare/v9.0.1...v9.0.2
 
