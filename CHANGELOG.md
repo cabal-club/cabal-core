@@ -11,6 +11,12 @@
 
 - Add `FUNDING.yml` ([**@cblgh**](https://github.com/cblgh))
 
+## [9.0.3] - 2020-04-09
+
+### Removed
+
+- Remove block logic ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [9.0.2] - 2019-12-11
 
 ### Fixed
@@ -315,6 +321,8 @@ _This version was published as `cabal-node`._
 :seedling: Initial release.
 
 [10.0.0]: https://github.com/cabal-club/cabal-core/compare/v9.0.2...v10.0.0
+
+[9.0.3]: https://github.com/cabal-club/cabal-core/compare/v9.0.2...v9.0.3
 
 [9.0.2]: https://github.com/cabal-club/cabal-core/compare/v9.0.1...v9.0.2
 
