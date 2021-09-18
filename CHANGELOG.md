@@ -1,5 +1,11 @@
 # Changelog
 
+## [8.0.1] - 2019-10-09
+
+### Fixed
+
+- Fix swarm hashing ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [8.0.0] - 2019-10-09
 
 ### Changed
@@ -265,6 +271,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[8.0.1]: https://github.com/cabal-club/cabal-core/compare/v8.0.0...v8.0.1
 
 [8.0.0]: https://github.com/cabal-club/cabal-core/compare/v7.2.1...v8.0.0
 
