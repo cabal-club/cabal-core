@@ -1,5 +1,16 @@
 # Changelog
 
+## [6.0.0] - 2019-07-03
+
+### Changed
+
+- **Breaking:** update `kappa-core` to `4.x` ([**@hackergrrl**](https://github.com/hackergrrl))
+- Update `discovery-swarm` to `6.x` ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Removed
+
+- Remove `package-lock.json` (again) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [5.1.2] - 2019-06-03
 
 ### Removed
@@ -197,6 +208,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[6.0.0]: https://github.com/cabal-club/cabal-core/compare/v5.1.2...v6.0.0
 
 [5.1.2]: https://github.com/cabal-club/cabal-core/compare/v5.1.1...v5.1.2
 
