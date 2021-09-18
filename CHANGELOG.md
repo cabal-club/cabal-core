@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.1] - 2019-05-08
+
+### Added
+
+- Add an option to set the `.maxFeeds` option of `hypercore-protocol` when replicating ([#33](https://github.com/cabal-club/cabal-core/issues/33)) ([**@nikolaiwarner**](https://github.com/nikolaiwarner))
+
+### Fixed
+
+- Allow options for `messages.read()` to take priority over defaults ([#29](https://github.com/cabal-club/cabal-core/issues/29)) ([**@telamon**](https://github.com/telamon))
+- Fix error propagation bug in topics view ([#30](https://github.com/cabal-club/cabal-core/issues/30)) ([**@telamon**](https://github.com/telamon))
+
 ## [4.0.0] - 2018-11-16
 
 _This release was based partly from `3.0.4` but also merged in changes from `3.1.0`. Check git history for more fine grained details._
@@ -135,6 +146,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[4.0.1]: https://github.com/cabal-club/cabal-core/compare/v4.0.0...v4.0.1
 
 [4.0.0]: https://github.com/cabal-club/cabal-core/compare/v3.0.4...v4.0.0
 
