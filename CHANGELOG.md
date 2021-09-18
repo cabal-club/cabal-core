@@ -1,5 +1,13 @@
 # Changelog
 
+## [9.0.1] - 2019-12-04
+
+### Added
+
+- Add `cblgh.org` ([#67](https://github.com/cabal-club/cabal-core/issues/67)) ([**@cblgh**](https://github.com/cblgh))
+- Add nick disco server ([#67](https://github.com/cabal-club/cabal-core/issues/67)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Add dns-discovery server: eight45.net ([#67](https://github.com/cabal-club/cabal-core/issues/67)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [9.0.0] - 2019-11-21
 
 ### Changed
@@ -288,6 +296,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[9.0.1]: https://github.com/cabal-club/cabal-core/compare/v9.0.0...v9.0.1
 
 [9.0.0]: https://github.com/cabal-club/cabal-core/compare/v8.0.1...v9.0.0
 
