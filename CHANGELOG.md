@@ -1,5 +1,9 @@
 # Changelog
 
+## [6.0.2] - 2019-08-03
+
+- Remove `package-lock.json` (again) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [6.0.1] - 2019-07-31
 
 ### Added
@@ -214,6 +218,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[6.0.2]: https://github.com/cabal-club/cabal-core/compare/v6.0.1...v6.0.2
 
 [6.0.1]: https://github.com/cabal-club/cabal-core/compare/v6.0.0...v6.0.1
 
