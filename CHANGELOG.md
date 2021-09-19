@@ -1,5 +1,17 @@
 # Changelog
 
+## [11.0.0] - 2020-05-20
+
+### Added
+
+- **Breaking:** add moderation based on flags ([#83](https://github.com/cabal-club/cabal-core/issues/83)) ([**@substack**](https://github.com/substack))
+- Add support for `mod` and `admin` keys in cabal key uri ([**@cblgh**](https://github.com/cblgh))
+- Add `cabal.close()` ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Removed
+
+- Remove `package-lock.json` ([#84](https://github.com/cabal-club/cabal-core/issues/84)) ([**@substack**](https://github.com/substack))
+
 ## [10.0.1] - 2020-05-01
 
 ### Changed
@@ -326,6 +338,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[11.0.0]: https://github.com/cabal-club/cabal-core/compare/v10.0.1...v11.0.0
 
 [10.0.1]: https://github.com/cabal-club/cabal-core/compare/v10.0.0...v10.0.1
 
