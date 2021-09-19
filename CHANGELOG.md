@@ -1,5 +1,12 @@
 # Changelog
 
+## [11.0.2] - 2020-05-21
+
+### Changed
+
+- Drop node 8 support, add node 12 ([**@hackergrrl**](https://github.com/hackergrrl))
+- Move moderation events to api ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [11.0.1] - 2020-05-20
 
 ### Fixed
@@ -344,6 +351,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[11.0.2]: https://github.com/cabal-club/cabal-core/compare/v11.0.1...v11.0.2
 
 [11.0.1]: https://github.com/cabal-club/cabal-core/compare/v11.0.0...v11.0.1
 
