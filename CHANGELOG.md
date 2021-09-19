@@ -1,5 +1,19 @@
 # Changelog
 
+## [11.1.0] - 2020-05-21
+
+### Changed
+
+- Use admin for admins, instead of mod ([**@cblgh**](https://github.com/cblgh))
+
+### Added
+
+- Add test for setting multiple admins and mods in the cabal addr ([**@substack**](https://github.com/substack))
+
+### Fixed
+
+- Add fixes for admin and mod keys in cabal urls ([**@substack**](https://github.com/substack))
+
 ## [11.0.2] - 2020-05-21
 
 ### Changed
@@ -351,6 +365,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[11.1.0]: https://github.com/cabal-club/cabal-core/compare/v11.0.2...v11.1.0
 
 [11.0.2]: https://github.com/cabal-club/cabal-core/compare/v11.0.1...v11.0.2
 
