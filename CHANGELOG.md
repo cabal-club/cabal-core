@@ -1,5 +1,11 @@
 # Changelog
 
+## [11.0.1] - 2020-05-20
+
+### Fixed
+
+- Remove flag for moderation ([**@substack**](https://github.com/substack))
+
 ## [11.0.0] - 2020-05-20
 
 ### Added
@@ -338,6 +344,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[11.0.1]: https://github.com/cabal-club/cabal-core/compare/v11.0.0...v11.0.1
 
 [11.0.0]: https://github.com/cabal-club/cabal-core/compare/v10.0.1...v11.0.0
 
