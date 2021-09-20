@@ -1,5 +1,15 @@
 # Changelog
 
+## [13.1.0] - 2021-01-12
+
+### Changed
+
+- Document possible flags for `listByFlag()` ([#94](https://github.com/cabal-club/cabal-core/issues/94)) ([**@garbados**](https://github.com/garbados))
+
+### Added
+
+- Add `.preferredPort` (default 13331) to core opts ([#101](https://github.com/cabal-club/cabal-core/issues/101)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [13.0.2] - 2020-06-24
 
 ### Fixed
@@ -432,6 +442,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[13.1.0]: https://github.com/cabal-club/cabal-core/compare/v13.0.2...v13.1.0
 
 [13.0.2]: https://github.com/cabal-club/cabal-core/compare/v13.0.1...v13.0.2
 
