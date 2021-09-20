@@ -1,5 +1,13 @@
 # Changelog
 
+## [11.2.0] - 2020-05-22
+
+_Changes in this version were based on top of `11.0.2` but with functionality from `11.1.1` merged in._
+
+### Added
+
+- Add `listModerationBy()` and secondary index ([#87](https://github.com/cabal-club/cabal-core/issues/87)) ([**@substack**](https://github.com/substack))
+
 ## [11.1.1] - 2020-05-22
 
 ### Fixed
@@ -371,6 +379,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[11.2.0]: https://github.com/cabal-club/cabal-core/compare/v11.1.0...v11.2.0
 
 [11.1.1]: https://github.com/cabal-club/cabal-core/compare/v11.1.0...v11.1.1
 
