@@ -1,5 +1,11 @@
 # Changelog
 
+## [13.0.0] - 2020-06-07
+
+### Fixed
+
+- **Breaking:** fix crypto server/client orientation ([`2132439`](https://github.com/cabal-club/cabal-core/commit/2132439)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [12.0.1] - 2020-06-05
 
 ### Fixed
@@ -414,6 +420,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[13.0.0]: https://github.com/cabal-club/cabal-core/compare/v12.0.1...v13.0.0
 
 [12.0.1]: https://github.com/cabal-club/cabal-core/compare/v12.0.0...v12.0.1
 
