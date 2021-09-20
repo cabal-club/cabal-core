@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "tape test/*.js",
-    "docs": "documentation readme index.js --section=API"
+    "docs": "documentation readme index.js --section=API",
+    "changelog:patch": "hallmark bump patch",
+    "changelog:minor": "hallmark bump minor",
+    "changelog:major": "hallmark bump major"
   },
   "repository": {
     "type": "git",
