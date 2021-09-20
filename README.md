@@ -2,6 +2,57 @@
 
 Core database, replication, swarming, and chat APIs for cabal.
 
+## Table of Contents
+
+<details><summary>Click to expand</summary>
+
+- [Usage](#usage)
+- [API](#api)
+  - [`var cabal = Cabal([storage][, key][, opts])`](#var-cabal--cabalstorage-key-opts)
+  - [`cabal.getLocalKey(cb)`](#cabalgetlocalkeycb)
+  - [`var ds = cabal.replicate(isInitiator[, opts])`](#var-ds--cabalreplicateisinitiator-opts)
+  - [`cabal.ready(cb)`](#cabalreadycb)
+  - [`cabal.close(cb)`](#cabalclosecb)
+  - [`cabal.getMessage(key, cb)`](#cabalgetmessagekey-cb)
+  - [Channels](#channels)
+    - [`cabal.channels.get(function (error, channels) {})`](#cabalchannelsgetfunction-error-channels-)
+    - [`cabal.channels.events.on('add', function (channel) {})`](#cabalchannelseventsonadd-function-channel-)
+  - [Messages](#messages)
+    - [`var rs = cabal.messages.read(channel, opts)`](#var-rs--cabalmessagesreadchannel-opts)
+    - [`cabal.messages.events.on('message', fn)`](#cabalmessageseventsonmessage-fn)
+    - [`cabal.messages.events.on(channel, fn)`](#cabalmessageseventsonchannel-fn)
+  - [Network](#network)
+    - [`cabal.swarm(cb)`](#cabalswarmcb)
+    - [`cabal.on('peer-added', function (key) {})`](#cabalonpeer-added-function-key-)
+    - [`cabal.on('peer-dropped', function (key) {})`](#cabalonpeer-dropped-function-key-)
+- [Moderation](#moderation)
+  - - [`cabal.moderation.listByFlag({ channel, flag })`](#cabalmoderationlistbyflag-channel-flag-)
+    - [`cabal.moderation.list(cb)`](#cabalmoderationlistcb)
+    - [`cabal.moderation.listBlocks(channel, cb)`](#cabalmoderationlistblockschannel-cb)
+    - [`cabal.moderation.listHides(channel, cb)`](#cabalmoderationlisthideschannel-cb)
+    - [`cabal.moderation.listMutes(channel, cb)`](#cabalmoderationlistmuteschannel-cb)
+    - [`cabal.moderation.listModerationBy(key, cb)`](#cabalmoderationlistmoderationbykey-cb)
+    - [`cabal.moderation.getFlags({ id, channel }, cb)`](#cabalmoderationgetflags-id-channel--cb)
+    - [`cabal.moderation.setFlags({ id, channel, flags }, cb)`](#cabalmoderationsetflags-id-channel-flags--cb)
+    - [`cabal.moderation.addFlags({ id, channel, flags }, cb)`](#cabalmoderationaddflags-id-channel-flags--cb)
+    - [`cabal.moderation.removeFlags({ id, channel, flags }, cb)`](#cabalmoderationremoveflags-id-channel-flags--cb)
+    - [`cabal.moderation.events.on('update', function (update) {})`](#cabalmoderationeventsonupdate-function-update-)
+    - [`cabal.moderation.events.on('skip', function (skip) {})`](#cabalmoderationeventsonskip-function-skip-)
+  - [Private Messages](#private-messages)
+    - [`cabal.publishPrivateMessage(text, recipientKey, cb)`](#cabalpublishprivatemessagetext-recipientkey-cb)
+    - [`cabal.privateMessages.list(cb)`](#cabalprivatemessageslistcb)
+    - [`var rs = cabal.privateMessages.read(channel, opts)`](#var-rs--cabalprivatemessagesreadchannel-opts)
+    - [`cabal.privateMessages.events.on('message', fn)`](#cabalprivatemessageseventsonmessage-fn)
+    - [`cabal.privateMessages.events.on(publicKey, fn)`](#cabalprivatemessageseventsonpublickey-fn)
+  - [Publishing](#publishing)
+    - [`cabal.publish(message, opts, cb)`](#cabalpublishmessage-opts-cb)
+    - [chat/text](#chattext)
+- [Developing](#developing)
+  - [Changelog](#changelog)
+- [License](#license)
+
+</details>
+
 ## Usage
 
 ```
@@ -296,7 +347,7 @@ When releasing a new version the [`CHANGELOG.md`](./CHANGELOG.md) should be upda
 - `npm run changelog:minor` -> add new minor section
 - `npm run changelog:major` -> add new major section
 
-Additionally, you can do `npm run markdown:fix`, which will expand references to pull requests and github users to urls. For example, referencing `@hackergrrl` would expand to `https://github.com/hackergrrl` and referencing `#314` would expand to `https://github.com/cabal-club/cabal-core/pulls/314`.
+Additionally, you can do `npm run markdown:fix`, which will expand references to pull requests and github users to urls. For example, referencing `@hackergrrl` would expand to `https://github.com/hackergrrl` and referencing `#314` would expand to `https://github.com/cabal-club/cabal-core/pulls/314`. Also, the table of contents in this document will be updated.
 
 To release a new version you would typically do something like:
 
