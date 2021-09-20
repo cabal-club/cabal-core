@@ -1,5 +1,11 @@
 # Changelog
 
+## [13.0.2] - 2020-06-24
+
+### Fixed
+
+- Change duplexify to object mode for moderation streams ([#95](https://github.com/cabal-club/cabal-core/issues/95)) ([`9ab9c74`](https://github.com/cabal-club/cabal-core/commit/9ab9c74)) ([**@garbados**](https://github.com/garbados))
+
 ## [13.0.1] - 2020-06-22
 
 ### Fixed
@@ -426,6 +432,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[13.0.2]: https://github.com/cabal-club/cabal-core/compare/v13.0.1...v13.0.2
 
 [13.0.1]: https://github.com/cabal-club/cabal-core/compare/v13.0.0...v13.0.1
 
