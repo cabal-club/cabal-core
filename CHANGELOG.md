@@ -1,5 +1,11 @@
 # Changelog
 
+## [13.0.1] - 2020-06-22
+
+### Fixed
+
+- Wait for core to pause before closing ([`a70505b`](https://github.com/cabal-club/cabal-core/commit/a70505b)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [13.0.0] - 2020-06-07
 
 ### Fixed
@@ -420,6 +426,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[13.0.1]: https://github.com/cabal-club/cabal-core/compare/v13.0.0...v13.0.1
 
 [13.0.0]: https://github.com/cabal-club/cabal-core/compare/v12.0.1...v13.0.0
 
