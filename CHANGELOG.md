@@ -1,5 +1,11 @@
 # Changelog
 
+## [14.1.0] - 2021-08-21
+
+### Added
+
+- Export `Cabal.isHypercoreKey` ([#105](https://github.com/cabal-club/cabal-core/issues/105)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [14.0.0] - 2021-05-18
 
 ### Changed
@@ -462,6 +468,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[14.1.0]: https://github.com/cabal-club/cabal-core/compare/v14.0.0...v14.1.0
 
 [14.0.0]: https://github.com/cabal-club/cabal-core/compare/v13.2.0...v14.0.0
 
