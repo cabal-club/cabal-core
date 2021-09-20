@@ -1,5 +1,11 @@
 # Changelog
 
+## [11.1.1] - 2020-05-22
+
+### Fixed
+
+- Use regex to capture cabal key instead of URL ([#89](https://github.com/cabal-club/cabal-core/issues/89)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [11.1.0] - 2020-05-21
 
 ### Changed
@@ -365,6 +371,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[11.1.1]: https://github.com/cabal-club/cabal-core/compare/v11.1.0...v11.1.1
 
 [11.1.0]: https://github.com/cabal-club/cabal-core/compare/v11.0.2...v11.1.0
 
