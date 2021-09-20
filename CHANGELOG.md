@@ -1,5 +1,11 @@
 # Changelog
 
+## [13.2.0] - 2021-03-06
+
+### Added
+
+- Implement the basics of a channel archiving view ([#103](https://github.com/cabal-club/cabal-core/issues/103)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [13.1.0] - 2021-01-12
 
 ### Changed
@@ -442,6 +448,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[13.2.0]: https://github.com/cabal-club/cabal-core/compare/v13.1.0...v13.2.0
 
 [13.1.0]: https://github.com/cabal-club/cabal-core/compare/v13.0.2...v13.1.0
 
