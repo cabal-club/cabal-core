@@ -22,9 +22,11 @@
 
 ## [14.0.0] - 2021-05-18
 
+_Breaking change since `kappa-core` indirectly pulls in `hypercore@9.x`. Also see [comment](https://github.com/cabal-club/cabal-core/pull/104#issuecomment-826375010)._
+
 ### Changed
 
-- Update core dependencies and set browser field in `package.json` ([#104](https://github.com/cabal-club/cabal-core/issues/104)) ([**@cblgh**](https://github.com/cblgh))
+- **Breaking:** update core dependencies and set browser field in `package.json` ([#104](https://github.com/cabal-club/cabal-core/issues/104)) ([**@cblgh**](https://github.com/cblgh))
 
 ### Added
 
