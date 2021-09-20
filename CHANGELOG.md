@@ -1,5 +1,19 @@
 # Changelog
 
+## [14.0.0] - 2021-05-18
+
+### Changed
+
+- Update core dependencies and set browser field in `package.json` ([#104](https://github.com/cabal-club/cabal-core/issues/104)) ([**@cblgh**](https://github.com/cblgh))
+
+### Added
+
+- Add private messages ([#69](https://github.com/cabal-club/cabal-core/issues/69)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Fixed
+
+- Use swarm.js's passed in opts ([#104](https://github.com/cabal-club/cabal-core/issues/104)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [13.2.0] - 2021-03-06
 
 ### Added
@@ -448,6 +462,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[14.0.0]: https://github.com/cabal-club/cabal-core/compare/v13.2.0...v14.0.0
 
 [13.2.0]: https://github.com/cabal-club/cabal-core/compare/v13.1.0...v13.2.0
 
