@@ -1,5 +1,19 @@
 # Changelog
 
+## [14.1.1] - 2021-09-15
+
+### Changed
+
+- Upgrade `sodium-universal` for faster installs ([#106](https://github.com/cabal-club/cabal-core/issues/106)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+
+### Added
+
+- Add missing `kappa-view` dependency ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Removed
+
+- Remove unused dependencies ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [14.1.0] - 2021-08-21
 
 ### Added
@@ -468,6 +482,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[14.1.1]: https://github.com/cabal-club/cabal-core/compare/v14.1.0...v14.1.1
 
 [14.1.0]: https://github.com/cabal-club/cabal-core/compare/v14.0.0...v14.1.0
 
