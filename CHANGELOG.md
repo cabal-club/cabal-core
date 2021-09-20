@@ -1,5 +1,25 @@
 # Changelog
 
+## [11.2.1] - 2020-05-22
+
+_This version was never published to npm._
+
+### Changed
+
+- Skip failing moderation tests ([`e231a73`](https://github.com/cabal-club/cabal-core/commit/e231a73)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Update tests to use opts.{mod,admin}Keys ([`5f122b7`](https://github.com/cabal-club/cabal-core/commit/5f122b7)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Bump version in moderation view ([`d0ad002`](https://github.com/cabal-club/cabal-core/commit/d0ad002)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
+### Fixed
+
+- Fix skipped failing tests ([`e233483`](https://github.com/cabal-club/cabal-core/commit/e233483)) ([**@substack**](https://github.com/substack))
+- Remove admins/mods if they are no longer in {admin,mod}Keys ([`626d65f`](https://github.com/cabal-club/cabal-core/commit/626d65f)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Fix some more mod view lifecycle things ([`d6d577b`](https://github.com/cabal-club/cabal-core/commit/d6d577b)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Fix moderation view clearing race condition ([`d997041`](https://github.com/cabal-club/cabal-core/commit/d997041)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Receive admin/mod keys intead of parsing them ([`5c7cb7a`](https://github.com/cabal-club/cabal-core/commit/5c7cb7a)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Add lifecycle management to mod view ([`70c86c4`](https://github.com/cabal-club/cabal-core/commit/70c86c4)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Have list wait for the view to be ready ([`0214803`](https://github.com/cabal-club/cabal-core/commit/0214803)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [11.2.0] - 2020-05-22
 
 _Changes in this version were based on top of `11.0.2` but with functionality from `11.1.1` merged in._
@@ -379,6 +399,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[11.2.1]: https://github.com/cabal-club/cabal-core/compare/v11.2.0...v11.2.1
 
 [11.2.0]: https://github.com/cabal-club/cabal-core/compare/v11.1.0...v11.2.0
 
