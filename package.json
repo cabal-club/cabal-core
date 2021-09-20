@@ -8,7 +8,8 @@
     "docs": "documentation readme index.js --section=API",
     "changelog:patch": "hallmark bump patch",
     "changelog:minor": "hallmark bump minor",
-    "changelog:major": "hallmark bump major"
+    "changelog:major": "hallmark bump major",
+    "changelog:fix": "hallmark --fix"
   },
   "repository": {
     "type": "git",
