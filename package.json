@@ -9,7 +9,7 @@
     "changelog:patch": "hallmark bump patch",
     "changelog:minor": "hallmark bump minor",
     "changelog:major": "hallmark bump major",
-    "changelog:fix": "hallmark --fix"
+    "markdown:fix": "hallmark --fix"
   },
   "repository": {
     "type": "git",

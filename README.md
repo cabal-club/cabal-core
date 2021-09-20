@@ -286,6 +286,32 @@ documented types include
 }
 ```
 
+## Developing
+
+### Changelog
+
+When releasing a new version the [`CHANGELOG.md`](./CHANGELOG.md) should be updated. There are three scripts in `package.json` for bumping the version:
+
+- `npm run changelog:patch` -> add new patch section
+- `npm run changelog:minor` -> add new minor section
+- `npm run changelog:major` -> add new major section
+
+Additionally, you can do `npm run markdown:fix`, which will expand references to pull requests and github users to urls. For example, referencing `@hackergrrl` would expand to `https://github.com/hackergrrl` and referencing `#314` would expand to `https://github.com/cabal-club/cabal-core/pulls/314`.
+
+To release a new version you would typically do something like:
+
+```
+npm run changelog:patch
+# Manually fill in details and/or tweak CHANGELOG.md
+npm run changelog:fix
+git add CHANGELOG.md && git commit -m 'Update changelog for x.y.z'
+npm version patch
+git push && git push --tags
+npm publish
+```
+
+Try to keep the pull request titles short and descriptive and the changelog will automatically reflect this. A pull request may contain many small commits, but if it's squashed, the git history and the changelog will look clean. At the same time, all commits will still be around on GitHub if digging into details is required.
+
 ## License
 
 AGPLv3
