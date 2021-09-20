@@ -1,5 +1,13 @@
 # Changelog
 
+## [12.0.0] - 2020-05-22
+
+_This was released as a new major since `11.2.1` most likely contained breaking changes._
+
+### Changed
+
+- Update ocumentation ([`e6052a4`](https://github.com/cabal-club/cabal-core/commit/e6052a4)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [11.2.1] - 2020-05-22
 
 _This version was never published to npm._
@@ -399,6 +407,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[12.0.0]: https://github.com/cabal-club/cabal-core/compare/v11.2.1...v12.0.0
 
 [11.2.1]: https://github.com/cabal-club/cabal-core/compare/v11.2.0...v11.2.1
 
