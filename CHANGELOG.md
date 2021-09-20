@@ -1,5 +1,12 @@
 # Changelog
 
+## [12.0.1] - 2020-06-05
+
+### Fixed
+
+- Change sublevel names for moderation view to force index regen ([`4f35ed1`](https://github.com/cabal-club/cabal-core/commit/4f35ed1)) ([**@hackergrrl**](https://github.com/hackergrrl))
+- Add clearIndex lifecycle to channel-membership ([`3b6eaeb`](https://github.com/cabal-club/cabal-core/commit/3b6eaeb)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [12.0.0] - 2020-05-22
 
 _This was released as a new major since `11.2.1` most likely contained breaking changes._
@@ -407,6 +414,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[12.0.1]: https://github.com/cabal-club/cabal-core/compare/v12.0.0...v12.0.1
 
 [12.0.0]: https://github.com/cabal-club/cabal-core/compare/v11.2.1...v12.0.0
 
