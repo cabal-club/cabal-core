@@ -347,7 +347,7 @@ When releasing a new version the [`CHANGELOG.md`](./CHANGELOG.md) should be upda
 - `npm run changelog:minor` -> add new minor section
 - `npm run changelog:major` -> add new major section
 
-Additionally, you can do `npm run markdown:fix`, which will expand references to pull requests and github users to urls. For example, referencing `@hackergrrl` would expand to `https://github.com/hackergrrl` and referencing `#314` would expand to `https://github.com/cabal-club/cabal-core/pulls/314`. Also, the table of contents in this document will be updated.
+Additionally, you can do `npm run changelog:fix`, which will expand references to pull requests and github users to urls. For example, referencing `@hackergrrl` would expand to `https://github.com/hackergrrl` and referencing `#314` would expand to `https://github.com/cabal-club/cabal-core/pulls/314`. Also, the table of contents in this document will be updated.
 
 To release a new version you would typically do something like:
 

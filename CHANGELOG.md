@@ -1,5 +1,20 @@
 # Changelog
 
+## [14.1.2] - 2021-10-18
+
+### Added
+
+- Docs: Add Table of Contents ([`fc66637`](https://github.com/cabal-club/cabal-core/commit/fc66637)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Docs: Add CHANGELOG.md, documenting all versions since start of project (([`d3f157a`](https://github.com/cabal-club/cabal-core/commit/d3f157a)) -> [`d8c83ae`](https://github.com/cabal-club/cabal-core/commit/d8c83ae)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Docs: Document changelog under Developing section ([`2b6b8f7`](https://github.com/cabal-club/cabal-core/commit/2b6b8f7)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Docs: Add changelog:fix script (to fill in details) ([`3dcf1b0`](https://github.com/cabal-club/cabal-core/commit/3dcf1b0)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Docs: Add changelog scripts to `package.json` ([`e64244c`](https://github.com/cabal-club/cabal-core/commit/e64244c)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+
+### Fixed
+
+- revert removal of hyperswarm-web ([`0f7389a`](https://github.com/cabal-club/cabal-core/commit/0f7389a)) ([**@cblgh**](https://github.com/cblgh)).
+- Fixes author field in package.json. ([`57e76c6`](https://github.com/cabal-club/cabal-core/commit/57e76c6)) ([**@hackergrrl**](https://github.com/hackergrrl))
+
 ## [14.1.1] - 2021-09-15
 
 ### Changed
@@ -484,6 +499,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[14.1.2]: https://github.com/cabal-club/cabal-core/compare/v14.1.1...v14.1.2
 
 [14.1.1]: https://github.com/cabal-club/cabal-core/compare/v14.1.0...v14.1.1
 
