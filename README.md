@@ -39,7 +39,7 @@ Core database, replication, swarming, and chat APIs for cabal.
     - [`cabal.moderation.events.on('update', function (update) {})`](#cabalmoderationeventsonupdate-function-update-)
     - [`cabal.moderation.events.on('skip', function (skip) {})`](#cabalmoderationeventsonskip-function-skip-)
   - [Private Messages](#private-messages)
-    - [`cabal.publishPrivateMessage(text, recipientKey, cb)`](#cabalpublishprivatemessagetext-recipientkey-cb)
+    - [`cabal.publishPrivate(message, recipientKey, cb)`](#cabalpublishprivatemessage-recipientkey-cb)
     - [`cabal.privateMessages.list(cb)`](#cabalprivatemessageslistcb)
     - [`var rs = cabal.privateMessages.read(channel, opts)`](#var-rs--cabalprivatemessagesreadchannel-opts)
     - [`cabal.privateMessages.events.on('message', fn)`](#cabalprivatemessageseventsonmessage-fn)
@@ -276,10 +276,10 @@ record responsible for the state change.
 
 ### Private Messages
 
-#### `cabal.publishPrivateMessage(text, recipientKey, cb)`
+#### `cabal.publishPrivate(message, recipientKey, cb)`
 
-Write the private message string `text` to be encrypted so that only
-`recipientKey` (the public key of its recipient) can read it.
+Write a message `message`, but encrypted so that only `recipientKey` (the
+public key of its recipient) and the sender can read it.
 
 A `timestamp` field is set automatically with the current local system time.
 

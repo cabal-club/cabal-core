@@ -50,7 +50,7 @@ module.exports = function (keypair, lvl) {
           return
         }
 
-        if (res.value.type !== 'private/text') return
+        if (!res.value.type.startsWith('chat/')) return
         if (typeof res.value.timestamp !== 'number') return null
         if (!Array.isArray(res.value.content.recipients)) return null
         if (res.value.content.recipients.length <= 0) return null

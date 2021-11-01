@@ -166,28 +166,23 @@ Cabal.prototype.publish = function (message, opts, cb) {
 
 /**
  * Publish a message to your feed, encrypted to a specific recipient's key.
- * @param {String} text - The textual message to publish.
+ * @param {Object} message - The message to publish.
  * @param {String|Buffer[32]) recipientKey - A recipient's public key to encrypt the message to.
  * @param {function} cb - When the message has been successfully written.
  */
-Cabal.prototype.publishPrivateMessage = function (text, recipientKey, cb) {
+Cabal.prototype.publishPrivate = function (message, recipientKey, cb) {
   if (!cb) cb = noop
-  if (typeof text !== 'string') return process.nextTick(cb, new Error('text must be a string'))
+  if (typeof message !== 'object') return process.nextTick(cb, new Error('message must be an object'))
   if (!isHypercoreKey(recipientKey)) return process.nextTick(cb, new Error('recipientKey must be a 32-byte hypercore key'))
 
   if (typeof recipientKey === 'string') recipientKey = Buffer.from(recipientKey, 'hex')
 
   this.feed(function (feed) {
-    const message = {
-      type: 'private/text',
-      content: {
-        recipients: [recipientKey.toString('hex')],
-        text
-      },
-      timestamp: timestamp()
-    }
+    message.timestamp = message.timestamp || timestamp()
+    const msg = Object.assign({ timestamp: timestamp() }, message)
+
     // Note: we encrypt the message to the recipient, but also to ourselves (so that we can read our part of the convo!)
-    const ciphertext = box(Buffer.from(JSON.stringify(message)), [recipientKey, feed.key]).toString('base64')
+    const ciphertext = box(Buffer.from(JSON.stringify(msg)), [recipientKey, feed.key]).toString('base64')
     const encryptedMessage = {
       type: 'encrypted',
       content: ciphertext
