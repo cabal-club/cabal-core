@@ -15,8 +15,7 @@ test('write a private message & check it\'s not plaintext', function (t) {
   const msg = {
     type: 'chat/text',
     content: {
-      text: 'hello',
-      channel: 'general'
+      text: 'hello'
     }
   }
 
@@ -44,7 +43,6 @@ test('write a private message & manually decrypt', function (t) {
     type: 'chat/text',
     content: {
       text: 'hello',
-      channel: 'general',
       recipients: [keypair.publicKey.toString('hex')]
     },
   }
@@ -121,7 +119,6 @@ test('write a private message and read it on the other device', function (t) {
           type: 'chat/text',
           content: {
             text: 'beeps & boops',
-            channel: 'general',
             recipients: [c2._key.toString('hex')]
           },
         }
