@@ -33,22 +33,12 @@ module.exports = function (keypair, lvl) {
       const toEmit = []
       const ops = []
       msgs.forEach(function (msg) {
+        // Only process encrypted messages
         if (msg.value.type !== 'encrypted') return
 
-        // Attempt to decrypt.
-        let jsonBuffer, res
-        try {
-          jsonBuffer = unbox(Buffer.from(msg.value.content, 'base64'), keypair.private)
-          if (!jsonBuffer) return // undecryptable
-          res = {
-            key: msg.key,
-            seq: msg.seq,
-            value: JSON.parse(jsonBuffer.toString())
-          }
-        } catch (e) {
-          // skip unparseable messages
-          return
-        }
+        // Attempt to decrypt
+        const res = decrypt(msg, keypair.private)
+        if (!res) return
 
         if (!res.value.type.startsWith('chat/')) return
         if (typeof res.value.timestamp !== 'number') return null
@@ -170,4 +160,21 @@ function isFutureMonotonicTimestamp (ts) {
   const timestamp = monotonicTimestampToTimestamp(ts)
   const now = new Date().getTime()
   return timestamp > now
+}
+
+// Attempt to decrypt a message of type 'encrypted'.
+function decrypt (msg, key) {
+  if (msg.value.type !== 'encrypted') return
+  try {
+    const jsonBuffer = unbox(Buffer.from(msg.value.content, 'base64'), key)
+    if (!jsonBuffer) return // undecryptable
+    return {
+      key: msg.key,
+      seq: msg.seq,
+      value: JSON.parse(jsonBuffer.toString())
+    }
+  } catch (e) {
+    // skip unparseable messages
+    return
+  }
 }
