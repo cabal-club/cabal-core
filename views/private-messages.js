@@ -18,7 +18,7 @@ module.exports = function (keypair, lvl) {
 
   function getPublicKeyOfOtherParty (msg) {
     const senderHexKey = msg.key
-    const recipientHexKey = msg.value.content.recipients[0]
+    const recipientHexKey = msg.value.content.channel
     if (senderHexKey === keypair.public.toString('hex')) {
       return recipientHexKey
     } else {
@@ -42,8 +42,7 @@ module.exports = function (keypair, lvl) {
 
         if (!res.value.type.startsWith('chat/')) return
         if (typeof res.value.timestamp !== 'number') return null
-        if (!Array.isArray(res.value.content.recipients)) return null
-        if (res.value.content.recipients.length <= 0) return null
+        if (typeof res.value.content.channel !== 'string') return null
         if (typeof res.value.content.text !== 'string') return null
 
         // If the message is from <<THE FUTURE>>, index it at _now_.

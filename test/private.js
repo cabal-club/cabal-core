@@ -43,7 +43,7 @@ test('write a private message & manually decrypt', function (t) {
     type: 'chat/text',
     content: {
       text: 'hello',
-      recipients: [keypair.publicKey.toString('hex')]
+      channel: keypair.publicKey.toString('hex')
     },
   }
 
@@ -60,7 +60,7 @@ test('write a private message & manually decrypt', function (t) {
         t.same(message.type, 'chat/text', 'type is ok')
         t.same(typeof message.content, 'object', 'content is set')
         t.same(message.content.text, 'hello', 'text is ok')
-        t.same(message.content.recipients, [keypair.publicKey.toString('hex')], 'recipients field ok')
+        t.same(message.content.channel, keypair.publicKey.toString('hex'), 'channel field ok')
       } catch (err) {
         t.error(err)
       }
@@ -75,7 +75,7 @@ test('write a private message & manually decrypt', function (t) {
           t.same(message.type, 'chat/text', 'type is ok')
           t.same(typeof message.content, 'object', 'content is set')
           t.same(message.content.text, 'hello', 'text is ok')
-          t.same(message.content.recipients, [keypair.publicKey.toString('hex')], 'recipients field ok')
+          t.same(message.content.channel, keypair.publicKey.toString('hex'), 'channel field ok')
         } catch (err) {
           t.error(err)
         }
@@ -119,7 +119,7 @@ test('write a private message and read it on the other device', function (t) {
           type: 'chat/text',
           content: {
             text: 'beeps & boops',
-            recipients: [c2._key.toString('hex')]
+            channel: c2._key.toString('hex')
           },
         }
 
