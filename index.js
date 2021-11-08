@@ -104,11 +104,43 @@ function Cabal (storage, key, opts) {
   this.kcore.use('archives', createArchivingView(
     this,
     sublevel(this.db, ARCHIVES, { valueEncoding: json })))
-  this.feed((feed) => {
-    self.kcore.use('privateMessages', createPrivateMessagesView(
-       { public: feed.key, private: feed.secretKey },
-      sublevel(self.db, PRIVATE_MESSAGES, { valueEncoding: json })))
-    this.privateMessages = this.kcore.api.privateMessages
+
+  /* define a mechanism for asynchronously initializing parts of initial state (e.g. kappa views) */
+  this._init = () => {
+    let callQueue = []
+    let pending = 0
+    // fn is the function being initialized, finish is the function to call after all functions are initialized
+    return (fn, finish) => {
+      if (finish) { callQueue.push(finish) }
+      // done runs after fn is done, effectively pops the state by one.
+      // if all pending operations have been run we invoke callQueue's saved callbacks
+      const done = () => {
+        pending--
+        // we're done
+        if (pending <= 0) { callQueue.forEach(cb => cb()) }
+      }
+      pending++
+      if (!fn) { return done() }
+      // the passed-in function `fn` has been initialized when our callback `done` is invoked
+      fn(done)
+    }
+  }
+  this._initializeAsync = this._init()
+  // curried syntax sugarr (rename to make more sense in cabal-core.ready)
+  this._waitForInit = (finish) => { this._initializeAsync(null, finish) }
+
+  // initialize private messages view
+  this._initializeAsync(done => {
+    if (!done) done = noop
+    if (this.privateMessages) { return done() } // private messages are already setup
+    this.feed(feed => {
+      self.kcore.use('privateMessages', createPrivateMessagesView(
+        { public: feed.key, private: feed.secretKey },
+        sublevel(self.db, PRIVATE_MESSAGES, { valueEncoding: json })
+      ))
+      this.privateMessages = this.kcore.api.privateMessages
+      done()
+    })
   })
 
   this.messages = this.kcore.api.messages
@@ -269,7 +301,7 @@ Cabal.prototype.replicate = function (isInitiator, opts) {
 }
 
 Cabal.prototype.ready = function (cb) {
-  this.kcore.ready(cb)
+  this._waitForInit(cb)
 }
 
 Cabal.prototype._addConnection = function (key) {
