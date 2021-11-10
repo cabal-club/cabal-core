@@ -211,6 +211,9 @@ Cabal.prototype.publishPrivate = function (message, recipientKey, cb) {
 
   this.feed(function (feed) {
     message.timestamp = message.timestamp || timestamp()
+    // attach a bit of metadata signaling that this message is private 
+    // (in a somewhat safe way that doesn't assume any particular pre-existing structure)
+    message.private = true
     const msg = Object.assign({ timestamp: timestamp() }, message)
 
     // Note: we encrypt the message to the recipient, but also to ourselves (so that we can read our part of the convo!)
