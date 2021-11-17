@@ -35,7 +35,7 @@ test('write a private message & check it\'s not plaintext', function (t) {
 })
 
 test('write a private message & manually decrypt', function (t) {
-  t.plan(11)
+  t.plan(13)
 
   const keypair = crypto.keyPair()
 
@@ -58,6 +58,7 @@ test('write a private message & manually decrypt', function (t) {
       try {
         const message = JSON.parse(plaintext)
         t.same(message.type, 'chat/text', 'type is ok')
+        t.true(message.private, 'field `private` is true')
         t.same(typeof message.content, 'object', 'content is set')
         t.same(message.content.text, 'hello', 'text is ok')
         t.same(message.content.channel, keypair.publicKey.toString('hex'), 'channel field ok')
@@ -73,6 +74,7 @@ test('write a private message & manually decrypt', function (t) {
         try {
           const message = JSON.parse(plaintext)
           t.same(message.type, 'chat/text', 'type is ok')
+          t.true(message.private, 'field `private` is true')
           t.same(typeof message.content, 'object', 'content is set')
           t.same(message.content.text, 'hello', 'text is ok')
           t.same(message.content.channel, keypair.publicKey.toString('hex'), 'channel field ok')
@@ -123,6 +125,7 @@ test('write a private message and read it on the other device', function (t) {
           },
         }
 
+        // c1 -> c2
         c1.publishPrivate(msg, c2._key, (err) => {
           t.error(err)
 
