@@ -117,7 +117,10 @@ function Cabal (storage, key, opts) {
       const done = () => {
         pending--
         // we're done
-        if (pending <= 0) { callQueue.forEach(cb => cb()) }
+        if (pending <= 0) { 
+          callQueue.forEach(cb => cb()) 
+          callQueue = [] // reset call queue
+        }
       }
       pending++
       if (!fn) { return done() }
