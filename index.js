@@ -104,11 +104,46 @@ function Cabal (storage, key, opts) {
   this.kcore.use('archives', createArchivingView(
     this,
     sublevel(this.db, ARCHIVES, { valueEncoding: json })))
-  this.feed((feed) => {
-    self.kcore.use('privateMessages', createPrivateMessagesView(
-       { public: feed.key, private: feed.secretKey },
-      sublevel(self.db, PRIVATE_MESSAGES, { valueEncoding: json })))
-    this.privateMessages = this.kcore.api.privateMessages
+
+  /* define a mechanism for asynchronously initializing parts of initial state (e.g. kappa views) */
+  this._init = () => {
+    let callQueue = []
+    let pending = 0
+    // fn is the function being initialized, finish is the function to call after all functions are initialized
+    return (fn, finish) => {
+      if (finish) { callQueue.push(finish) }
+      // done runs after fn is done, effectively pops the state by one.
+      // if all pending operations have been run we invoke callQueue's saved callbacks
+      const done = () => {
+        pending--
+        // we're done
+        if (pending <= 0) { 
+          callQueue.forEach(cb => cb()) 
+          callQueue = [] // reset call queue
+        }
+      }
+      pending++
+      if (!fn) { return done() }
+      // the passed-in function `fn` has been initialized when our callback `done` is invoked
+      fn(done)
+    }
+  }
+  this._initializeAsync = this._init()
+  // curried syntax sugarr (rename to make more sense in cabal-core.ready)
+  this._waitForInit = (finish) => { this._initializeAsync(null, finish) }
+
+  // initialize private messages view
+  this._initializeAsync(done => {
+    if (!done) done = noop
+    if (this.privateMessages) { return done() } // private messages are already setup
+    this.feed(feed => {
+      self.kcore.use('privateMessages', createPrivateMessagesView(
+        { public: feed.key, private: feed.secretKey },
+        sublevel(self.db, PRIVATE_MESSAGES, { valueEncoding: json })
+      ))
+      this.privateMessages = this.kcore.api.privateMessages
+      done()
+    })
   })
 
   this.messages = this.kcore.api.messages
@@ -166,28 +201,26 @@ Cabal.prototype.publish = function (message, opts, cb) {
 
 /**
  * Publish a message to your feed, encrypted to a specific recipient's key.
- * @param {String} text - The textual message to publish.
+ * @param {Object} message - The message to publish.
  * @param {String|Buffer[32]) recipientKey - A recipient's public key to encrypt the message to.
  * @param {function} cb - When the message has been successfully written.
  */
-Cabal.prototype.publishPrivateMessage = function (text, recipientKey, cb) {
+Cabal.prototype.publishPrivate = function (message, recipientKey, cb) {
   if (!cb) cb = noop
-  if (typeof text !== 'string') return process.nextTick(cb, new Error('text must be a string'))
+  if (typeof message !== 'object') return process.nextTick(cb, new Error('message must be an object'))
   if (!isHypercoreKey(recipientKey)) return process.nextTick(cb, new Error('recipientKey must be a 32-byte hypercore key'))
 
   if (typeof recipientKey === 'string') recipientKey = Buffer.from(recipientKey, 'hex')
 
   this.feed(function (feed) {
-    const message = {
-      type: 'private/text',
-      content: {
-        recipients: [recipientKey.toString('hex')],
-        text
-      },
-      timestamp: timestamp()
-    }
+    message.timestamp = message.timestamp || timestamp()
+    // attach a bit of metadata signaling that this message is private 
+    // (in a somewhat safe way that doesn't assume any particular pre-existing structure)
+    message.private = true
+    const msg = Object.assign({ timestamp: timestamp() }, message)
+
     // Note: we encrypt the message to the recipient, but also to ourselves (so that we can read our part of the convo!)
-    const ciphertext = box(Buffer.from(JSON.stringify(message)), [recipientKey, feed.key]).toString('base64')
+    const ciphertext = box(Buffer.from(JSON.stringify(msg)), [recipientKey, feed.key]).toString('base64')
     const encryptedMessage = {
       type: 'encrypted',
       content: ciphertext
@@ -274,7 +307,7 @@ Cabal.prototype.replicate = function (isInitiator, opts) {
 }
 
 Cabal.prototype.ready = function (cb) {
-  this.kcore.ready(cb)
+  this._waitForInit(cb)
 }
 
 Cabal.prototype._addConnection = function (key) {

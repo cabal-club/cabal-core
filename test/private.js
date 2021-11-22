@@ -12,9 +12,16 @@ test('write a private message & check it\'s not plaintext', function (t) {
 
   const keypair = crypto.keyPair()
 
+  const msg = {
+    type: 'chat/text',
+    content: {
+      text: 'hello'
+    }
+  }
+
   const cabal = Cabal(ram)
   cabal.ready(function () {
-    cabal.publishPrivateMessage('greetings', keypair.publicKey, function (err, cipherMsg) {
+    cabal.publishPrivate(msg, keypair.publicKey, function (err, cipherMsg) {
       t.error(err)
       t.same(cipherMsg.type, 'encrypted', 'type is "encrypted"')
       t.ok(typeof cipherMsg.content, 'content is a string')
@@ -28,13 +35,21 @@ test('write a private message & check it\'s not plaintext', function (t) {
 })
 
 test('write a private message & manually decrypt', function (t) {
-  t.plan(11)
+  t.plan(13)
 
   const keypair = crypto.keyPair()
 
+  const msg = {
+    type: 'chat/text',
+    content: {
+      text: 'hello',
+      channel: keypair.publicKey.toString('hex')
+    },
+  }
+
   const cabal = Cabal(ram)
   cabal.ready(function () {
-    cabal.publishPrivateMessage('hello', keypair.publicKey, function (err, cipherMsg) {
+    cabal.publishPrivate(msg, keypair.publicKey, function (err, cipherMsg) {
       t.error(err)
       t.same(cipherMsg.type, 'encrypted', 'type is "encrypted"')
 
@@ -42,10 +57,11 @@ test('write a private message & manually decrypt', function (t) {
       const plaintext = unbox(Buffer.from(cipherMsg.content, 'base64'), keypair.secretKey).toString()
       try {
         const message = JSON.parse(plaintext)
-        t.same(message.type, 'private/text', 'type is ok')
+        t.same(message.type, 'chat/text', 'type is ok')
+        t.true(message.private, 'field `private` is true')
         t.same(typeof message.content, 'object', 'content is set')
         t.same(message.content.text, 'hello', 'text is ok')
-        t.same(message.content.recipients, [keypair.publicKey.toString('hex')], 'recipients field ok')
+        t.same(message.content.channel, keypair.publicKey.toString('hex'), 'channel field ok')
       } catch (err) {
         t.error(err)
       }
@@ -57,10 +73,11 @@ test('write a private message & manually decrypt', function (t) {
         const plaintext = res.toString()
         try {
           const message = JSON.parse(plaintext)
-          t.same(message.type, 'private/text', 'type is ok')
+          t.same(message.type, 'chat/text', 'type is ok')
+          t.true(message.private, 'field `private` is true')
           t.same(typeof message.content, 'object', 'content is set')
           t.same(message.content.text, 'hello', 'text is ok')
-          t.same(message.content.recipients, [keypair.publicKey.toString('hex')], 'recipients field ok')
+          t.same(message.content.channel, keypair.publicKey.toString('hex'), 'channel field ok')
         } catch (err) {
           t.error(err)
         }
@@ -99,7 +116,17 @@ test('write a private message and read it on the other device', function (t) {
       t.error(err)
       create(3, function (err, c3) {
         t.error(err)
-        c1.publishPrivateMessage('beeps & boops', c2._key, (err) => {
+
+        const msg = {
+          type: 'chat/text',
+          content: {
+            text: 'beeps & boops',
+            channel: c2._key.toString('hex')
+          },
+        }
+
+        // c1 -> c2
+        c1.publishPrivate(msg, c2._key, (err) => {
           t.error(err)
 
           c1.ready(() => {
