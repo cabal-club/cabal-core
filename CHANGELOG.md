@@ -1,5 +1,28 @@
 # Changelog
 
+## [15.0.0] - 2021-11-22
+
+The major bump is due to breaking compat with the previously defined PM API; this change does
+bump the protocol version & is technically wire-compatible with clients running cabal-core versions 14.x.x.
+
+### Changed
+
+The private messages API is now:
+
+- `cabal.publishPrivate(message, recipientKey, cb)`
+- it now only takes objects, instead of previously only accepting strings
+- it accepts message types conforming to `chat/*` e.g. `chat/text` or `chat/emote`
+- a property `private` is injected into all private messages published via `publishPrivate`
+
+Before this change the API was `cabal.publishPrivateMessage(text, recipientKey, cb)`, this has
+now been removed.
+
+Change by [**@hackergrrl**](https://github.com/hackergrrl) and [**@cblgh**](https://github.com/cblgh).
+
+### Fixed
+
+- fixed a race condition when initializing async views ([#108](https://github.com/cabal-club/cabal-core/issues/108)) ([**@cblgh**](https://github.com/cblgh))
+
 ## [14.1.2] - 2021-10-18
 
 ### Added
@@ -499,6 +522,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[15.0.0]: https://github.com/cabal-club/cabal-core/compare/v14.1.2...v15.0.0
 
 [14.1.2]: https://github.com/cabal-club/cabal-core/compare/v14.1.1...v14.1.2
 
