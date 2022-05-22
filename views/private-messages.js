@@ -33,6 +33,7 @@ module.exports = function (keypair, lvl) {
       const toEmit = []
       const ops = []
       msgs.forEach(function (msg) {
+        if (!sanitize(msg)) return
         // Only process encrypted messages
         if (msg.value.type !== 'encrypted') return
 
@@ -161,16 +162,33 @@ function isFutureMonotonicTimestamp (ts) {
   return timestamp > now
 }
 
+function sanitize (msg) {
+  if (typeof msg !== 'object') return null
+  if (typeof msg.value !== 'object') return null
+  if (typeof msg.value.content !== 'string') return null
+  if (typeof msg.value.type !== 'string') return null
+  return msg
+}
+
 // Attempt to decrypt a message of type 'encrypted'.
 function decrypt (msg, key) {
   if (msg.value.type !== 'encrypted') return
   try {
     const jsonBuffer = unbox(Buffer.from(msg.value.content, 'base64'), key)
     if (!jsonBuffer) return // undecryptable
+    const value = JSON.parse(jsonBuffer.toString())
+
+    // Validate the shape of the decrypted response
+    if (typeof value !== 'object') return
+    if (typeof value.content !== 'object') return
+    if (typeof value.timestamp !== 'number') return
+    if (typeof value.type !== 'string') return
+    if (typeof value.content.channel !== 'string') return
+    if (typeof value.content.text !== 'string') return
     return {
       key: msg.key,
       seq: msg.seq,
-      value: JSON.parse(jsonBuffer.toString())
+      value: value,
     }
   } catch (e) {
     // skip unparseable messages
