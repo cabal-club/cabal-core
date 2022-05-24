@@ -1,5 +1,11 @@
 # Changelog
 
+## [15.0.1] - 2022-05-24
+
+### Fixed
+
+- Sanitize PMs ([#109](https://github.com/cabal-club/cabal-core/issues/109)) (Daniel Chiquito)
+
 ## [15.0.0] - 2021-11-22
 
 The major bump is due to breaking compat with the previously defined PM API; this change does
@@ -522,6 +528,8 @@ _This version was published as `cabal-node`._
 _This version was published as `cabal-node`._
 
 :seedling: Initial release.
+
+[15.0.1]: https://github.com/cabal-club/cabal-core/compare/v15.0.0...v15.0.1
 
 [15.0.0]: https://github.com/cabal-club/cabal-core/compare/v14.1.2...v15.0.0
 
