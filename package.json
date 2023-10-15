@@ -43,7 +43,7 @@
     "debug": "^4.1.1",
     "duplexify": "^4.1.1",
     "hypercore-crypto": "^2.1.1",
-    "hyperswarm": "^2.13.0",
+    "hyperswarm": "^4.7.3",
     "hyperswarm-web": "^2.1.1",
     "inherits": "^2.0.4",
     "kappa-core": "^7.0.0",
