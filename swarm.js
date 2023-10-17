@@ -21,10 +21,15 @@ module.exports = function (cabal, opts, cb) {
     const dht = new DHT({bootstrap: bootstrapNodes})
     opts.dht = dht
     const swarm = new Swarm(opts)
-    swarm.join(discoveryKey, {
+    const disco = swarm.join(discoveryKey, {
       server: true,
       client: true
     })
+
+    swarm.__shutdown = async function () {
+      await disco.destroy()
+      await swarm.destroy()
+    }
 
     swarm.on('connection', function (socket, info) {
       let remoteKey

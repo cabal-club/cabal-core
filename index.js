@@ -318,15 +318,11 @@ Cabal.prototype._removeConnection = function (key) {
   this.emit('peer-dropped', key)
 }
 
-Cabal.prototype.close = function (cb) {
+Cabal.prototype.close = async function (cb) {
   const self = this
 
-  if (this._swarm) {
-    this._swarm.once('close', close)
-    this._swarm.destroy()
-  } else {
-    close()
-  }
+  if (this._swarm) await this._swarm.__shutdown()
+  close()
 
   function close () {
     self.kcore.pause(function () {
