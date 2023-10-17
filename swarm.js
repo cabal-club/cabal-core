@@ -3,7 +3,7 @@ const Swarm = require('hyperswarm')
 const DHT = require('hyperdht')
 const debug = require('debug')('cabal')
 const crypto = require('hypercore-crypto')
-const bootstrapNodes = require('./bootstrap_nodes.json')
+const bootstrapNodes = require('./bootstrap_nodes')
 
 module.exports = function (cabal, opts, cb) {
   if (typeof opts === 'function') {
