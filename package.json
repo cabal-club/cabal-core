@@ -52,7 +52,6 @@
     "level-mem": "^5.0.1",
     "materialized-group-auth": "^2.1.0",
     "monotonic-timestamp": "0.0.9",
-    "noise-protocol": "3.0.1",
     "once": "^1.4.0",
     "private-box": "^0.3.1",
     "pump": "^3.0.0",
