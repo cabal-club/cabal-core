@@ -3,6 +3,7 @@ const Swarm = require('hyperswarm')
 const DHT = require('hyperdht')
 const debug = require('debug')('cabal')
 const crypto = require('hypercore-crypto')
+const bootstrapNodes = require('./bootstrap_nodes.json')
 
 module.exports = function (cabal, opts, cb) {
   if (typeof opts === 'function') {
@@ -17,12 +18,7 @@ module.exports = function (cabal, opts, cb) {
 
     const discoveryKey = crypto.discoveryKey(Buffer.from(cabal.key, 'hex'))
 
-    const dht = new DHT({bootstrap: [
-      'node1.hyperdht.org:49737',
-      'node2.hyperdht.org:49737',
-      'node3.hyperdht.org:49737',
-      'eight45.net:49737',
-    ]})
+    const dht = new DHT({bootstrap: bootstrapNodes})
     opts.dht = dht
     const swarm = new Swarm(opts)
     swarm.join(discoveryKey, {
