@@ -83,7 +83,6 @@ var cabal = Cabal(storage, key, { db: level('/tmp/bot.db') })
 
 Other `opts` include:
 
-- `opts.preferredPort`: controls the port cabal listens on. defaults to port `13331`.
 - `opts.modKeys`: an array of keys to be considered moderators from this user's perspective.
 - `opts.adminKeys`: an array of keys to be considered administrators from this user's perspective.
 

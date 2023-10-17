@@ -1,7 +1,9 @@
 const pump = require('pump')
-const hyperswarm = require('hyperswarm')
+const Swarm = require('hyperswarm')
+const DHT = require('hyperdht')
 const debug = require('debug')('cabal')
 const crypto = require('hypercore-crypto')
+const bootstrapNodes = require('./bootstrap_nodes')
 
 module.exports = function (cabal, opts, cb) {
   if (typeof opts === 'function') {
@@ -16,12 +18,12 @@ module.exports = function (cabal, opts, cb) {
 
     const discoveryKey = crypto.discoveryKey(Buffer.from(cabal.key, 'hex'))
 
-    const { preferredPort } = cabal
-    opts["preferredPort"] = preferredPort
-    const swarm = hyperswarm(opts)
+    const dht = new DHT({bootstrap: bootstrapNodes})
+    opts.dht = dht
+    const swarm = new Swarm(opts)
     swarm.join(discoveryKey, {
-      lookup: true,
-      announce: true
+      server: true,
+      client: true
     })
 
     swarm.on('connection', function (socket, info) {
