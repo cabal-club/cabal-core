@@ -1,5 +1,10 @@
 # Changelog
 
+## [16.0.0] - 2023-10-17
+### Fixed
+- Upgraded hyperswarm to latest and added several community-run bootstrap nodes.
+
+
 ## [15.0.1] - 2022-05-24
 
 ### Fixed
