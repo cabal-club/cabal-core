@@ -307,7 +307,9 @@ Cabal.prototype.replicate = function (isInitiator, opts) {
 }
 
 Cabal.prototype.ready = function (cb) {
-  this._waitForInit(cb)
+  this._waitForInit(() => {
+    this.kcore.ready(cb)
+  })
 }
 
 Cabal.prototype._addConnection = function (key) {
