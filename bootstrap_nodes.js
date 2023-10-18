@@ -3,6 +3,7 @@ module.exports = [
   "nthia.dev:49737",                // nthia
   "cabaldht.linkping.org:49737",    // rtn
   "hyperswarm.mindeco.de:10001",    // cryptix
+  "hyperdht.cryptosec.se:41337",    // zozs
   "node1.hyperdht.org:49737",       // holepunch
   "node2.hyperdht.org:49737",       // holepunch
   "node3.hyperdht.org:49737",       // holepunch
